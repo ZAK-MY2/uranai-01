@@ -175,7 +175,7 @@ export class TarotEngine {
           card,
           position,
           isReversed,
-          meaning: this.generateCardInterpretation(card, position, isReversed, input.question)
+          interpretation: this.generateCardInterpretation(card, position, isReversed, input.question)
         };
       });
 
@@ -184,7 +184,7 @@ export class TarotEngine {
       const advice = this.generateAdvice(drawnCards, input.question);
 
       return {
-        spread,
+        spreadType: input.spreadType,
         cards: drawnCards,
         overall,
         advice

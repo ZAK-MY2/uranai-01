@@ -243,17 +243,22 @@ export const CUPS_CARDS: TarotCard[] = [
  * タロットスプレッド定義
  */
 export const TAROT_SPREADS: { [key: string]: TarotSpread } = {
-  'three-card': {
+  'single_card': {
+    name: '一枚引き',
+    positions: ['メッセージ'],
+    description: 'シンプルな一枚引きで今必要なメッセージを受け取ります。'
+  },
+  'three_card': {
     name: '過去・現在・未来',
     positions: ['過去', '現在', '未来'],
     description: 'シンプルな3枚引きで時間の流れを読み解きます。過去の影響、現在の状況、未来の可能性を示します。'
   },
-  'love-triangle': {
-    name: '恋愛の三角形',
-    positions: ['あなたの気持ち', '相手の気持ち', '関係の未来'],
-    description: '恋愛に特化した3枚スプレッド。お互いの気持ちと関係の行方を読み解きます。'
+  'five_card': {
+    name: '5枚スプレッド',
+    positions: ['現在の状況', '過去の影響', '未来の可能性', '行動指針', '最終結果'],
+    description: '詳細な5枚スプレッドで状況を多角的に分析します。'
   },
-  'celtic-cross': {
+  'celtic_cross': {
     name: 'ケルト十字',
     positions: [
       '現在の状況',
@@ -269,18 +274,10 @@ export const TAROT_SPREADS: { [key: string]: TarotSpread } = {
     ],
     description: '最も詳細な10枚スプレッド。複雑な状況を多角的に分析し、深い洞察を提供します。'
   },
-  'decision': {
-    name: '決断のスプレッド',
-    positions: ['現在の状況', '選択肢A', '選択肢B', '最良の結果'],
-    description: '重要な決断を迫られた時に使用する4枚スプレッド。各選択肢の結果を比較できます。'
-  },
-  'year-ahead': {
-    name: '一年の展望',
-    positions: [
-      '1月', '2月', '3月', '4月', '5月', '6月',
-      '7月', '8月', '9月', '10月', '11月', '12月', '全体のテーマ'
-    ],
-    description: '向こう一年間の月別の運勢を13枚のカードで読み解きます。'
+  'horseshoe': {
+    name: 'ホースシュー（馬蹄）',
+    positions: ['過去', '現在', '隠れた影響', '障害', 'あなたの立場', '外部の影響', '最終結果'],
+    description: '馬蹄型の7枚スプレッド。幅広い視点から状況を分析します。'
   }
 };
 

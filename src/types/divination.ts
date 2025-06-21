@@ -47,11 +47,11 @@ export interface TarotDrawnCard {
   card: TarotCard;
   position: string;
   isReversed: boolean;
-  meaning: string;
+  interpretation: string;
 }
 
 export interface TarotReading {
-  spread: TarotSpread;
+  spreadType: string;
   cards: TarotDrawnCard[];
   overall: string;
   advice: string;
@@ -116,6 +116,197 @@ export interface AstrologyResult {
 }
 
 // =============================================================================
+// 易経 (I Ching)
+// =============================================================================
+export interface IChingInput {
+  question: string;
+  method: 'three_coins' | 'yarrow_stalks';
+  fullName: string;
+  birthDate: string;
+}
+
+export interface IChingHexagram {
+  number: number;
+  name: string;
+  chinese: string;
+  trigrams: { upper: string; lower: string };
+  keywords: string[];
+  meaning: string;
+  interpretation: string;
+}
+
+export interface IChingReading {
+  primaryHexagram: IChingHexagram;
+  changingLines?: number[];
+  resultHexagram?: IChingHexagram;
+  interpretation: string;
+  advice: string;
+}
+
+// =============================================================================
+// 四柱推命 (Shichu Suimei)
+// =============================================================================
+export interface ShichuInput {
+  birthDate: string;
+  birthTime: string;
+  gender: 'male' | 'female';
+  name: string;
+}
+
+export interface ShichuResult {
+  pillars: {
+    year: { stem: string; branch: string };
+    month: { stem: string; branch: string };
+    day: { stem: string; branch: string };
+    hour: { stem: string; branch: string };
+  };
+  elements: {
+    dominant: string;
+    lacking: string;
+    balance: string;
+  };
+  analysis: {
+    personality: string;
+    career: string;
+    relationships: string;
+    health: string;
+    overall: string;
+  };
+  compatibility?: string;
+}
+
+// =============================================================================
+// ルーン (Runes)
+// =============================================================================
+export interface RuneInput {
+  question: string;
+  spreadType: 'single_rune' | 'three_rune' | 'five_rune' | 'cross' | 'tree_of_life';
+  casterName: string;
+}
+
+export interface RuneMeaning {
+  upright: string;
+  reversed: string;
+  keywords: string[];
+  element: string;
+  deity?: string;
+}
+
+export interface DrawnRune {
+  name: string;
+  symbol: string;
+  meaning: RuneMeaning;
+  position: string;
+  isReversed: boolean;
+  interpretation: string;
+}
+
+export interface RuneReading {
+  runes: DrawnRune[];
+  spreadType: string;
+  interpretation: string;
+  advice: string;
+}
+
+// =============================================================================
+// 手相 (Palmistry)
+// =============================================================================
+export interface PalmistryInput {
+  hand: 'left' | 'right';
+  birthDate: string;
+  age: number;
+  palmFeatures: {
+    lines: {
+      heart: { length: number; depth: string; breaks: string[]; forks: string[] };
+      head: { length: number; depth: string; breaks: string[]; forks: string[] };
+      life: { length: number; depth: string; breaks: string[]; curve: string };
+      fate: { present: boolean; clarity: string; startPoint: string };
+    };
+    mounts: {
+      venus: string;
+      jupiter: string;
+      saturn: string;
+      apollo: string;
+      mercury: string;
+      luna: string;
+      mars_positive: string;
+      mars_negative: string;
+    };
+    fingers: {
+      thumb: { flexibility: string; tip: string };
+      index: { length: string; tip: string };
+      middle: { length: string; tip: string };
+      ring: { length: string; tip: string };
+      little: { length: string; tip: string };
+    };
+  };
+}
+
+export interface PalmistryResult {
+  analysis: {
+    personality: string;
+    talents: string;
+    relationships: string;
+    career: string;
+    health: string;
+    timeline: string;
+  };
+  interpretation: {
+    overall: string;
+    talents: string;
+    challenges: string;
+    advice: string;
+  };
+}
+
+// =============================================================================
+// ヴェーダ占星術 (Vedic Astrology)
+// =============================================================================
+export interface VedicInput {
+  birthDate: string;
+  birthTime: string;
+  birthPlace: {
+    latitude: number;
+    longitude: number;
+    timezone: string;
+  };
+  name: string;
+}
+
+export interface VedicResult {
+  chart: {
+    ascendant: string;
+    moonSign: string;
+    sunSign: string;
+    nakshatra: string;
+    planets: Array<{
+      name: string;
+      sign: string;
+      nakshatra: string;
+      degree: number;
+    }>;
+  };
+  analysis: {
+    personality: string;
+    career: string;
+    relationships: string;
+    health: string;
+    spirituality: string;
+  };
+  interpretation: {
+    overall: string;
+    strengths: string;
+    challenges: string;
+    remedies: string;
+  };
+  dasha: {
+    current: string;
+    period: string;
+    description: string;
+  };
+}
+
+// =============================================================================
 // 統合占術システム
 // =============================================================================
 export interface IntegratedDivinationInput {
@@ -145,6 +336,11 @@ export interface IntegratedDivinationResult {
   numerology: NumerologyResult;
   tarot: TarotReading;
   astrology?: AstrologyResult;
+  iching?: IChingReading;
+  shichu?: ShichuResult;
+  runes?: RuneReading;
+  palmistry?: PalmistryResult;
+  vedic?: VedicResult;
   environment: EnvironmentData;
   integration: {
     commonThemes: string[];
@@ -152,6 +348,8 @@ export interface IntegratedDivinationResult {
     environmentalInfluence: string;
     overallGuidance: string;
     specificAdvice: string[];
+    systemCorrelations?: any;
+    integratedInsights?: string;
   };
 }
 
