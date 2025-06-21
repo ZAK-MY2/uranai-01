@@ -1,0 +1,459 @@
+import { InputValidator, ValidationError } from '@/lib/security/input-validator';
+import { RateLimiter } from '@/lib/security/rate-limiter';
+import { SecurityLogger } from '@/lib/security/security-logger';
+import { EncryptionManager } from '@/lib/security/encryption';
+
+describe('Security Tests', () => {
+  describe('InputValidator', () => {
+    test('should detect SQL injection attempts', async () => {
+      const maliciousInput = {
+        username: "admin'; DROP TABLE users; --",
+        password: "password"
+      };
+
+      const result = await InputValidator.validate(maliciousInput, {
+        username: { required: true, type: 'string' },
+        password: { required: true, type: 'string' }
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.threats).toContain('sql_injection:username');
+    });
+
+    test('should detect XSS attempts', async () => {
+      const maliciousInput = {
+        comment: '<script>alert("XSS")</script>',
+        name: 'John'
+      };
+
+      const result = await InputValidator.validate(maliciousInput, {
+        comment: { required: true, type: 'string' },
+        name: { required: true, type: 'string' }
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.threats).toContain('xss:comment');
+    });
+
+    test('should detect path traversal attempts', async () => {
+      const maliciousInput = {
+        filename: '../../../etc/passwd',
+        content: 'test'
+      };
+
+      const result = await InputValidator.validate(maliciousInput, {
+        filename: { required: true, type: 'string' },
+        content: { required: true, type: 'string' }
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.threats).toContain('path_traversal:filename');
+    });
+
+    test('should sanitize safe input correctly', async () => {
+      const safeInput = {
+        name: '  John Doe  ',
+        email: 'JOHN@EXAMPLE.COM',
+        age: 25
+      };
+
+      const result = await InputValidator.validate(safeInput, {
+        name: { required: true, type: 'string' },
+        email: { required: true, type: 'email' },
+        age: { required: true, type: 'number' }
+      });
+
+      expect(result.valid).toBe(true);
+      expect(result.sanitizedData.name).toBe('John Doe');
+      expect(result.sanitizedData.email).toBe('john@example.com');
+      expect(result.threats).toHaveLength(0);
+    });
+
+    test('should validate numerology input schema', async () => {
+      const validInput = {
+        fullName: '山田太郎',
+        birthDate: '1990-01-01'
+      };
+
+      const result = await InputValidator.quickValidate(
+        validInput,
+        'NUMEROLOGY_INPUT'
+      );
+
+      expect(result.valid).toBe(true);
+    });
+
+    test('should reject invalid numerology input', async () => {
+      const invalidInput = {
+        fullName: '', // empty name
+        birthDate: 'invalid-date'
+      };
+
+      const result = await InputValidator.quickValidate(
+        invalidInput,
+        'NUMEROLOGY_INPUT'
+      );
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+    });
+
+    test('should validate file uploads', () => {
+      const validFile = {
+        name: 'test.jpg',
+        size: 1024 * 1024, // 1MB
+        type: 'image/jpeg'
+      };
+
+      const result = InputValidator.validateFileUpload(validFile);
+      expect(result.valid).toBe(true);
+
+      const invalidFile = {
+        name: 'malicious.exe',
+        size: 20 * 1024 * 1024, // 20MB
+        type: 'application/exe'
+      };
+
+      const result2 = InputValidator.validateFileUpload(invalidFile);
+      expect(result2.valid).toBe(false);
+    });
+  });
+
+  describe('RateLimiter', () => {
+    let rateLimiter: RateLimiter;
+
+    beforeEach(() => {
+      rateLimiter = new RateLimiter();
+    });
+
+    afterEach(() => {
+      rateLimiter.destroy();
+    });
+
+    test('should allow requests within limit', async () => {
+      const result1 = await rateLimiter.check('test-key', 5, 60);
+      expect(result1.allowed).toBe(true);
+      expect(result1.remaining).toBe(4);
+
+      const result2 = await rateLimiter.check('test-key', 5, 60);
+      expect(result2.allowed).toBe(true);
+      expect(result2.remaining).toBe(3);
+    });
+
+    test('should block requests exceeding limit', async () => {
+      // Make 5 requests (at limit)
+      for (let i = 0; i < 5; i++) {
+        await rateLimiter.check('test-key', 5, 60);
+      }
+
+      // 6th request should be blocked
+      const result = await rateLimiter.check('test-key', 5, 60);
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+    });
+
+    test('should handle multiple rules correctly', async () => {
+      const rules = [
+        { name: 'burst', maxRequests: 3, windowSeconds: 10 },
+        { name: 'sustained', maxRequests: 10, windowSeconds: 60 }
+      ];
+
+      // First 3 requests should pass
+      for (let i = 0; i < 3; i++) {
+        const result = await rateLimiter.checkMultiple('test-key', rules);
+        expect(result.allowed).toBe(true);
+      }
+
+      // 4th request should fail on burst rule
+      const result = await rateLimiter.checkMultiple('test-key', rules);
+      expect(result.allowed).toBe(false);
+      expect(result.failedRule).toBe('burst');
+    });
+
+    test('should provide accurate statistics', async () => {
+      await rateLimiter.check('key1', 10, 60);
+      await rateLimiter.check('key2', 10, 60);
+      await rateLimiter.check('key1', 10, 60);
+
+      const stats = rateLimiter.getStats();
+      expect(stats.totalKeys).toBe(2);
+      expect(stats.totalRequests).toBe(3);
+      expect(stats.topConsumers[0].requests).toBe(2);
+    });
+
+    test('should reset limits correctly', async () => {
+      await rateLimiter.check('test-key', 1, 60);
+      
+      // Should be at limit
+      const result1 = await rateLimiter.check('test-key', 1, 60);
+      expect(result1.allowed).toBe(false);
+
+      // Reset and try again
+      rateLimiter.reset('test-key');
+      const result2 = await rateLimiter.check('test-key', 1, 60);
+      expect(result2.allowed).toBe(true);
+    });
+  });
+
+  describe('SecurityLogger', () => {
+    let securityLogger: SecurityLogger;
+
+    beforeEach(() => {
+      securityLogger = new SecurityLogger();
+    });
+
+    test('should log security events', async () => {
+      const event = {
+        type: 'unauthorized_access' as const,
+        ip: '192.168.1.1',
+        path: '/admin',
+        timestamp: new Date()
+      };
+
+      await securityLogger.logSecurityEvent(event);
+      
+      const stats = securityLogger.getStats();
+      expect(stats.totalEvents).toBe(1);
+      expect(stats.eventsByType.unauthorized_access).toBe(1);
+    });
+
+    test('should detect threat patterns and create alerts', async () => {
+      const ip = '192.168.1.100';
+      
+      // Simulate brute force attempts
+      for (let i = 0; i < 6; i++) {
+        await securityLogger.logSecurityEvent({
+          type: 'unauthorized_access',
+          ip,
+          path: '/login',
+          timestamp: new Date()
+        });
+      }
+
+      const stats = securityLogger.getStats();
+      expect(stats.totalAlerts).toBeGreaterThan(0);
+    });
+
+    test('should search events correctly', async () => {
+      const events = [
+        {
+          type: 'unauthorized_access' as const,
+          ip: '192.168.1.1',
+          path: '/admin',
+          timestamp: new Date()
+        },
+        {
+          type: 'rate_limit_exceeded' as const,
+          ip: '192.168.1.2',
+          path: '/api/test',
+          timestamp: new Date()
+        }
+      ];
+
+      for (const event of events) {
+        await securityLogger.logSecurityEvent(event);
+      }
+
+      const searchResult = securityLogger.searchEvents({
+        ip: '192.168.1.1'
+      });
+
+      expect(searchResult.length).toBe(1);
+      expect(searchResult[0].ip).toBe('192.168.1.1');
+    });
+
+    test('should provide time-windowed statistics', async () => {
+      await securityLogger.logSecurityEvent({
+        type: 'suspicious_behavior',
+        ip: '192.168.1.1',
+        path: '/test',
+        timestamp: new Date()
+      });
+
+      const stats5min = securityLogger.getStats(5);
+      const stats1min = securityLogger.getStats(1);
+
+      expect(stats5min.totalEvents).toBe(1);
+      expect(stats1min.totalEvents).toBe(1);
+    });
+  });
+
+  describe('EncryptionManager', () => {
+    let encryptionManager: EncryptionManager;
+
+    beforeEach(() => {
+      encryptionManager = new EncryptionManager();
+    });
+
+    test('should encrypt and decrypt data correctly', () => {
+      const originalData = 'sensitive information';
+      const encrypted = encryptionManager.encrypt(originalData);
+      const decrypted = encryptionManager.decrypt(encrypted);
+
+      expect(decrypted).toBe(originalData);
+      expect(encrypted.encrypted).not.toBe(originalData);
+    });
+
+    test('should handle sensitive data encryption', () => {
+      const sensitiveData = {
+        creditCard: '1234-5678-9012-3456',
+        ssn: '123-45-6789',
+        password: 'secret123'
+      };
+
+      const encrypted = encryptionManager.encryptSensitiveData(sensitiveData);
+      const decrypted = encryptionManager.decryptSensitiveData(encrypted);
+
+      expect(decrypted).toEqual(sensitiveData);
+    });
+
+    test('should hash and verify passwords', async () => {
+      const password = 'mySecurePassword123!';
+      const { hash, salt } = await encryptionManager.hashPassword(password);
+
+      expect(hash).toBeDefined();
+      expect(salt).toBeDefined();
+
+      const isValid = await encryptionManager.verifyPassword(password, hash, salt);
+      expect(isValid).toBe(true);
+
+      const isInvalid = await encryptionManager.verifyPassword('wrongPassword', hash, salt);
+      expect(isInvalid).toBe(false);
+    });
+
+    test('should generate and verify HMAC signatures', () => {
+      const data = 'important data to sign';
+      const signature = encryptionManager.generateHMAC(data);
+
+      expect(signature).toBeDefined();
+      expect(signature.length).toBe(64); // SHA256 hex string
+
+      const isValid = encryptionManager.verifyHMAC(data, signature);
+      expect(isValid).toBe(true);
+
+      const isInvalid = encryptionManager.verifyHMAC('tampered data', signature);
+      expect(isInvalid).toBe(false);
+    });
+
+    test('should generate and verify tokens', () => {
+      const payload = { userId: '123', role: 'user' };
+      const token = encryptionManager.generateToken(payload, 3600);
+
+      expect(token).toBeDefined();
+      expect(token.split('.')).toHaveLength(3);
+
+      const verification = encryptionManager.verifyToken(token);
+      expect(verification.valid).toBe(true);
+      expect(verification.payload?.userId).toBe('123');
+    });
+
+    test('should reject expired tokens', () => {
+      const payload = { userId: '123', role: 'user' };
+      const token = encryptionManager.generateToken(payload, -1); // Already expired
+
+      const verification = encryptionManager.verifyToken(token);
+      expect(verification.valid).toBe(false);
+      expect(verification.error).toContain('expired');
+    });
+
+    test('should handle API key encryption', () => {
+      const apiKey = 'sk-1234567890abcdef';
+      const context = 'openai-api';
+
+      const encrypted = encryptionManager.encryptAPIKey(apiKey, context);
+      const decrypted = encryptionManager.decryptAPIKey(encrypted);
+
+      expect(decrypted.apiKey).toBe(apiKey);
+      expect(decrypted.context).toBe(context);
+    });
+
+    test('should generate secure random strings', () => {
+      const random1 = encryptionManager.generateSecureRandom(32);
+      const random2 = encryptionManager.generateSecureRandom(32);
+
+      expect(random1).toBeDefined();
+      expect(random2).toBeDefined();
+      expect(random1).not.toBe(random2);
+      expect(random1.length).toBe(64); // 32 bytes = 64 hex chars
+    });
+
+    test('should pass encryption test suite', () => {
+      const testResult = encryptionManager.testEncryption();
+      expect(testResult.success).toBe(true);
+      expect(testResult.error).toBeUndefined();
+    });
+  });
+
+  describe('Integration Tests', () => {
+    test('should handle complete security workflow', async () => {
+      const rateLimiter = new RateLimiter();
+      const securityLogger = new SecurityLogger();
+      const validator = InputValidator;
+
+      try {
+        // 1. Check rate limit
+        const rateLimitResult = await rateLimiter.check('integration-test', 5, 60);
+        expect(rateLimitResult.allowed).toBe(true);
+
+        // 2. Validate input
+        const input = { name: 'Test User', email: 'test@example.com' };
+        const validationResult = await validator.validate(input, {
+          name: { required: true, type: 'string' },
+          email: { required: true, type: 'email' }
+        });
+        expect(validationResult.valid).toBe(true);
+
+        // 3. Log successful security check
+        await securityLogger.logSecurityEvent({
+          type: 'admin_action',
+          ip: '127.0.0.1',
+          path: '/test',
+          timestamp: new Date()
+        });
+
+        const stats = securityLogger.getStats();
+        expect(stats.totalEvents).toBe(1);
+
+      } finally {
+        rateLimiter.destroy();
+      }
+    });
+
+    test('should handle security threat scenario', async () => {
+      const rateLimiter = new RateLimiter();
+      const securityLogger = new SecurityLogger();
+      const validator = InputValidator;
+
+      try {
+        // First manually log a security event to ensure the logger has events
+        await securityLogger.logSecurityEvent({
+          type: 'sql_injection_attempt',
+          ip: '192.168.1.100',
+          path: '/test',
+          timestamp: new Date()
+        });
+
+        // Simulate malicious input
+        const maliciousInput = {
+          comment: '<script>alert("xss")</script>',
+          sql: "'; DROP TABLE users; --"
+        };
+
+        const validationResult = await validator.validate(maliciousInput, {
+          comment: { required: true, type: 'string' },
+          sql: { required: true, type: 'string' }
+        }, { ip: '192.168.1.100' });
+
+        expect(validationResult.valid).toBe(false);
+        expect(validationResult.threats.length).toBeGreaterThan(0);
+
+        // Should have generated security logs
+        const stats = securityLogger.getStats();
+        expect(stats.totalEvents).toBeGreaterThan(0);
+
+      } finally {
+        rateLimiter.destroy();
+      }
+    });
+  });
+});
