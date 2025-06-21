@@ -23,7 +23,10 @@
     "analyze": "ANALYZE=true npm run build",
     "db:generate-types": "supabase gen types typescript --project-id fvolmkuinnhwfscincod > src/types/supabase.ts",
     "security:audit": "npm audit --audit-level moderate",
-    "security:check": "npx snyk test"
+    "security:check": "npx snyk test",
+    "quick-start": "bash scripts/quick-start.sh",
+    "checklist": "cat QUICK_START_CHECKLIST.md",
+    "lessons": "cat docs/lessons-learned/CRITICAL_LESSONS_LEARNED.md"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",

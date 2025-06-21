@@ -1,0 +1,11 @@
+{
+  "workbench.startupEditor": "readme",
+  "files.associations": {
+    "QUICK_START_CHECKLIST.md": "markdown"
+  },
+  "markdown.preview.openMarkdownLinks": "inPreview",
+  "files.defaultLanguage": "markdown",
+  "workbench.editorAssociations": {
+    "QUICK_START_CHECKLIST.md": "default"
+  }
+}
