@@ -190,7 +190,7 @@ export default function IntegratedDivinationPage() {
                   <div className="space-y-3">
                     <div>
                       <span className="text-blue-200">卦:</span>
-                      <span className="text-white ml-2 font-medium">{result.iching.hexagram?.name || '乾為天'}</span>
+                      <span className="text-white ml-2 font-medium">{result.iching.primaryHexagram?.name || '乾為天'}</span>
                     </div>
                     <div className="text-blue-100 text-sm">
                       {result.iching.interpretation?.substring(0, 100) || '古代中国の叡智が示すメッセージ'}...
@@ -280,14 +280,14 @@ export default function IntegratedDivinationPage() {
                   <div className="space-y-3">
                     <div>
                       <span className="text-blue-200">太陽座:</span>
-                      <span className="text-white ml-2 font-medium">{result.astrology.sunSign?.sign || '牡羊座'}</span>
+                      <span className="text-white ml-2 font-medium">{result.astrology.chart?.planets?.find(p => p.name === 'Sun')?.sign || '牡羊座'}</span>
                     </div>
                     <div>
                       <span className="text-blue-200">月座:</span>
-                      <span className="text-white ml-2 font-medium">{result.astrology.moonSign?.sign || '不明'}</span>
+                      <span className="text-white ml-2 font-medium">{result.astrology.chart?.planets?.find(p => p.name === 'Moon')?.sign || '不明'}</span>
                     </div>
                     <div className="text-blue-100 text-sm">
-                      {result.astrology.interpretation?.substring(0, 100) || '星々の配置が語る運命の物語'}...
+                      {result.astrology.interpretation?.overall?.substring(0, 100) || '星々の配置が語る運命の物語'}...
                     </div>
                   </div>
                 </div>
