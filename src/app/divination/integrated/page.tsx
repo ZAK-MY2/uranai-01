@@ -17,7 +17,7 @@ export default function IntegratedDivinationPage() {
     birthTime: '',
     birthLocation: undefined,
     question: '',
-    spreadType: 'three-card',
+    spreadType: 'three_card',
     currentLocation: undefined
   })
 
@@ -78,6 +78,8 @@ export default function IntegratedDivinationPage() {
       })
 
       const data = await response.json()
+      
+      console.log('API Response:', data); // デバッグ用
 
       if (!data.success) {
         throw new Error(data.error || '統合占術の実行に失敗しました')
@@ -85,6 +87,7 @@ export default function IntegratedDivinationPage() {
 
       setResult(data.data)
     } catch (err) {
+      console.error('Client error:', err); // デバッグ用
       setError(err instanceof Error ? err.message : '予期しないエラーが発生しました')
     } finally {
       setIsLoading(false)
@@ -178,6 +181,119 @@ export default function IntegratedDivinationPage() {
               </div>
             </div>
 
+            {/* その他の占術結果 - 第2列 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* 易経結果 */}
+              {result.iching && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">☯️ 易経</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">卦:</span>
+                      <span className="text-white ml-2 font-medium">{result.iching.hexagram?.name || '乾為天'}</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.iching.interpretation?.substring(0, 100) || '古代中国の叡智が示すメッセージ'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 四柱推命結果 */}
+              {result.shichu && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">🀄 四柱推命</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">主要素:</span>
+                      <span className="text-white ml-2 font-medium">{result.shichu.elements?.dominant || '木'}</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.shichu.analysis?.overall?.substring(0, 100) || '東洋の占術から読み解く運命'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* その他の占術結果 - 第3列 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* ルーン結果 */}
+              {result.runes && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">🎯 ルーン</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">主ルーン:</span>
+                      <span className="text-white ml-2 font-medium">{result.runes.runes?.[0]?.name || 'Fehu'}</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.runes.interpretation?.substring(0, 100) || '北欧の古代文字が示す導き'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 手相結果 */}
+              {result.palmistry && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">🤚 手相</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">性格:</span>
+                      <span className="text-white ml-2 font-medium text-sm">{result.palmistry.analysis?.personality?.substring(0, 50) || '意志の強さと創造性'}...</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.palmistry.interpretation?.overall?.substring(0, 100) || '手のひらに刻まれた運命の軌跡'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* その他の占術結果 - 第4列 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* ヴェーダ占星術結果 */}
+              {result.vedic && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">🕉️ ヴェーダ占星術</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">月座:</span>
+                      <span className="text-white ml-2 font-medium">{result.vedic.chart?.moonSign || 'Aries'}</span>
+                    </div>
+                    <div>
+                      <span className="text-blue-200">ナクシャトラ:</span>
+                      <span className="text-white ml-2 font-medium">{result.vedic.chart?.nakshatra || 'Ashwini'}</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.vedic.interpretation?.overall?.substring(0, 100) || 'インド古代の智慧が示す人生の道筋'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 西洋占星術結果 */}
+              {result.astrology && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">♓ 西洋占星術</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-blue-200">太陽座:</span>
+                      <span className="text-white ml-2 font-medium">{result.astrology.sunSign?.sign || '牡羊座'}</span>
+                    </div>
+                    <div>
+                      <span className="text-blue-200">月座:</span>
+                      <span className="text-white ml-2 font-medium">{result.astrology.moonSign?.sign || '不明'}</span>
+                    </div>
+                    <div className="text-blue-100 text-sm">
+                      {result.astrology.interpretation?.substring(0, 100) || '星々の配置が語る運命の物語'}...
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* 共通テーマと矛盾 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
@@ -250,7 +366,7 @@ export default function IntegratedDivinationPage() {
               ← ダッシュボードに戻る
             </Link>
             <h1 className="text-3xl font-bold text-white mt-4 mb-2">✨ 統合占術リーディング</h1>
-            <p className="text-blue-200">数秘術・タロット・環境データを統合した最強の占いシステム</p>
+            <p className="text-blue-200">9種類の占術と環境データを統合した最強の占いシステム</p>
           </div>
 
           {/* エラー表示 */}
@@ -338,10 +454,10 @@ export default function IntegratedDivinationPage() {
                     onChange={(e) => setFormData({...formData, spreadType: e.target.value})}
                     className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white"
                   >
-                    <option value="three-card">過去・現在・未来（3枚）</option>
-                    <option value="love-triangle">恋愛の三角形（3枚）</option>
-                    <option value="decision">決断のスプレッド（4枚）</option>
-                    <option value="celtic-cross">ケルト十字（10枚・詳細）</option>
+                    <option value="single_card">一枚引き</option>
+                    <option value="three_card">過去・現在・未来（3枚）</option>
+                    <option value="five_card">5枚スプレッド</option>
+                    <option value="celtic_cross">ケルト十字（10枚・詳細）</option>
                   </select>
                 </div>
               </div>

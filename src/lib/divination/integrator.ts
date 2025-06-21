@@ -94,7 +94,7 @@ export class DivinationIntegrator {
       let advancedAstrology = undefined;
       if (input.birthTime && input.birthLocation) {
         try {
-          advancedAstrology = await this.advancedAstrology.performAdvancedReading({
+          advancedAstrology = await this.advancedAstrology.performReading({
             date: input.birthDate,
             time: input.birthTime,
             latitude: input.birthLocation.latitude,
@@ -198,9 +198,7 @@ export class DivinationIntegrator {
     try {
       return await iChingEngine.performReading({
         question: input.question,
-        method: 'three_coins', // デフォルトは三枚銭法
-        fullName: input.fullName,
-        birthDate: input.birthDate
+        method: 'three_coins' // デフォルトは三枚銭法
       });
     } catch (error) {
       console.log('易経をスキップ:', error);

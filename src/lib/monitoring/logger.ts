@@ -11,6 +11,19 @@ export interface LogContext {
   action?: string;
   duration?: number;
   metadata?: Record<string, any>;
+  error?: Error;
+  status?: string;
+  metric?: string;
+  tags?: Record<string, any>;
+  value?: number;
+  path?: string;
+  method?: string;
+  ip?: string;
+  userAgent?: string;
+  environment?: string;
+  timestamp?: string;
+  // 任意の追加プロパティを許可
+  [key: string]: any;
 }
 
 interface LogEntry {

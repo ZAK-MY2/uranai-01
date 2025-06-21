@@ -1,17 +1,7 @@
 // 四柱推命占術エンジン
 import { StemBranchCombinations, YearStemBranch, FortuneCycle } from './shichu-data';
+import { ShichuInput, ShichuResult } from '@/types/divination';
 
-export interface ShichuInput {
-  birthDate: string; // YYYY-MM-DD
-  birthTime: string; // HH:MM
-  birthLocation?: {
-    latitude: number;
-    longitude: number;
-    timezone: string;
-  };
-  gender: 'male' | 'female';
-  name: string;
-}
 
 export interface StemBranch {
   stem: string; // 天干 (甲乙丙丁戊己庚辛壬癸)
@@ -56,29 +46,6 @@ export interface LuckPeriods {
   }[];
 }
 
-export interface ShichuResult {
-  fourPillars: FourPillars;
-  dayMaster: StemBranch;
-  tenGods: TenGods;
-  luckPeriods: LuckPeriods;
-  interpretation: {
-    personality: string;
-    strengths: string[];
-    weaknesses: string[];
-    career: string;
-    relationships: string;
-    health: string;
-    wealth: string;
-    currentFortune: string;
-    advice: string;
-    overall: string;
-  };
-  compatibility?: {
-    partner?: string;
-    business?: string;
-    friendship?: string;
-  };
-}
 
 export class ShichuSuimeiEngine {
   private stems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -122,12 +89,25 @@ export class ShichuSuimeiEngine {
       const compatibility = this.analyzeCompatibility(dayMaster);
 
       return {
-        fourPillars,
-        dayMaster,
-        tenGods,
-        luckPeriods,
-        interpretation,
-        compatibility
+        pillars: {
+          year: { stem: fourPillars.year.stem, branch: fourPillars.year.branch },
+          month: { stem: fourPillars.month.stem, branch: fourPillars.month.branch },
+          day: { stem: fourPillars.day.stem, branch: fourPillars.day.branch },
+          hour: { stem: fourPillars.hour.stem, branch: fourPillars.hour.branch }
+        },
+        elements: {
+          dominant: dayMaster.element,
+          lacking: this.getLackingElement(fourPillars),
+          balance: this.getElementBalance(fourPillars)
+        },
+        analysis: {
+          personality: interpretation.personality,
+          career: interpretation.career,
+          relationships: interpretation.relationships,
+          health: interpretation.health,
+          overall: interpretation.overall
+        },
+        compatibility: typeof compatibility === 'string' ? compatibility : compatibility ? `${(compatibility as any).partner} ${(compatibility as any).business}` : undefined
       };
     } catch (error) {
       console.error('四柱推命占術エラー:', error);
@@ -458,7 +438,7 @@ export class ShichuSuimeiEngine {
     tenGods: TenGods,
     luckPeriods: LuckPeriods,
     input: ShichuInput
-  ): ShichuResult['interpretation'] {
+  ): any {
     return {
       personality: this.generatePersonalityInterpretation(dayMaster, tenGods),
       strengths: this.generateStrengths(dayMaster, tenGods),
@@ -560,7 +540,7 @@ export class ShichuSuimeiEngine {
   /**
    * 相性分析
    */
-  private analyzeCompatibility(dayMaster: StemBranch): ShichuResult['compatibility'] {
+  private analyzeCompatibility(dayMaster: StemBranch): any {
     // 簡略版の相性分析
     return {
       partner: `${dayMaster.element}と相性の良い相手は、相生関係にある五行の人です。`,
@@ -570,13 +550,59 @@ export class ShichuSuimeiEngine {
   }
 
   /**
+   * 不足している五行を取得
+   */
+  private getLackingElement(fourPillars: FourPillars): string {
+    const elementCount = {
+      '木': 0, '火': 0, '土': 0, '金': 0, '水': 0
+    };
+    
+    // 四柱の五行をカウント
+    [fourPillars.year, fourPillars.month, fourPillars.day, fourPillars.hour].forEach(pillar => {
+      elementCount[pillar.element as keyof typeof elementCount]++;
+    });
+    
+    // 最も少ない五行を特定
+    let minElement = '土';
+    let minCount = 4;
+    Object.entries(elementCount).forEach(([element, count]) => {
+      if (count < minCount) {
+        minCount = count;
+        minElement = element;
+      }
+    });
+    
+    return minElement;
+  }
+
+  /**
+   * 五行のバランスを取得
+   */
+  private getElementBalance(fourPillars: FourPillars): string {
+    const elementCount = {
+      '木': 0, '火': 0, '土': 0, '金': 0, '水': 0
+    };
+    
+    // 四柱の五行をカウント
+    [fourPillars.year, fourPillars.month, fourPillars.day, fourPillars.hour].forEach(pillar => {
+      elementCount[pillar.element as keyof typeof elementCount]++;
+    });
+    
+    const counts = Object.values(elementCount);
+    const max = Math.max(...counts);
+    const min = Math.min(...counts);
+    
+    if (max - min <= 1) return 'バランス良好';
+    if (max >= 3) return '偏りあり';
+    return '適度なバランス';
+  }
+
+  /**
    * キャッシュキーの生成
    */
   generateCacheKey(input: ShichuInput): string {
     const birthDateTime = input.birthDate + 'T' + input.birthTime;
-    const location = input.birthLocation ? 
-      `${input.birthLocation.latitude},${input.birthLocation.longitude}` : 'default';
-    return `shichu:${birthDateTime}:${input.gender}:${location}`;
+    return `shichu:${birthDateTime}:${input.gender}:${input.name}`;
   }
 }
 

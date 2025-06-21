@@ -318,7 +318,7 @@ export class AdvancedEnvironmentEngine {
         schumann: schumannData,
         atmospheric_pressure: {
           surface: 1013.25 + (Math.random() - 0.5) * 30,
-          trend: this.randomChoice(['rising', 'falling', 'steady']),
+          trend: this.randomChoice(['rising', 'falling', 'steady']) as 'rising' | 'falling' | 'steady',
           anomaly: (Math.random() - 0.5) * 20
         },
         cosmic_background: cosmicRayData,
@@ -481,7 +481,7 @@ export class AdvancedEnvironmentEngine {
       tidalStreams: {
         direction: Math.random() * 360,
         speed: Math.random() * 3,
-        strength: this.randomChoice(['weak', 'moderate', 'strong'])
+        strength: this.randomChoice(['weak', 'moderate', 'strong']) as 'weak' | 'moderate' | 'strong'
       },
       interpretation: this.interpretTidalData()
     };
@@ -495,7 +495,7 @@ export class AdvancedEnvironmentEngine {
       f2LayerFreq: 8 + Math.random() * 7, // 8-15 MHz
       absorption: Math.random() * 3, // 0-3 dB
       scintillation: Math.floor(Math.random() * 5), // 0-4
-      radioConditions: this.randomChoice(['poor', 'fair', 'good', 'excellent'])
+      radioConditions: this.randomChoice(['poor', 'fair', 'good', 'excellent']) as 'poor' | 'fair' | 'good' | 'excellent'
     };
   }
 
@@ -508,7 +508,7 @@ export class AdvancedEnvironmentEngine {
       frequency: baseFreq + (Math.random() - 0.5) * 0.5,
       amplitude: 0.5 + Math.random() * 2, // 0.5-2.5 μV/m
       coherence: 0.5 + Math.random() * 0.5, // 0.5-1.0
-      resonanceQuality: this.randomChoice(['low', 'normal', 'high'])
+      resonanceQuality: this.randomChoice(['low', 'normal', 'high']) as 'low' | 'normal' | 'high'
     };
   }
 
@@ -567,8 +567,8 @@ export class AdvancedEnvironmentEngine {
     
     return {
       alignment,
-      season: dayOfYear < galacticPeak - 30 ? 'approach' : 
-              dayOfYear < galacticPeak + 30 ? 'peak' : 'departure',
+      season: (dayOfYear < galacticPeak - 30 ? 'approach' : 
+              dayOfYear < galacticPeak + 30 ? 'peak' : 'departure') as 'approach' | 'peak' | 'departure',
       next_peak: alignment < 0.7 ? this.getFutureDate(galacticPeak - dayOfYear) : undefined
     };
   }
@@ -590,8 +590,10 @@ export class AdvancedEnvironmentEngine {
       const diff = Math.abs(now.getTime() - peakDate.getTime()) / (1000 * 60 * 60 * 24);
       return diff < 7; // 1週間以内
     }).map(shower => ({
-      ...shower,
-      intensity: shower.rate > 50 ? 'high' : shower.rate > 20 ? 'moderate' : 'low'
+      name: shower.name,
+      peak_date: shower.peak,
+      rate: shower.rate,
+      intensity: (shower.rate > 50 ? 'high' : shower.rate > 20 ? 'moderate' : 'low') as 'low' | 'moderate' | 'high'
     }));
     
     return {
@@ -625,12 +627,12 @@ export class AdvancedEnvironmentEngine {
   }
 
   private generateSolarFlares() {
-    const classes = ['A', 'B', 'C', 'M', 'X'] as const;
+    const classes = ['A', 'B', 'C', 'M', 'X'];
     const flares = [];
     
     for (let i = 0; i < Math.floor(Math.random() * 5); i++) {
       flares.push({
-        class: this.randomChoice(classes),
+        class: this.randomChoice(classes) as 'A' | 'B' | 'C' | 'M' | 'X',
         magnitude: Math.random() * 9.9 + 0.1,
         time: this.getPastDate(new Date(), Math.random() * 24),
         peakTime: this.getPastDate(new Date(), Math.random() * 24),
@@ -651,7 +653,7 @@ export class AdvancedEnvironmentEngine {
       tides.push({
         time: time.toISOString(),
         height: 2 * Math.sin(i * Math.PI / 2) + (Math.random() - 0.5),
-        type: i % 2 === 0 ? 'high' : 'low'
+        type: (i % 2 === 0 ? 'high' : 'low') as 'high' | 'low'
       });
     }
     

@@ -88,9 +88,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('統合占術API エラー:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
     return NextResponse.json<DivinationResponse<null>>({
       success: false,
-      error: error instanceof Error ? error.message : '統合占術中にエラーが発生しました'
+      error: error instanceof Error ? `${error.message}\n詳細: ${error.stack}` : '統合占術中にエラーが発生しました'
     }, { status: 500 });
   }
 }

@@ -1,18 +1,7 @@
 // ヴェーダ占星術エンジン
 import { VedicSigns, Nakshatras, Houses, Dashas } from './vedic-data';
+import { VedicInput, VedicResult } from '@/types/divination';
 
-export interface VedicInput {
-  birthDate: string; // YYYY-MM-DD
-  birthTime: string; // HH:MM
-  birthLocation: {
-    latitude: number;
-    longitude: number;
-    timezone: string;
-    city: string;
-  };
-  name: string;
-  gender: 'male' | 'female';
-}
 
 export interface VedicPlanet {
   name: string;
@@ -57,59 +46,6 @@ export interface DashaPeriod {
   effects: string;
 }
 
-export interface VedicResult {
-  birthChart: {
-    ascendant: string;
-    moonSign: string;
-    sunSign: string;
-    planets: VedicPlanet[];
-    houses: VedicHouse[];
-    nakshatra: Nakshatra;
-  };
-  strengths: {
-    planetary: { [planet: string]: number };
-    house: { [house: string]: number };
-    overall: number;
-  };
-  doshas: {
-    mangal: boolean;
-    kaal: boolean;
-    nadi: boolean;
-    description: string[];
-  };
-  dashas: {
-    current: DashaPeriod;
-    next: DashaPeriod;
-    life: DashaPeriod[];
-  };
-  yogas: {
-    name: string;
-    planets: string[];
-    effect: string;
-    strength: 'weak' | 'moderate' | 'strong';
-  }[];
-  predictions: {
-    career: string;
-    marriage: string;
-    health: string;
-    wealth: string;
-    education: string;
-    family: string;
-    spiritual: string;
-  };
-  remedies: {
-    gemstones: string[];
-    mantras: string[];
-    donations: string[];
-    fasting: string[];
-    worship: string[];
-  };
-  compatibility?: {
-    partner?: string;
-    business?: string;
-    friendship?: string;
-  };
-}
 
 export class VedicAstrologyEngine {
   private signs: typeof VedicSigns;
@@ -154,14 +90,36 @@ export class VedicAstrologyEngine {
       const compatibility = this.analyzeCompatibility(birthChart);
 
       return {
-        birthChart,
-        strengths,
-        doshas,
-        dashas,
-        yogas,
-        predictions,
-        remedies,
-        compatibility
+        chart: {
+          ascendant: birthChart.ascendant,
+          moonSign: birthChart.moonSign,
+          sunSign: birthChart.sunSign,
+          nakshatra: birthChart.nakshatra.name,
+          planets: birthChart.planets.map((p: any) => ({
+            name: p.name,
+            sign: p.sign,
+            nakshatra: p.nakshatra,
+            degree: p.degree
+          }))
+        },
+        analysis: {
+          personality: predictions.career,
+          career: predictions.career,
+          relationships: predictions.marriage,
+          health: predictions.health,
+          spirituality: predictions.spiritual
+        },
+        interpretation: {
+          overall: `総合的な分析によると、${birthChart.moonSign}の影響が強く、人生において精神的な成長と物質的な成功の両方を達成する可能性があります。`,
+          strengths: `主な強みは${Object.entries(strengths.planetary).filter(([k,v]) => (v as number) > 70).map(([k,v]) => k).join('、')}です。`,
+          challenges: doshas.description.join('、'),
+          remedies: `推奨される対策: ${remedies.gemstones.concat(remedies.mantras).slice(0, 3).join('、')}`
+        },
+        dasha: {
+          current: dashas.current.planet,
+          period: `${dashas.current.startDate}から${dashas.current.endDate}まで`,
+          description: dashas.current.effects
+        }
       };
     } catch (error) {
       console.error('ヴェーダ占星術エラー:', error);
@@ -172,7 +130,7 @@ export class VedicAstrologyEngine {
   /**
    * 出生チャート計算
    */
-  private calculateBirthChart(input: VedicInput): VedicResult['birthChart'] {
+  private calculateBirthChart(input: VedicInput): any {
     // 実際の実装では天体計算ライブラリを使用
     // ここでは模擬データを生成
     
@@ -201,9 +159,15 @@ export class VedicAstrologyEngine {
     // 簡略化された計算（実際は複雑な天体計算が必要）
     const birthDate = new Date(input.birthDate + 'T' + input.birthTime);
     const hour = birthDate.getHours();
+    const minute = birthDate.getMinutes();
+    const day = birthDate.getDate();
     
-    // 時間帯に基づく簡易計算
-    const signIndex = Math.floor((hour * 2 + Math.floor(Math.random() * 4)) % 12);
+    // 生年月日と時刻から決定的に計算
+    const totalMinutes = hour * 60 + minute;
+    const dateHash = (birthDate.getFullYear() + birthDate.getMonth() * 31 + day) % 12;
+    const timeHash = Math.floor(totalMinutes / 120); // 2時間間隔
+    const signIndex = (dateHash + timeHash) % 12;
+    
     return this.signs[signIndex].name;
   }
 
@@ -212,13 +176,29 @@ export class VedicAstrologyEngine {
    */
   private calculatePlanetaryPositions(input: VedicInput): VedicPlanet[] {
     const planetNames = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+    const birthDate = new Date(input.birthDate + 'T' + input.birthTime);
+    const baseYear = birthDate.getFullYear();
+    const dayOfYear = Math.floor((birthDate.getTime() - new Date(baseYear, 0, 0).getTime()) / (1000 * 60 * 60 * 24));
     
-    return planetNames.map(name => {
-      const signIndex = Math.floor(Math.random() * 12);
-      const degree = Math.random() * 30;
-      const house = Math.floor(Math.random() * 12) + 1;
-      const nakshatraIndex = Math.floor(degree / 13.33) % 27;
+    return planetNames.map((name, index) => {
+      // 生年月日と惑星位置から決定的に計算
+      const planetOffset = index * 43; // 各惑星の軌道周期を模擬
+      const yearCycle = (baseYear - 2000) % 12; // 12年周期
+      const dayFactor = (dayOfYear * 7) % 360; // 日数から度数を計算
+      
+      const totalDegree = (planetOffset + yearCycle * 30 + dayFactor) % 360;
+      const signIndex = Math.floor(totalDegree / 30);
+      const degree = totalDegree % 30;
+      
+      // ハウス計算（簡略化）
+      const house = ((signIndex + index * 2) % 12) + 1;
+      
+      // ナクシャトラ計算
+      const nakshatraIndex = Math.floor(totalDegree / 13.33) % 27;
       const pada = Math.floor((degree % 13.33) / 3.33) + 1;
+      
+      // 逆行判定（決定的）
+      const retrograde = (baseYear + index * 3) % 7 < 2; // 約30%の確率で逆行
       
       return {
         name,
@@ -227,7 +207,7 @@ export class VedicAstrologyEngine {
         house,
         nakshatra: this.nakshatras[nakshatraIndex].name,
         pada,
-        retrograde: Math.random() < 0.3, // 30%の確率で逆行
+        retrograde,
         dignity: this.calculatePlanetaryDignity(name, this.signs[signIndex].name)
       };
     });
@@ -257,12 +237,27 @@ export class VedicAstrologyEngine {
       'Saturn': ['Capricorn', 'Aquarius']
     };
     
+    const debilitationSigns: { [key: string]: string } = {
+      'Sun': 'Libra',
+      'Moon': 'Scorpio',
+      'Mars': 'Cancer',
+      'Mercury': 'Pisces',
+      'Jupiter': 'Capricorn',
+      'Venus': 'Virgo',
+      'Saturn': 'Aries'
+    };
+    
     if (exaltationSigns[planet] === sign) return 'exalted';
     if (ownSigns[planet]?.includes(sign)) return 'own';
+    if (debilitationSigns[planet] === sign) return 'debilitated';
     
-    // 簡略化：残りはランダムに決定
-    const dignities: VedicPlanet['dignity'][] = ['friend', 'neutral', 'enemy', 'debilitated'];
-    return dignities[Math.floor(Math.random() * dignities.length)];
+    // 友好・中性・敵対の決定的な計算
+    const signIndex = this.signs.findIndex(s => s.name === sign);
+    const planetHash = planet.charCodeAt(0) + planet.length;
+    const dignityIndex = (signIndex + planetHash) % 3;
+    const dignities: VedicPlanet['dignity'][] = ['friend', 'neutral', 'enemy'];
+    
+    return dignities[dignityIndex];
   }
 
   /**
@@ -355,9 +350,9 @@ export class VedicAstrologyEngine {
   /**
    * 強度計算
    */
-  private calculateStrengths(birthChart: VedicResult['birthChart']): VedicResult['strengths'] {
+  private calculateStrengths(birthChart: any): any {
     const planetary: { [planet: string]: number } = {};
-    birthChart.planets.forEach(planet => {
+    birthChart.planets.forEach((planet: any) => {
       let strength = 50; // ベーススコア
       
       switch (planet.dignity) {
@@ -375,7 +370,7 @@ export class VedicAstrologyEngine {
     });
     
     const house: { [house: string]: number } = {};
-    birthChart.houses.forEach(h => {
+    birthChart.houses.forEach((h: any) => {
       house[`House ${h.number}`] = h.strength;
     });
     
@@ -404,13 +399,19 @@ export class VedicAstrologyEngine {
   /**
    * ドーシャ分析
    */
-  private analyzeDoshas(birthChart: VedicResult['birthChart']): VedicResult['doshas'] {
-    const marsPlanet = birthChart.planets.find(p => p.name === 'Mars');
+  private analyzeDoshas(birthChart: any): any {
+    const marsPlanet = birthChart.planets.find((p: any) => p.name === 'Mars');
     const mangal = marsPlanet ? [1, 2, 4, 7, 8, 12].includes(marsPlanet.house) : false;
     
-    // 簡略化された判定
-    const kaal = Math.random() < 0.3;
-    const nadi = Math.random() < 0.2;
+    // ラーフ・ケートゥの配置からカール・サルプ・ドーシャを判定
+    const rahuPlanet = birthChart.planets.find((p: any) => p.name === 'Rahu');
+    const ketuPlanet = birthChart.planets.find((p: any) => p.name === 'Ketu');
+    const kaal = rahuPlanet && ketuPlanet ? 
+      Math.abs(rahuPlanet.house - ketuPlanet.house) === 6 : false;
+    
+    // 月の配置からナディ・ドーシャを判定
+    const moonPlanet = birthChart.planets.find((p: any) => p.name === 'Moon');
+    const nadi = moonPlanet ? [6, 8, 12].includes(moonPlanet.house) : false;
     
     const description = [];
     if (mangal) description.push('マンガル・ドーシャ：結婚に影響する可能性があります。適切な救済措置が推奨されます。');
@@ -427,7 +428,7 @@ export class VedicAstrologyEngine {
   /**
    * ダシャー計算
    */
-  private calculateDashas(input: VedicInput, birthChart: VedicResult['birthChart']): VedicResult['dashas'] {
+  private calculateDashas(input: VedicInput, birthChart: any): any {
     const birthDate = new Date(input.birthDate);
     const currentDate = new Date();
     
@@ -460,12 +461,12 @@ export class VedicAstrologyEngine {
   /**
    * ヨーガ分析
    */
-  private analyzeYogas(birthChart: VedicResult['birthChart']): VedicResult['yogas'] {
+  private analyzeYogas(birthChart: any): any {
     const yogas = [];
     
     // ラジャ・ヨーガの検出
-    const jupiter = birthChart.planets.find(p => p.name === 'Jupiter');
-    const venus = birthChart.planets.find(p => p.name === 'Venus');
+    const jupiter = birthChart.planets.find((p: any) => p.name === 'Jupiter');
+    const venus = birthChart.planets.find((p: any) => p.name === 'Venus');
     
     if (jupiter && venus && Math.abs(jupiter.house - venus.house) <= 2) {
       yogas.push({
@@ -477,7 +478,7 @@ export class VedicAstrologyEngine {
     }
     
     // パンチャ・マハープルシャ・ヨーガ
-    const mars = birthChart.planets.find(p => p.name === 'Mars');
+    const mars = birthChart.planets.find((p: any) => p.name === 'Mars');
     if (mars && ['exalted', 'own'].includes(mars.dignity)) {
       yogas.push({
         name: 'ルチャカ・ヨーガ',
@@ -503,10 +504,10 @@ export class VedicAstrologyEngine {
    * 予測生成
    */
   private generatePredictions(
-    birthChart: VedicResult['birthChart'],
-    dashas: VedicResult['dashas'],
-    yogas: VedicResult['yogas']
-  ): VedicResult['predictions'] {
+    birthChart: any,
+    dashas: any,
+    yogas: any
+  ): any {
     return {
       career: '職業運は良好で、特に教育、金融、技術分野での成功が期待できます。現在のダシャー期間中に重要な進展があるでしょう。',
       marriage: '結婚は人生に大きな幸福をもたらします。パートナーは知的で支援的な人物になるでしょう。適切な時期は25-30歳です。',
@@ -522,10 +523,10 @@ export class VedicAstrologyEngine {
    * 救済措置生成
    */
   private generateRemedies(
-    birthChart: VedicResult['birthChart'],
-    doshas: VedicResult['doshas']
-  ): VedicResult['remedies'] {
-    const remedies: VedicResult['remedies'] = {
+    birthChart: any,
+    doshas: any
+  ): any {
+    const remedies: any = {
       gemstones: [],
       mantras: [],
       donations: [],
@@ -580,7 +581,7 @@ export class VedicAstrologyEngine {
   /**
    * 相性分析
    */
-  private analyzeCompatibility(birthChart: VedicResult['birthChart']): VedicResult['compatibility'] {
+  private analyzeCompatibility(birthChart: any): any {
     return {
       partner: `${birthChart.moonSign}の人は、Taurus、Virgo、Capricornの人と相性が良いです。`,
       business: '信頼できるパートナーとの協力により、ビジネスで成功する可能性があります。',
@@ -593,8 +594,7 @@ export class VedicAstrologyEngine {
    */
   generateCacheKey(input: VedicInput): string {
     const birthDateTime = input.birthDate + 'T' + input.birthTime;
-    const location = `${input.birthLocation.latitude},${input.birthLocation.longitude}`;
-    return `vedic:${birthDateTime}:${location}:${input.gender}`;
+    return `vedic:${birthDateTime}:${input.name}`;
   }
 }
 

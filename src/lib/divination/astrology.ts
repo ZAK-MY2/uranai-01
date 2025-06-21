@@ -113,22 +113,45 @@ export class AstrologyEngine {
   }
 
   /**
-   * 月星座の簡略計算（概算）
+   * 月星座の改善された計算（誕生時刻を考慮）
    */
-  private calculateMoonSign(birthDate: string): string {
-    const date = new Date(birthDate);
-    const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-    const moonCycle = (dayOfYear * 13) % 12; // 簡略化された月の移動
-    return this.zodiacSigns[Math.floor(moonCycle)].name;
+  private calculateMoonSign(birthDate: string, birthTime?: string): string {
+    const date = new Date(birthDate + (birthTime ? 'T' + birthTime : 'T12:00'));
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hour = date.getHours();
+    
+    // 月の軌道周期を考慮したより精密な計算
+    // 月は約27.3日で黄道を一周し、1星座あたり約2.3日
+    const baseDate = new Date(2000, 0, 1); // 2000年1月1日を基準
+    const daysSinceBase = Math.floor((date.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // 月の周期で割った余りから位置を計算
+    const moonPosition = (daysSinceBase * 13.176) % 360; // 13.176度/日
+    const signIndex = Math.floor(moonPosition / 30) % 12;
+    
+    return this.zodiacSigns[signIndex].name;
   }
 
   /**
-   * 上昇星座の簡略計算（時間と場所を考慮した概算）
+   * 上昇星座の改善された計算（時間と緯度を考慮）
    */
-  private calculateAscendant(birthDate: string, birthTime: string): string {
+  private calculateAscendant(birthDate: string, birthTime: string, latitude: number = 35.0): string {
     const date = new Date(`${birthDate}T${birthTime}`);
     const hour = date.getHours();
-    const ascendantIndex = Math.floor((hour * 2) % 12); // 2時間で1星座移動の簡略化
+    const minute = date.getMinutes();
+    const totalMinutes = hour * 60 + minute;
+    
+    // 緯度と時刻を考慮した上昇星座計算
+    // 上昇星座は約22分で１星座移動（略算）
+    const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const seasonOffset = Math.sin((dayOfYear / 365) * 2 * Math.PI) * 30; // 季節変動
+    const latitudeAdjustment = Math.cos((latitude * Math.PI) / 180) * 15; // 緯度調整
+    
+    const totalDegrees = (totalMinutes * 0.25 + seasonOffset + latitudeAdjustment) % 360;
+    const ascendantIndex = Math.floor(totalDegrees / 30) % 12;
+    
     return this.zodiacSigns[ascendantIndex].name;
   }
 

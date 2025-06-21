@@ -9,6 +9,10 @@ interface SecurityEvent {
   error?: string;
   details?: Record<string, any>;
   timestamp: Date;
+  limit?: number;
+  window?: number;
+  // 任意の追加プロパティを許可
+  [key: string]: any;
 }
 
 type SecurityEventType = 
@@ -26,7 +30,9 @@ type SecurityEventType =
   | 'insufficient_permissions'
   | 'sensitive_endpoint_access'
   | 'data_export'
-  | 'admin_action';
+  | 'admin_action'
+  | 'security_error'
+  | 'middleware_error';
 
 interface SecurityAlert {
   level: 'low' | 'medium' | 'high' | 'critical';

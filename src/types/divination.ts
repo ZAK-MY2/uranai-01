@@ -51,7 +51,10 @@ export interface TarotDrawnCard {
 }
 
 export interface TarotReading {
-  spreadType: string;
+  spread: {
+    name: string;
+    type: string;
+  };
   cards: TarotDrawnCard[];
   overall: string;
   advice: string;

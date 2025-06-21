@@ -131,7 +131,7 @@ export class PerformanceMonitor {
   /**
    * ゲージ値の設定
    */
-  setGauge(name: string, value: number, unit: 'bytes' | 'count' | 'percent', tags: Record<string, string> = {}): void {
+  setGauge(name: string, value: number, unit: 'ms' | 'bytes' | 'count' | 'percent', tags: Record<string, string> = {}): void {
     this.recordMetric(name, value, unit, tags);
   }
 
@@ -233,9 +233,9 @@ export class PerformanceMonitor {
       }
 
       // ガベージコレクションの統計（Node.js v14+）
-      if (typeof performance !== 'undefined' && performance.measureUserAgentSpecificMemory) {
-        performance.measureUserAgentSpecificMemory().then((result) => {
-          this.setGauge('gc_heap_size', (result as any).bytes, 'bytes');
+      if (typeof performance !== 'undefined' && 'measureUserAgentSpecificMemory' in performance) {
+        (performance as any).measureUserAgentSpecificMemory().then((result: any) => {
+          this.setGauge('gc_heap_size', result.bytes, 'bytes');
         }).catch(() => {
           // Ignore errors - not all environments support this
         });

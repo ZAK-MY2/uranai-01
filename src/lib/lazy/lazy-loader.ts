@@ -15,7 +15,7 @@ interface LazyLoaderOptions {
 }
 
 export class LazyLoader {
-  private modules = new Map<string, LazyLoadableModule<any>>();
+  protected modules = new Map<string, LazyLoadableModule<any>>();
   private cleanupInterval?: NodeJS.Timeout;
 
   constructor(private options: LazyLoaderOptions = {

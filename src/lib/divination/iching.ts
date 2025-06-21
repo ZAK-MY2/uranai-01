@@ -1,5 +1,6 @@
 // 易経（I Ching）占術エンジン
 import { IChing64Hexagrams } from './iching-data';
+import { IChingHexagram, IChingReading } from '@/types/divination';
 
 export interface IChingInput {
   question: string;
@@ -12,34 +13,6 @@ export interface IChingLine {
   type: 'yin' | 'yang';
   changing: boolean;
   meaning: string;
-}
-
-export interface IChingHexagram {
-  number: number;
-  name: string;
-  chineseName: string;
-  trigrams: {
-    upper: string;
-    lower: string;
-  };
-  judgment: string;
-  image: string;
-  lines: IChingLine[];
-  interpretation: string;
-}
-
-export interface IChingReading {
-  originalHexagram: IChingHexagram;
-  changedHexagram?: IChingHexagram;
-  changingLines: number[];
-  interpretation: {
-    situation: string;
-    advice: string;
-    outcome: string;
-    timing: string;
-    overall: string;
-  };
-  question: string;
 }
 
 export class IChingEngine {
@@ -62,12 +35,15 @@ export class IChingEngine {
   }
 
   /**
-   * 易経占術を実行
+   * 易経占術を実行（質問パラメータベースの決定的計算）
    */
   async performReading(input: IChingInput): Promise<IChingReading> {
     try {
-      // 卦の生成
-      const lines = this.generateHexagramLines(input.method || 'three_coins');
+      // 質問から決定的シードを生成
+      const questionSeed = this.generateQuestionSeed(input.question);
+      
+      // 卦の生成（決定的）
+      const lines = this.generateDeterministicHexagramLines(questionSeed, input.method || 'three_coins');
       const originalHexagram = this.createHexagram(lines);
       
       // 変爻の特定
@@ -95,11 +71,11 @@ export class IChingEngine {
       );
 
       return {
-        originalHexagram,
-        changedHexagram,
+        primaryHexagram: originalHexagram,
         changingLines,
-        interpretation,
-        question: input.question
+        resultHexagram: changedHexagram,
+        interpretation: interpretation.overall,
+        advice: interpretation.advice
       };
     } catch (error) {
       console.error('易経占術エラー:', error);
@@ -108,7 +84,58 @@ export class IChingEngine {
   }
 
   /**
-   * 卦の爻を生成
+   * 質問から決定的シードを生成
+   */
+  private generateQuestionSeed(question: string): number {
+    let seed = 0;
+    for (let i = 0; i < question.length; i++) {
+      const char = question.charCodeAt(i);
+      seed = ((seed << 5) - seed + char) & 0x7fffffff;
+    }
+    return seed;
+  }
+
+  /**
+   * 決定的な卦の爻を生成
+   */
+  private generateDeterministicHexagramLines(seed: number, method: string): IChingLine[] {
+    const lines: IChingLine[] = [];
+    let currentSeed = seed;
+
+    for (let i = 0; i < 6; i++) {
+      let value: number;
+      
+      // シードベースの疑似ランダム値生成
+      currentSeed = (currentSeed * 1103515245 + 12345) & 0x7fffffff;
+      const randomValue = currentSeed / 0x7fffffff;
+      
+      switch (method) {
+        case 'three_coins':
+          value = this.deterministicThreeCoinsMethod(randomValue);
+          break;
+        case 'yarrow_stalks':
+          value = this.deterministicYarrowStalksMethod(randomValue);
+          break;
+        default:
+          value = this.deterministicModernRandomMethod(randomValue);
+      }
+
+      const type: 'yin' | 'yang' = (value === 6 || value === 8) ? 'yin' : 'yang';
+      const changing = (value === 6 || value === 9);
+
+      lines.push({
+        value,
+        type,
+        changing,
+        meaning: this.getLineMeaning(type, changing, i + 1)
+      });
+    }
+
+    return lines;
+  }
+
+  /**
+   * 卦の爻を生成（後方互換性のため）
    */
   private generateHexagramLines(method: string): IChingLine[] {
     const lines: IChingLine[] = [];
@@ -142,7 +169,41 @@ export class IChingEngine {
   }
 
   /**
-   * 三枚硬貨法
+   * 決定的三枚硬貨法
+   */
+  private deterministicThreeCoinsMethod(randomValue: number): number {
+    let total = 0;
+    let seed = Math.floor(randomValue * 1000000);
+    
+    for (let i = 0; i < 3; i++) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      const coinValue = (seed / 0x7fffffff) < 0.5 ? 2 : 3; // 表=2, 裏=3
+      total += coinValue;
+    }
+    return total;
+  }
+
+  /**
+   * 決定的筮竹法
+   */
+  private deterministicYarrowStalksMethod(randomValue: number): number {
+    // 筮竹法の確率を模倣
+    if (randomValue < 0.0625) return 6;  // 老陰 (1/16)
+    if (randomValue < 0.25) return 8;    // 少陰 (3/16)
+    if (randomValue < 0.8125) return 7;  // 少陽 (9/16)
+    return 9;                            // 老陽 (3/16)
+  }
+
+  /**
+   * 決定的現代ランダム法
+   */
+  private deterministicModernRandomMethod(randomValue: number): number {
+    const values = [6, 7, 8, 9];
+    return values[Math.floor(randomValue * values.length)];
+  }
+
+  /**
+   * 三枚硬貨法（後方互換性のため）
    */
   private threeCoinsMethod(): number {
     let total = 0;
@@ -202,14 +263,13 @@ export class IChingEngine {
     return {
       number: hexagramIndex + 1,
       name: hexagramData.name,
-      chineseName: hexagramData.chineseName,
+      chinese: hexagramData.chineseName,
       trigrams: {
         upper: this.getTrigram(lines.slice(3)),
         lower: this.getTrigram(lines.slice(0, 3))
       },
-      judgment: hexagramData.judgment,
-      image: hexagramData.image,
-      lines: lines.slice().reverse(), // 上から下へ表示
+      keywords: [hexagramData.name, this.getTrigram(lines.slice(3)), this.getTrigram(lines.slice(0, 3))],
+      meaning: hexagramData.judgment,
       interpretation: hexagramData.interpretation
     };
   }
@@ -261,7 +321,7 @@ export class IChingEngine {
     changed: IChingHexagram | undefined,
     changingLines: number[],
     question: string
-  ): IChingReading['interpretation'] {
+  ): { situation: string; advice: string; outcome: string; timing: string; overall: string } {
     const situation = this.generateSituationInterpretation(original, question);
     const advice = this.generateAdviceInterpretation(original, changingLines);
     const outcome = changed ? 
@@ -280,7 +340,7 @@ export class IChingEngine {
   }
 
   private generateSituationInterpretation(hexagram: IChingHexagram, question: string): string {
-    return `現在の状況は「${hexagram.name}」の卦が示しています。${hexagram.judgment}`;
+    return `現在の状況は「${hexagram.name}」の卦が示しています。${hexagram.meaning}`;
   }
 
   private generateAdviceInterpretation(hexagram: IChingHexagram, changingLines: number[]): string {
@@ -291,7 +351,7 @@ export class IChingEngine {
   }
 
   private generateOutcomeInterpretation(original: IChingHexagram, changed: IChingHexagram): string {
-    return `現在の「${original.name}」から「${changed.name}」へと変化していきます。${changed.judgment}`;
+    return `現在の「${original.name}」から「${changed.name}」へと変化していきます。${changed.meaning}`;
   }
 
   private generateStaticOutcomeInterpretation(hexagram: IChingHexagram): string {
@@ -319,7 +379,7 @@ export class IChingEngine {
       interpretation += `変化により「${changed.name}」へと移行し、`;
     }
     
-    interpretation += `${original.image} この教えを心に留めて行動することで、良い結果を得ることができるでしょう。`;
+    interpretation += `${original.interpretation} この教えを心に留めて行動することで、良い結果を得ることができるでしょう。`;
     
     return interpretation;
   }
@@ -347,5 +407,5 @@ export class IChingEngine {
   }
 }
 
-// シングルトンインスタンス
-export const ichingEngine = new IChingEngine();
+// Export singleton instance
+export const iChingEngine = new IChingEngine();

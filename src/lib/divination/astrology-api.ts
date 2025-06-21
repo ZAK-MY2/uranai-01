@@ -453,7 +453,7 @@ export class AstrologyApiClient {
               upcomingTransits.push({
                 date: dateStr,
                 description: `${planet.name} ${aspect.aspect} ${aspect.target}`,
-                importance: aspect.exact ? 'high' : 'medium'
+                importance: (aspect.exact ? 'high' : 'medium') as 'high' | 'medium' | 'low'
               });
             }
           }

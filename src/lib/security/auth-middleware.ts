@@ -216,7 +216,7 @@ export class AuthMiddleware {
     }
 
     // フォールバック
-    return request.ip || 'unknown';
+    return 'unknown';
   }
 
   /**

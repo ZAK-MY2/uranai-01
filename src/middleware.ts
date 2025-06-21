@@ -283,7 +283,7 @@ function getClientIP(request: NextRequest): string {
   if (vercelIP) return vercelIP.split(',')[0].trim();
   if (realIP) return realIP;
   
-  return request.ip || '127.0.0.1';
+  return '127.0.0.1';
 }
 
 export const config = {

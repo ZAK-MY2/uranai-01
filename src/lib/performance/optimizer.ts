@@ -211,7 +211,9 @@ export class PerformanceOptimizer {
       // キャッシュサイズ制限
       if (cache.size > 1000) {
         const firstKey = cache.keys().next().value;
-        cache.delete(firstKey);
+        if (firstKey !== undefined) {
+          cache.delete(firstKey);
+        }
       }
 
       return result;
@@ -235,7 +237,7 @@ export class PerformanceOptimizer {
       // キャッシュチェック
       const cached = cache.get(key);
       if (cached && (now - cached.timestamp) < ttl) {
-        return cached.result;
+        return await cached.result;
       }
 
       // 新しい実行
@@ -256,7 +258,7 @@ export class PerformanceOptimizer {
   /**
    * パフォーマンス監視の開始
    */
-  startPerformanceMonitoring(): void {
+  startPerformanceMonitoring(): () => void {
     // メモリ使用量監視
     const memoryMonitor = setInterval(() => {
       const usage = process.memoryUsage();
