@@ -1,5 +1,6 @@
-// 西洋占星術エンジン（簡略版）
+// 西洋占星術エンジン（高度版）- Swiss Ephemeris API統合
 import { BirthData, AstrologyResult, AstrologyChart, Planet, House, Aspect } from '@/types/divination';
+import { AstrologyApiClient } from './astrology-api';
 
 interface ZodiacSign {
   name: string;
