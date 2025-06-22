@@ -80,6 +80,10 @@
       "**/__tests__/**/*.test.{ts,tsx}",
       "**/*.{test,spec}.{ts,tsx}"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/tests/e2e/",
+      "<rootDir>/node_modules/"
+    ],
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!src/**/*.d.ts",

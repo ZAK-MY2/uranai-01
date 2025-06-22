@@ -234,17 +234,21 @@ export default function IntegratedDivinationPage() {
                 </div>
               )}
 
-              {/* 手相結果 */}
-              {result.palmistry && (
+              {/* 九星気学結果 */}
+              {result.kyusei && (
                 <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">🤚 手相</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">⭐ 九星気学</h3>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-blue-200">性格:</span>
-                      <span className="text-white ml-2 font-medium text-sm">{result.palmistry.analysis?.personality?.substring(0, 50) || '意志の強さと創造性'}...</span>
+                      <span className="text-blue-200">本命星:</span>
+                      <span className="text-white ml-2 font-medium">{result.kyusei.honmeisei.name}</span>
+                    </div>
+                    <div>
+                      <span className="text-blue-200">今日の運勢:</span>
+                      <span className="text-white ml-2 font-medium text-sm">{result.kyusei.timeUnyo.nichiun}</span>
                     </div>
                     <div className="text-blue-100 text-sm">
-                      {result.palmistry.interpretation?.overall?.substring(0, 100) || '手のひらに刻まれた運命の軌跡'}...
+                      {result.kyusei.interpretation?.overall?.substring(0, 100) || '九星が示す運命の方向性'}...
                     </div>
                   </div>
                 </div>

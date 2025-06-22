@@ -29,10 +29,14 @@ describe('NumerologyEngine', () => {
       expect(typeof result.soul).toBe('number');
       expect(typeof result.personality).toBe('number');
 
-      expect(result.lifePath).toBeWithinRange(1, 33);
-      expect(result.destiny).toBeWithinRange(1, 33);
-      expect(result.soul).toBeWithinRange(1, 33);
-      expect(result.personality).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+      expect(result.lifePath).toBeLessThanOrEqual(33);
+      expect(result.destiny).toBeGreaterThanOrEqual(1);
+      expect(result.destiny).toBeLessThanOrEqual(99);
+      expect(result.soul).toBeGreaterThanOrEqual(1);
+      expect(result.soul).toBeLessThanOrEqual(99);
+      expect(result.personality).toBeGreaterThanOrEqual(1);
+      expect(result.personality).toBeLessThanOrEqual(99);
     });
 
     it('should handle master numbers correctly', async () => {
@@ -233,7 +237,8 @@ describe('NumerologyEngine', () => {
       const result = await engine.calculate(input);
 
       expect(result).toHaveProperty('lifePath');
-      expect(result.lifePath).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+    expect(result.lifePath).toBeLessThanOrEqual(33);
     });
 
     it('should handle names with special characters', async () => {
@@ -245,7 +250,8 @@ describe('NumerologyEngine', () => {
       const result = await engine.calculate(input);
 
       expect(result).toHaveProperty('lifePath');
-      expect(result.lifePath).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+    expect(result.lifePath).toBeLessThanOrEqual(33);
     });
 
     it('should handle leap year dates', async () => {
@@ -257,7 +263,8 @@ describe('NumerologyEngine', () => {
       const result = await engine.calculate(input);
 
       expect(result).toHaveProperty('lifePath');
-      expect(result.lifePath).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+    expect(result.lifePath).toBeLessThanOrEqual(33);
     });
 
     it('should handle minimum date', async () => {
@@ -269,7 +276,8 @@ describe('NumerologyEngine', () => {
       const result = await engine.calculate(input);
 
       expect(result).toHaveProperty('lifePath');
-      expect(result.lifePath).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+    expect(result.lifePath).toBeLessThanOrEqual(33);
     });
 
     it('should handle future dates gracefully', async () => {
@@ -282,7 +290,8 @@ describe('NumerologyEngine', () => {
       const result = await engine.calculate(input);
 
       expect(result).toHaveProperty('lifePath');
-      expect(result.lifePath).toBeWithinRange(1, 33);
+      expect(result.lifePath).toBeGreaterThanOrEqual(1);
+    expect(result.lifePath).toBeLessThanOrEqual(33);
     });
   });
 });

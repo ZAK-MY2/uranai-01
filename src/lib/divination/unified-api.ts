@@ -4,7 +4,7 @@ import { astrologyEngine } from './astrology';
 import { iChingEngine } from './iching';
 import { shichuSuimeiEngine } from './shichu-suimei';
 import { vedicAstrologyEngine } from './vedic-astrology';
-import { runesEngine } from './runes';
+import { runeEngine } from './runes';
 import { kyuseiKigakuEngine } from './kyusei-kigaku';
 import { tarotEngine } from './tarot';
 import { timeIntegrationEngine } from './time-integration';
@@ -177,7 +177,7 @@ export class UnifiedDivinationAPI {
         });
         
       case 'runes':
-        return await runesEngine.performReading({
+        return await runeEngine.performReading({
           question: params.question,
           spreadType: params.spreadType || 'single_rune',
           casterName: params.name
@@ -192,7 +192,7 @@ export class UnifiedDivinationAPI {
         
       case 'tarot':
         const tarotEngine = (await import('./tarot')).tarotEngine;
-        return await tarotEngine.performReading({
+        return await tarotEngine.drawCards({
           question: params.question,
           spreadType: params.spreadType || 'three_card',
           seed: params.seed

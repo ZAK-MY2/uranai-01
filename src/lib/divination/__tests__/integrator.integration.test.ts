@@ -69,7 +69,8 @@ describe('DivinationIntegrator', () => {
         birthLocation: {
           latitude: 35.6762,
           longitude: 139.6503,
-          timezone: 'Asia/Tokyo'
+          timezone: 'Asia/Tokyo',
+          city: 'Tokyo'
         },
         question: 'What is my life purpose?',
         spreadType: 'celtic_cross',
@@ -92,7 +93,7 @@ describe('DivinationIntegrator', () => {
       expect(result.iching).toBeDefined();
       expect(result.shichu).toBeDefined();
       expect(result.runes).toBeDefined();
-      expect(result.palmistry).toBeDefined();
+      expect(result.kyusei).toBeDefined();
       expect(result.vedic).toBeDefined();
 
       // Tarot should have 10 cards for celtic cross
@@ -128,7 +129,7 @@ describe('DivinationIntegrator', () => {
       expect(result.tarot).toBeDefined();
       expect(result.iching).toBeDefined();
       expect(result.runes).toBeDefined();
-      expect(result.palmistry).toBeDefined();
+      expect(result.kyusei).toBeDefined();
       expect(result.environment).toBeDefined();
 
       // Tarot should have 5 cards
@@ -170,7 +171,7 @@ describe('DivinationIntegrator', () => {
       expect(result1.tarot.cards.map(c => c.card.id)).toEqual(result2.tarot.cards.map(c => c.card.id));
 
       // Environment might be slightly different due to time, but should be close
-      expect(result1.environment.date.split('T')[0]).toBe(result2.environment.date.split('T')[0]); // Same date
+      expect(result1.environment.timestamp.split('T')[0]).toBe(result2.environment.timestamp.split('T')[0]); // Same date
     }, 30000);
 
     it('should provide meaningful integration insights', async () => {
@@ -199,7 +200,7 @@ describe('DivinationIntegrator', () => {
 
       expect(result.integration.overallGuidance.length).toBeGreaterThan(100);
       expect(result.integration.environmentalInfluence.length).toBeGreaterThan(30);
-      expect(result.integration.integratedInsights.length).toBeGreaterThan(50);
+      expect(result.integration.integratedInsights?.length || 0).toBeGreaterThan(50);
 
       // Should contain Japanese text
       expect(/[ひらがなカタカナ一-龯]/.test(result.integration.overallGuidance)).toBe(true);
@@ -215,7 +216,8 @@ describe('DivinationIntegrator', () => {
         birthLocation: {
           latitude: 35.6762,
           longitude: 139.6503,
-          timezone: 'Asia/Tokyo'
+          timezone: 'Asia/Tokyo',
+          city: 'Tokyo'
         },
         question: 'What is my spiritual path?',
         spreadType: 'celtic_cross'
@@ -233,7 +235,7 @@ describe('DivinationIntegrator', () => {
       expect(result.iching).toBeDefined();
       expect(result.shichu).toBeDefined();
       expect(result.runes).toBeDefined();
-      expect(result.palmistry).toBeDefined();
+      expect(result.kyusei).toBeDefined();
       expect(result.vedic).toBeDefined();
 
       // Should include advanced astrology

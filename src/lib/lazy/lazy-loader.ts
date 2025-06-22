@@ -126,7 +126,7 @@ export class LazyLoader {
       'vedic-astrology': ['astrology'],
       'iching': ['runes'], // 古代占術同士
       'runes': ['iching'],
-      'palmistry': ['numerology'], // 手相と数秘術
+      'kyusei-kigaku': ['numerology'], // 九星気学と数秘術
       'integrator': ['numerology', 'tarot', 'astrology'] // 統合システムは基本的なものを使用
     };
 
@@ -280,10 +280,10 @@ export class DivinationLazyLoader extends LazyLoader {
       return runeEngine;
     });
 
-    // 手相エンジン
-    this.register('palmistry', async () => {
-      const { palmistryEngine } = await import('../divination/palmistry');
-      return palmistryEngine;
+    // 九星気学エンジン
+    this.register('kyusei-kigaku', async () => {
+      const { kyuseiKigakuEngine } = await import('../divination/kyusei-kigaku');
+      return kyuseiKigakuEngine;
     });
 
     // ヴェーダ占星術エンジン

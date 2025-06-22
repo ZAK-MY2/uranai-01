@@ -164,9 +164,9 @@ describe('九星気学検証システム', () => {
     it('同じ入力に対して常に同じ結果を返す', () => {
       const testParams = [1990, 5, 20];
       
-      const result1 = calculateVerifiedMainStar(...testParams);
-      const result2 = calculateVerifiedMainStar(...testParams);
-      const result3 = calculateVerifiedMainStar(...testParams);
+      const result1 = calculateVerifiedMainStar(testParams[0], testParams[1], testParams[2]);
+      const result2 = calculateVerifiedMainStar(testParams[0], testParams[1], testParams[2]);
+      const result3 = calculateVerifiedMainStar(testParams[0], testParams[1], testParams[2]);
       
       expect(result1).toBe(result2);
       expect(result2).toBe(result3);

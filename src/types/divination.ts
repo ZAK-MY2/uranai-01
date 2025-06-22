@@ -268,6 +268,13 @@ export interface KyuseiResult {
     advice: string;
     overall: string;
   };
+  validationInfo?: {
+    confidence: number;
+    sources: string[];
+    isVerified: boolean;
+    recommendations?: string[];
+  };
+  timestamp?: string;
 }
 
 // =============================================================================
@@ -318,6 +325,102 @@ export interface VedicResult {
 }
 
 // =============================================================================
+// カバラ占術 (Kabbalah)
+// =============================================================================
+export interface KabbalahInput {
+  fullName: string;
+  birthDate: string;
+}
+
+export interface KabbalahResult {
+  sephirot: Record<string, number>;
+  treePaths: Array<{
+    from: string;
+    to: string;
+    value: number;
+    meaning: string;
+  }>;
+  gematria: {
+    hebrew: number;
+    english: number;
+    japanese: number;
+  };
+  personalSephira: {
+    primary: string;
+    secondary: string;
+    characteristics: string[];
+  };
+  interpretation: {
+    personality: string;
+    spiritualPath: string;
+    lifeLesson: string;
+    strengths: string[];
+    challenges: string[];
+    advice: string;
+    overall: string;
+  };
+  timestamp: string;
+}
+
+// =============================================================================
+// ケルト占星術 (Celtic Astrology)
+// =============================================================================
+export interface CelticAstrologyInput {
+  fullName: string;
+  birthDate: string;
+}
+
+export interface CelticAstrologyResult {
+  treeSign: {
+    name: string;
+    gaelic: string;
+    period: string;
+    characteristics: string[];
+    mythology: string;
+  };
+  animalSpirit: {
+    name: string;
+    gaelic: string;
+    element: string;
+    characteristics: string[];
+    guidance: string;
+  };
+  oghamRune: {
+    symbol: string;
+    name: string;
+    meaning: string;
+    guidance: string;
+  };
+  seasonalEnergy: {
+    season: string;
+    festival: string;
+    energy: string;
+    characteristics: string[];
+  };
+  celticElement: {
+    primary: string;
+    secondary: string;
+    characteristics: string[];
+  };
+  sacredPlace: {
+    name: string;
+    type: string;
+    energy: string;
+    guidance: string;
+  };
+  interpretation: {
+    personality: string;
+    spiritualPath: string;
+    lifeLesson: string;
+    strengths: string[];
+    challenges: string[];
+    advice: string;
+    overall: string;
+  };
+  timestamp: string;
+}
+
+// =============================================================================
 // 統合占術システム
 // =============================================================================
 export interface IntegratedDivinationInput {
@@ -352,6 +455,8 @@ export interface IntegratedDivinationResult {
   runes?: RuneReading;
   kyusei?: KyuseiResult;
   vedic?: VedicResult;
+  kabbalah?: KabbalahResult;
+  celtic?: CelticAstrologyResult;
   environment: EnvironmentData;
   integration: {
     commonThemes: string[];
@@ -359,7 +464,7 @@ export interface IntegratedDivinationResult {
     environmentalInfluence: string;
     overallGuidance: string;
     specificAdvice: string[];
-    systemCorrelations?: any;
+    systemCorrelations?: Record<string, unknown>;
     integratedInsights?: string;
   };
 }
@@ -376,7 +481,7 @@ export interface DivinationResponse<T> {
 
 export interface CacheEntry {
   key: string;
-  data: any;
+  data: Record<string, unknown>;
   expiresAt: number;
 }
 
@@ -390,13 +495,13 @@ export type { EnvironmentData, LunarData, WeatherData, AstronomicalData, Planeta
 // =============================================================================
 // ユーティリティ型
 // =============================================================================
-export type DivinationType = 'numerology' | 'tarot' | 'astrology' | 'integrated';
+export type DivinationType = 'numerology' | 'tarot' | 'astrology' | 'kyusei' | 'integrated';
 
 export interface DivinationSession {
   id: string;
   type: DivinationType;
-  input: Record<string, any>;
-  result: Record<string, any>;
+  input: Record<string, unknown>;
+  result: Record<string, unknown>;
   createdAt: string;
   interpretation?: string;
 }

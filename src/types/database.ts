@@ -42,8 +42,8 @@ export interface Database {
           id: string;
           user_id: string;
           session_type: SessionType;
-          input_data: Record<string, any>;
-          results: Record<string, any>;
+          input_data: Record<string, unknown>;
+          results: Record<string, unknown>;
           environment_data: EnvironmentData | null;
           interpretation: string | null;
           created_at: string;
@@ -52,8 +52,8 @@ export interface Database {
           id?: string;
           user_id: string;
           session_type: SessionType;
-          input_data: Record<string, any>;
-          results: Record<string, any>;
+          input_data: Record<string, unknown>;
+          results: Record<string, unknown>;
           environment_data?: EnvironmentData | null;
           interpretation?: string | null;
           created_at?: string;
@@ -62,8 +62,8 @@ export interface Database {
           id?: string;
           user_id?: string;
           session_type?: SessionType;
-          input_data?: Record<string, any>;
-          results?: Record<string, any>;
+          input_data?: Record<string, unknown>;
+          results?: Record<string, unknown>;
           environment_data?: EnvironmentData | null;
           interpretation?: string | null;
           created_at?: string;
@@ -75,7 +75,7 @@ export interface Database {
           cache_key: string;
           divination_type: string;
           input_hash: string;
-          result_data: Record<string, any>;
+          result_data: Record<string, unknown>;
           expires_at: string;
           created_at: string;
         };
@@ -84,7 +84,7 @@ export interface Database {
           cache_key: string;
           divination_type: string;
           input_hash: string;
-          result_data: Record<string, any>;
+          result_data: Record<string, unknown>;
           expires_at: string;
           created_at?: string;
         };
@@ -93,7 +93,7 @@ export interface Database {
           cache_key?: string;
           divination_type?: string;
           input_hash?: string;
-          result_data?: Record<string, any>;
+          result_data?: Record<string, unknown>;
           expires_at?: string;
           created_at?: string;
         };
@@ -103,21 +103,21 @@ export interface Database {
           id: string;
           data_type: string;
           location: LocationData | null;
-          data: Record<string, any>;
+          data: Record<string, unknown>;
           collected_at: string;
         };
         Insert: {
           id?: string;
           data_type: string;
           location?: LocationData | null;
-          data: Record<string, any>;
+          data: Record<string, unknown>;
           collected_at?: string;
         };
         Update: {
           id?: string;
           data_type?: string;
           location?: LocationData | null;
-          data?: Record<string, any>;
+          data?: Record<string, unknown>;
           collected_at?: string;
         };
       };
@@ -126,21 +126,21 @@ export interface Database {
           id: string;
           user_id: string;
           setting_key: string;
-          setting_value: Record<string, any>;
+          setting_value: Record<string, unknown>;
           updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           setting_key: string;
-          setting_value: Record<string, any>;
+          setting_value: Record<string, unknown>;
           updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           setting_key?: string;
-          setting_value?: Record<string, any>;
+          setting_value?: Record<string, unknown>;
           updated_at?: string;
         };
       };
@@ -176,7 +176,7 @@ export interface LocationData {
   longitude: number;
 }
 
-export type SessionType = 'numerology' | 'tarot' | 'astrology' | 'integrated';
+export type SessionType = 'numerology' | 'tarot' | 'astrology' | 'kyusei' | 'integrated';
 
 export interface EnvironmentData {
   lunar: LunarData;
@@ -192,6 +192,13 @@ export interface LunarData {
   illumination: number;
   nextNewMoon: string;
   nextFullMoon: string;
+  distanceFromEarth?: {
+    kilometers: number;
+    astronomicalUnits: number;
+    earthRadii: number;
+    phase: string;
+    perigeeApogee: string;
+  };
 }
 
 export interface WeatherData {

@@ -127,7 +127,8 @@ describe('Performance Tests', () => {
         birthLocation: {
           latitude: 35.6762,
           longitude: 139.6503,
-          timezone: 'Asia/Tokyo'
+          timezone: 'Asia/Tokyo',
+          city: 'Tokyo'
         },
         question: 'フル占星術データでのパフォーマンステスト',
         spreadType: 'five_card'

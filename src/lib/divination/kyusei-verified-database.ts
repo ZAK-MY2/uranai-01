@@ -51,11 +51,11 @@ export interface DirectionRuleSet {
 }
 
 // 洛書（Lo Shu）正確な配置
-export const VERIFIED_LO_SHU_ARRANGEMENT = [
+export const VERIFIED_LO_SHU_ARRANGEMENT: number[][] = [
   [4, 9, 2],
   [3, 5, 7],
   [8, 1, 6]
-] as const;
+];
 
 // 本命星正確計算（4ソース以上で検証）
 export function calculateVerifiedMainStar(birthYear: number, birthMonth: number, birthDay: number): number {

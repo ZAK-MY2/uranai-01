@@ -1,5 +1,5 @@
 // API route tests for numerology endpoint
-import { POST } from '../numerology/route';
+import { POST } from '../divination/numerology/route';
 import { NextRequest } from 'next/server';
 
 // Mock the numerology engine

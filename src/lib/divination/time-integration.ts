@@ -331,8 +331,8 @@ export class TimeIntegrationEngine {
       '水': Math.max(0, Math.sin((dayOfYear - 355) * 2 * Math.PI / 365)) // 冬
     };
     
-    const dominant = elements.reduce((a, b) => seasonalStrength[a] > seasonalStrength[b] ? a : b) as any;
-    const secondary = elements.filter(e => e !== dominant).reduce((a, b) => seasonalStrength[a] > seasonalStrength[b] ? a : b) as any;
+    const dominant = elements.reduce((a, b) => (seasonalStrength as Record<string, number>)[a] > (seasonalStrength as Record<string, number>)[b] ? a : b) as '木' | '火' | '土' | '金' | '水';
+    const secondary = elements.filter(e => e !== dominant).reduce((a, b) => (seasonalStrength as Record<string, number>)[a] > (seasonalStrength as Record<string, number>)[b] ? a : b) as '木' | '火' | '土' | '金' | '水';
     
     return {
       dominant,

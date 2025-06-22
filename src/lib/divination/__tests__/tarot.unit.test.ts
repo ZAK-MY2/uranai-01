@@ -20,7 +20,7 @@ describe('TarotEngine', () => {
       const result = await engine.drawCards(input);
 
       expect(result.cards).toHaveLength(3);
-      expect(result.spreadType).toBe('three_card');
+      expect(result.spread.type).toBe('three_card');
       expect(result.cards.forEach(card => {
         expect(card).toHaveProperty('card');
         expect(card).toHaveProperty('position');
@@ -39,7 +39,7 @@ describe('TarotEngine', () => {
       const result = await engine.drawCards(input);
 
       expect(result.cards).toHaveLength(10);
-      expect(result.spreadType).toBe('celtic_cross');
+      expect(result.spread.type).toBe('celtic_cross');
     });
 
     it('should draw one card for single card spread', async () => {
@@ -52,7 +52,7 @@ describe('TarotEngine', () => {
       const result = await engine.drawCards(input);
 
       expect(result.cards).toHaveLength(1);
-      expect(result.spreadType).toBe('single_card');
+      expect(result.spread.type).toBe('single_card');
     });
 
     it('should generate consistent results with same seed', async () => {
@@ -169,9 +169,9 @@ describe('TarotEngine', () => {
         expect(typeof drawnCard.card.name).toBe('string');
         expect(['major', 'minor']).toContain(drawnCard.card.arcana);
         expect(Array.isArray(drawnCard.card.keywords)).toBe(true);
-        expect(typeof drawnCard.card.upright).toBe('string');
-        expect(typeof drawnCard.card.reversed).toBe('string');
-        expect(typeof drawnCard.card.description).toBe('string');
+        expect(typeof drawnCard.card.uprightMeaning).toBe('string');
+        expect(typeof drawnCard.card.reversedMeaning).toBe('string');
+        expect(typeof drawnCard.card.uprightMeaning).toBe('string');
       });
     });
 
@@ -254,7 +254,7 @@ describe('TarotEngine', () => {
           const card = result.cards[0];
           
           // The interpretation should be different from upright meaning
-          expect(card.interpretation).not.toBe(card.card.upright);
+          expect(card.interpretation).not.toBe(card.card.uprightMeaning);
           expect(card.interpretation.length).toBeGreaterThan(10);
         }
         attempts++;

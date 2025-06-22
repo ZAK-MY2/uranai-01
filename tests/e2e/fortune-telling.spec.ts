@@ -201,7 +201,7 @@ test.describe('Fortune Telling Application', () => {
     await page.click('button:has-text("統合占術を実行")');
     
     // Should show loading indicator
-    await expect(page.locator('text=計算中' || 'text=読み込み中' || '[data-testid="loading"]')).toBeVisible();
+    await expect(page.locator('text=計算中').or(page.locator('text=読み込み中')).or(page.locator('[data-testid="loading"]'))).toBeVisible();
     
     // Wait for completion
     await expect(page.locator('text=統合占術結果')).toBeVisible({ timeout: 60000 });
@@ -221,6 +221,6 @@ test.describe('Fortune Telling Application', () => {
     await page.click('button:has-text("占う")');
     
     // Should show error message
-    await expect(page.locator('text=エラーが発生しました' || 'text=接続エラー')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=エラーが発生しました').or(page.locator('text=接続エラー'))).toBeVisible({ timeout: 10000 });
   });
 });

@@ -9,8 +9,10 @@ import {
   IChingReading,
   ShichuResult,
   RuneReading,
-  PalmistryResult,
-  VedicResult
+  KyuseiResult,
+  VedicResult,
+  KabbalahResult,
+  CelticAstrologyResult
 } from '@/types/divination';
 import { numerologyEngine } from './numerology';
 import { tarotEngine } from './tarot';
@@ -18,8 +20,10 @@ import { astrologyEngine } from './astrology';
 import { iChingEngine } from './iching';
 import { shichuSuimeiEngine } from './shichu-suimei';
 import { runeEngine } from './runes';
-import { palmistryEngine } from './palmistry';
+import { kyuseiKigakuEngine } from './kyusei-kigaku';
 import { vedicAstrologyEngine } from './vedic-astrology';
+import { kabbalahEngine } from './kabbalah';
+import { celticAstrologyEngine } from './celtic-astrology';
 import { AdvancedAstrologyEngine } from './advanced-astrology';
 import { environmentEngine } from '../environment';
 
@@ -45,8 +49,10 @@ export class DivinationIntegrator {
         iching, 
         shichu, 
         runes, 
-        palmistry, 
+        kyusei, 
         vedic, 
+        kabbalah,
+        celtic,
         environment
       ] = await Promise.all([
         this.executeNumerology(input),
@@ -55,14 +61,16 @@ export class DivinationIntegrator {
         this.executeIChing(input),
         this.executeShichuSuimei(input),
         this.executeRunes(input),
-        this.executePalmistry(input),
+        this.executeKyusei(input),
         this.executeVedicAstrology(input),
+        this.executeKabbalah(input),
+        this.executeCelticAstrology(input),
         environmentEngine.getCurrentEnvironment(location.latitude, location.longitude)
       ]);
 
       // 結果を統合
       const integration = this.integrateResults(
-        numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic, environment, input
+        numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic, environment, input
       );
 
       return {
@@ -72,8 +80,10 @@ export class DivinationIntegrator {
         iching,
         shichu,
         runes,
-        palmistry,
+        kyusei,
         vedic,
+        kabbalah,
+        celtic,
         environment,
         integration
       };
@@ -245,43 +255,17 @@ export class DivinationIntegrator {
   }
 
   /**
-   * 手相占いの実行
+   * 九星気学の実行
    */
-  private async executePalmistry(input: IntegratedDivinationInput): Promise<PalmistryResult | undefined> {
+  private async executeKyusei(input: IntegratedDivinationInput): Promise<KyuseiResult | undefined> {
     try {
-      // 基本的な手相情報を生成（実際のアプリでは画像解析等を使用）
-      return await palmistryEngine.performReading({
-        hand: 'right', // デフォルトは右手
+      return await kyuseiKigakuEngine.performReading({
+        name: input.fullName,
         birthDate: input.birthDate,
-        age: this.calculateAge(input.birthDate),
-        palmFeatures: {
-          lines: {
-            heart: { length: 80, depth: 'medium', breaks: [], forks: [] },
-            head: { length: 75, depth: 'deep', breaks: [], forks: ['end'] },
-            life: { length: 85, depth: 'medium', breaks: [], curve: 'normal' },
-            fate: { present: true, clarity: 'clear', startPoint: 'base' }
-          },
-          mounts: {
-            venus: 'prominent',
-            jupiter: 'normal',
-            saturn: 'flat',
-            apollo: 'normal',
-            mercury: 'prominent',
-            luna: 'normal',
-            mars_positive: 'normal',
-            mars_negative: 'normal'
-          },
-          fingers: {
-            thumb: { flexibility: 'normal', tip: 'square' },
-            index: { length: 'normal', tip: 'pointed' },
-            middle: { length: 'long', tip: 'square' },
-            ring: { length: 'normal', tip: 'pointed' },
-            little: { length: 'short', tip: 'pointed' }
-          }
-        }
+        currentLocation: input.currentLocation
       });
     } catch (error) {
-      console.log('手相占いをスキップ:', error);
+      console.log('九星気学をスキップ:', error);
       return undefined;
     }
   }
@@ -308,6 +292,36 @@ export class DivinationIntegrator {
       });
     } catch (error) {
       console.log('ヴェーダ占星術をスキップ:', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * カバラ占術の実行
+   */
+  private async executeKabbalah(input: IntegratedDivinationInput): Promise<KabbalahResult | undefined> {
+    try {
+      return await kabbalahEngine.performReading({
+        fullName: input.fullName,
+        birthDate: input.birthDate
+      });
+    } catch (error) {
+      console.log('カバラ占術をスキップ:', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * ケルト占星術の実行
+   */
+  private async executeCelticAstrology(input: IntegratedDivinationInput): Promise<CelticAstrologyResult | undefined> {
+    try {
+      return await celticAstrologyEngine.performReading({
+        fullName: input.fullName,
+        birthDate: input.birthDate
+      });
+    } catch (error) {
+      console.log('ケルト占星術をスキップ:', error);
       return undefined;
     }
   }
@@ -373,7 +387,7 @@ export class DivinationIntegrator {
     }
     
     // 成長パターンの検出
-    if (reading.numerology && reading.palmistry) {
+    if (reading.numerology && reading.kyusei) {
       patterns.push('生来の資質と手相が示す発達パターンの一致');
     }
     
@@ -426,19 +440,21 @@ export class DivinationIntegrator {
     iching: IChingReading | undefined,
     shichu: ShichuResult | undefined,
     runes: RuneReading | undefined,
-    palmistry: PalmistryResult | undefined,
+    kyusei: KyuseiResult | undefined,
     vedic: VedicResult | undefined,
+    kabbalah: KabbalahResult | undefined,
+    celtic: CelticAstrologyResult | undefined,
     environment: EnvironmentData,
     input: IntegratedDivinationInput
   ): IntegratedDivinationResult['integration'] {
     // 共通テーマの抽出（全システム対応）
     const commonThemes = this.extractEnhancedCommonThemes(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic
     );
 
     // 矛盾の分析（全システム対応）
     const contradictions = this.analyzeEnhancedContradictions(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic
     );
 
     // 環境的影響の分析
@@ -446,22 +462,22 @@ export class DivinationIntegrator {
 
     // 総合的な指針（全システム対応）
     const overallGuidance = this.generateEnhancedOverallGuidance(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic, environment, input
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic, environment, input
     );
 
     // 具体的なアドバイス（全システム対応）
     const specificAdvice = this.generateEnhancedSpecificAdvice(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic, environment
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic, environment
     );
 
     // システム間の相関分析
     const systemCorrelations = this.analyzeSystemCorrelations(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic
     );
 
     // 統合的洞察
     const integratedInsights = this.generateIntegratedInsights(
-      numerology, tarot, astrology, iching, shichu, runes, palmistry, vedic, environment
+      numerology, tarot, astrology, iching, shichu, runes, kyusei, vedic, kabbalah, celtic, environment
     );
 
     return {
@@ -485,8 +501,10 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
-    vedic?: VedicResult
+    kyusei?: KyuseiResult,
+    vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult
   ): string[] {
     const themes: string[] = [];
 
@@ -518,14 +536,33 @@ export class DivinationIntegrator {
       }
     }
 
-    // 手相との相関
-    if (palmistry) {
-      themes.push(`手相が示す才能: ${palmistry.interpretation.talents.split('。')[0]}を活かす時期です`);
+    // 九星気学との相関
+    if (kyusei) {
+      const strengths = kyusei.interpretation.strengths.join('、');
+      themes.push(`九星気学が示す特性: ${strengths}を活かす時期です`);
     }
 
     // ヴェーダ占星術との相関
     if (vedic && astrology) {
       themes.push('東西占星術が共に示す宇宙的なタイミングの重要性');
+    }
+
+    // カバラとの相関
+    if (kabbalah) {
+      const primarySephira = kabbalah.personalSephira.primary;
+      themes.push(`カバラの知恵: ${primarySephira}のエネルギーが重要な鍵です`);
+      if (kabbalah.gematria.hebrew > 7) {
+        themes.push('深いスピリチュアルな学びの時期です');
+      }
+    }
+
+    // ケルト占星術との相関
+    if (celtic) {
+      const treeSign = celtic.treeSign.name;
+      themes.push(`ケルトの古い知恵: ${treeSign}の樹の特性が現れています`);
+      if (celtic.seasonalEnergy.energy.includes('再生') || celtic.seasonalEnergy.energy.includes('変容')) {
+        themes.push('ケルトのサイクルが示す新しい始まりの時期です');
+      }
     }
 
     return themes.length > 0 ? themes : ['多面的な成長と発展の時期です'];
@@ -541,8 +578,10 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
-    vedic?: VedicResult
+    kyusei?: KyuseiResult,
+    vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult
   ): string[] {
     const contradictions: string[] = [];
 
@@ -561,8 +600,20 @@ export class DivinationIntegrator {
     }
 
     // 運命vs自由意志の矛盾
-    if (palmistry && runes) {
+    if (kyusei && runes) {
       contradictions.push('運命的要素と自己選択の力を調和させることが重要です');
+    }
+
+    // カバラvs他システムの矛盾
+    if (kabbalah && numerology) {
+      if (Math.abs(kabbalah.gematria.hebrew - numerology.lifePath) > 3) {
+        contradictions.push('数秘術とカバラの数値の違いは、表面と深層の違いを示しています');
+      }
+    }
+
+    // ケルトvs他システムの矛盾
+    if (celtic && astrology) {
+      contradictions.push('ケルトの自然中心の世界観と西洋占星術の宇宙中心の視点の違いを理解してください');
     }
 
     return contradictions;
@@ -578,8 +629,10 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
+    kyusei?: KyuseiResult,
     vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult,
     environment?: EnvironmentData,
     input?: IntegratedDivinationInput
   ): string {
@@ -603,8 +656,8 @@ export class DivinationIntegrator {
       guidance += `**古代の智慧（ルーン）**: ${runes.interpretation}\n\n`;
     }
 
-    if (palmistry) {
-      guidance += `**手に刻まれた運命（手相）**: ${palmistry.interpretation.overall}\n\n`;
+    if (kyusei) {
+      guidance += `**手に刻まれた運命（手相）**: ${kyusei.interpretation.overall}\n\n`;
     }
 
     if (astrology) {
@@ -613,6 +666,14 @@ export class DivinationIntegrator {
 
     if (vedic) {
       guidance += `**ヴェーダの智慧（インド占星術）**: ${vedic.interpretation.overall.substring(0, 100)}...\n\n`;
+    }
+
+    if (kabbalah) {
+      guidance += `**カバラの神秘（生命の樹）**: ${kabbalah.personalSephira.primary}のエネルギーがあなたの本質を表しています。\n\n`;
+    }
+
+    if (celtic) {
+      guidance += `**ケルトの智慧（樹木占星術）**: ${celtic.treeSign.name}の特性があなたの自然な力を示しています。\n\n`;
     }
 
     guidance += `**環境エネルギー**: ${environment?.lunar.phaseName}の影響下で、最適な行動を取ってください。\n\n`;
@@ -632,8 +693,10 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
+    kyusei?: KyuseiResult,
     vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult,
     environment?: EnvironmentData
   ): string[] {
     const advice: string[] = [];
@@ -655,12 +718,20 @@ export class DivinationIntegrator {
       advice.push(`**ルーンより**: 北欧の古代智慧が示す道を信頼してください`);
     }
 
-    if (palmistry) {
+    if (kyusei) {
       advice.push(`**手相より**: 手に刻まれた才能線を意識して能力開発してください`);
     }
 
     if (vedic) {
       advice.push(`**ヴェーダ占星術より**: カルマの法則に従った行動を心がけてください`);
+    }
+
+    if (kabbalah) {
+      advice.push(`**カバラより**: 生命の樹の智慧を日常生活に統合してください`);
+    }
+
+    if (celtic) {
+      advice.push(`**ケルト占星術より**: 自然のサイクルと調和した生き方を心がけてください`);
     }
 
     return advice;
@@ -676,14 +747,16 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
-    vedic?: VedicResult
+    kyusei?: KyuseiResult,
+    vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult
   ): any {
     return {
       eastWest: this.analyzeEastWestCorrelation(shichu, astrology),
       ancientModern: this.analyzeAncientModernCorrelation(iching, numerology),
       intuitionLogic: this.analyzeIntuitionLogicCorrelation(tarot, shichu),
-      fateChoice: this.analyzeFateChoiceCorrelation(palmistry, runes)
+      fateChoice: this.analyzeFateChoiceCorrelation(kyusei, runes)
     };
   }
 
@@ -697,8 +770,10 @@ export class DivinationIntegrator {
     iching?: IChingReading,
     shichu?: ShichuResult,
     runes?: RuneReading,
-    palmistry?: PalmistryResult,
+    kyusei?: KyuseiResult,
     vedic?: VedicResult,
+    kabbalah?: KabbalahResult,
+    celtic?: CelticAstrologyResult,
     environment?: EnvironmentData
   ): string {
     return `
@@ -726,8 +801,8 @@ export class DivinationIntegrator {
     return '直感的システムと論理的システムの相関関係';
   }
 
-  private analyzeFateChoiceCorrelation(palmistry?: PalmistryResult, runes?: RuneReading): string {
-    return '運命と自由選択のバランス関係';
+  private analyzeFateChoiceCorrelation(kyusei?: KyuseiResult, runes?: RuneReading): string {
+    return '九星気学の定命とルーンの自由選択のバランス関係';
   }
 
   /**

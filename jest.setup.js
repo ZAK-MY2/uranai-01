@@ -51,6 +51,17 @@ global.fetch = jest.fn(() =>
   })
 );
 
+// Mock Request and Response for Next.js API route tests
+global.Request = jest.fn().mockImplementation((input, init = {}) => ({
+  url: input,
+  method: init.method || 'GET',
+  headers: new Map(Object.entries(init.headers || {})),
+  body: init.body,
+  json: async () => JSON.parse(init.body || '{}'),
+}));
+
+global.Response = jest.fn();
+
 // Mock window.matchMedia for responsive design tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
