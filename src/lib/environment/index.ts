@@ -14,8 +14,14 @@ export class EnvironmentEngine {
         this.getAstronomicalData(lat, lon).catch(() => this.getDefaultAstronomicalData())
       ]);
 
+      // 月と地球の距離を追加計算
+      const lunarDistance = this.calculateLunarDistance();
+
       return {
-        lunar,
+        lunar: {
+          ...lunar,
+          distanceFromEarth: lunarDistance
+        },
         weather,
         astronomical,
         location: { latitude: lat, longitude: lon },
@@ -314,6 +320,86 @@ export class EnvironmentEngine {
    */
   getCacheExpiration(): Date {
     return new Date(Date.now() + 60 * 60 * 1000); // 1時間
+  }
+
+  /**
+   * 月と地球の距離を計算（日本時刻基準）
+   */
+  private calculateLunarDistance(): {
+    kilometers: number;
+    astronomicalUnits: number;
+    earthRadii: number;
+    phase: string;
+    perigeeApogee: string;
+  } {
+    const now = new Date();
+    
+    // 月の軌道は楕円で、近地点（perigee）約356,500km、遠地点（apogee）約406,700km
+    const avgDistance = 384400; // 平均距離 km
+    const variation = 25100; // 変動幅の半分
+    
+    // 月の軌道周期27.32日を使用
+    const orbitalPeriod = 27.32;
+    const daysSincePerigee = (now.getTime() / (1000 * 60 * 60 * 24)) % orbitalPeriod;
+    
+    // 楕円軌道による距離変化（簡略化）
+    const distanceVariation = Math.cos(2 * Math.PI * daysSincePerigee / orbitalPeriod);
+    const currentDistance = avgDistance + (variation * distanceVariation);
+    
+    // 月の位相による距離への影響も考慮（微細）
+    const lunarData = this.calculateLunarPhase(now);
+    const phaseAdjustment = Math.sin(lunarData.phase * 2 * Math.PI) * 500; // 最大±500km
+    
+    const finalDistance = currentDistance + phaseAdjustment;
+    
+    // 地球半径 6,371km、天文単位 149,597,870.7km
+    const earthRadius = 6371;
+    const astronomicalUnit = 149597870.7;
+    
+    // 近地点・遠地点の判定
+    let perigeeApogee: string;
+    if (finalDistance < 365000) {
+      perigeeApogee = '近地点接近中';
+    } else if (finalDistance > 400000) {
+      perigeeApogee = '遠地点接近中';
+    } else {
+      perigeeApogee = '平均距離';
+    }
+    
+    // 距離による影響フェーズ
+    let phase: string;
+    if (finalDistance < 370000) {
+      phase = '超接近期（強い重力影響）';
+    } else if (finalDistance < 385000) {
+      phase = '接近期（重力影響増大）';
+    } else if (finalDistance > 400000) {
+      phase = '遠隔期（重力影響減少）';
+    } else {
+      phase = '標準期（通常の重力影響）';
+    }
+    
+    return {
+      kilometers: Math.round(finalDistance),
+      astronomicalUnits: parseFloat((finalDistance / astronomicalUnit).toFixed(6)),
+      earthRadii: parseFloat((finalDistance / earthRadius).toFixed(2)),
+      phase,
+      perigeeApogee
+    };
+  }
+  
+  /**
+   * 月相の位相計算（再利用）
+   */
+  private calculateLunarPhase(date: Date): { phase: number; phaseName: string } {
+    const year = date.getFullYear();
+    const dayOfYear = Math.floor((date.getTime() - new Date(year, 0, 0).getTime()) / (86400000));
+    const lunarCycle = 29.53;
+    const phase = ((dayOfYear % lunarCycle) / lunarCycle);
+    
+    return {
+      phase,
+      phaseName: this.getMoonPhaseName(phase)
+    };
   }
 }
 

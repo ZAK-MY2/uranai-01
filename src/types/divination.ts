@@ -212,53 +212,61 @@ export interface RuneReading {
 }
 
 // =============================================================================
-// 手相 (Palmistry)
+// 九星気学 (Kyusei Kigaku)
 // =============================================================================
-export interface PalmistryInput {
-  hand: 'left' | 'right';
+export interface KyuseiInput {
+  name: string;
   birthDate: string;
-  age: number;
-  palmFeatures: {
-    lines: {
-      heart: { length: number; depth: string; breaks: string[]; forks: string[] };
-      head: { length: number; depth: string; breaks: string[]; forks: string[] };
-      life: { length: number; depth: string; breaks: string[]; curve: string };
-      fate: { present: boolean; clarity: string; startPoint: string };
-    };
-    mounts: {
-      venus: string;
-      jupiter: string;
-      saturn: string;
-      apollo: string;
-      mercury: string;
-      luna: string;
-      mars_positive: string;
-      mars_negative: string;
-    };
-    fingers: {
-      thumb: { flexibility: string; tip: string };
-      index: { length: string; tip: string };
-      middle: { length: string; tip: string };
-      ring: { length: string; tip: string };
-      little: { length: string; tip: string };
-    };
+  currentLocation?: {
+    latitude: number;
+    longitude: number;
   };
 }
 
-export interface PalmistryResult {
-  analysis: {
-    personality: string;
-    talents: string;
-    relationships: string;
-    career: string;
-    health: string;
-    timeline: string;
+export interface KyuseiStar {
+  number: number;
+  name: string;
+  element: '水' | '土' | '木' | '金' | '火';
+  characteristics?: string[];
+}
+
+export interface KyuseiBoard {
+  center: number;
+  positions: number[][];
+}
+
+export interface DirectionAnalysis {
+  direction: string;
+  type: 'yoshiho' | 'kyoho';
+  effect: string;
+  recommendation: string;
+}
+
+export interface KyuseiResult {
+  honmeisei: KyuseiStar;
+  getsumeisei: KyuseiStar;
+  keisha: KyuseiStar;
+  boards: {
+    nenban: KyuseiBoard;
+    getsuban: KyuseiBoard;
+    nichiban: KyuseiBoard;
+  };
+  directions: DirectionAnalysis[];
+  timeUnyo: {
+    nenun: string;
+    getsuun: string;
+    nichiun: string;
   };
   interpretation: {
-    overall: string;
-    talents: string;
-    challenges: string;
+    personality: string;
+    strengths: string[];
+    currentFortune: string;
+    monthlyFortune: string;
+    yearlyFortune: string;
+    luckyDirections: string[];
+    unluckyDirections: string[];
     advice: string;
+    overall: string;
   };
 }
 
@@ -342,7 +350,7 @@ export interface IntegratedDivinationResult {
   iching?: IChingReading;
   shichu?: ShichuResult;
   runes?: RuneReading;
-  palmistry?: PalmistryResult;
+  kyusei?: KyuseiResult;
   vedic?: VedicResult;
   environment: EnvironmentData;
   integration: {
