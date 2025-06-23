@@ -199,14 +199,14 @@ export default function AstrologyPage() {
                     <td className="py-3 px-4">{zodiacSymbols[astrology.sunSign]} {astrology.sunSign}</td>
                     <td className="py-3 px-4">8ハウス</td>
                     <td className="py-3 px-4">月とセクスタイル</td>
-                    <td className="py-3 px-4">15°23'</td>
+                    <td className="py-3 px-4">15°23&apos;</td>
                   </tr>
                   <tr className="border-b border-white/10">
                     <td className="py-3 px-4">{planetSymbols['月']} 月</td>
                     <td className="py-3 px-4">{zodiacSymbols[astrology.moonSign]} {astrology.moonSign}</td>
                     <td className="py-3 px-4">12ハウス</td>
                     <td className="py-3 px-4">金星とトライン</td>
-                    <td className="py-3 px-4">22°45'</td>
+                    <td className="py-3 px-4">22°45&apos;</td>
                   </tr>
                   {Object.entries(astrology.planets).map(([planet, data]) => (
                     <tr key={planet} className="border-b border-white/10">
@@ -214,7 +214,7 @@ export default function AstrologyPage() {
                       <td className="py-3 px-4">{zodiacSymbols[data.sign]} {data.sign}</td>
                       <td className="py-3 px-4">{data.house}ハウス</td>
                       <td className="py-3 px-4">{data.aspect}</td>
-                      <td className="py-3 px-4">{Math.floor(Math.random() * 30)}°{Math.floor(Math.random() * 60)}'</td>
+                      <td className="py-3 px-4">{Math.floor(Math.random() * 30)}°{Math.floor(Math.random() * 60)}&apos;</td>
                     </tr>
                   ))}
                 </tbody>

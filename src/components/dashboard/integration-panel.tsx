@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const convergenceNodes = [
@@ -35,12 +36,19 @@ export function IntegrationPanel() {
         ))}
       </div>
       
-      <p className="text-base leading-relaxed opacity-90 italic max-w-2xl mx-auto">
+      <p className="text-base leading-relaxed opacity-90 italic max-w-2xl mx-auto mb-6">
         今日のあなたは宇宙の大きな調和の中にいます。<br />
         支配的な数字は<span className="text-purple-400 font-medium">{mockDivinationData.integration.dominantNumber}</span>、
         キーワードは<span className="text-violet-400">{mockDivinationData.integration.keyThemes.slice(0, 2).join('と')}</span>。<br />
         {mockDivinationData.integration.actionSteps[3]}
       </p>
+      
+      <Link 
+        href="/divination/integrated"
+        className="inline-block px-8 py-3 bg-gradient-to-r from-purple-500/20 to-violet-500/20 rounded-full text-white hover:from-purple-500/30 hover:to-violet-500/30 transition-all duration-300 border border-purple-400/50"
+      >
+        統合占術詳細分析へ →
+      </Link>
     </div>
   );
 }
