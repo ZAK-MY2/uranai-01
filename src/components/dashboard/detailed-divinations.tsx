@@ -1,13 +1,39 @@
 'use client';
 
 import React from 'react';
+import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const detailedDivinations = [
-  { symbol: 'ᚱ', name: 'ルーン', result: 'ᚨᚾᛋᚢᛉ', description: '祖先の智慧が導く道。過去からの教訓を現在に活かしてください。' },
-  { symbol: '✦', name: '九星気学', result: '三碧木星', description: '成長と発展の時。新しいアイデアが具現化する絶好の機会です。' },
-  { symbol: '◯', name: 'ヴェーダ占星術', result: '魚座期', description: '霊性と直感の高まり。瞑想の時間を大切にしてください。' },
-  { symbol: '△', name: 'カバラ', result: '生命の樹', description: '全ての繋がりを感じる日。あなたの存在が宇宙の調和に貢献しています。' },
-  { symbol: '🌳', name: 'ケルト占星術', result: '樫の木', description: '力強さと持続性。困難に立ち向かう強さと智慧を持っています。' }
+  { 
+    symbol: 'ᚱ', 
+    name: 'ルーン', 
+    result: mockDivinationData.runes.drawn.map(r => r.name).join('・'), 
+    description: mockDivinationData.runes.interpretation 
+  },
+  { 
+    symbol: '✦', 
+    name: '風水', 
+    result: `${mockDivinationData.fengShui.flyingStars.prosperity}運星`, 
+    description: mockDivinationData.fengShui.advice 
+  },
+  { 
+    symbol: '◯', 
+    name: 'ヴェーダ占星術', 
+    result: mockDivinationData.vedicAstrology.nakshatra, 
+    description: mockDivinationData.vedicAstrology.interpretation 
+  },
+  { 
+    symbol: '△', 
+    name: 'カバラ', 
+    result: mockDivinationData.kabbalah.treeOfLife.currentSephirah, 
+    description: mockDivinationData.kabbalah.interpretation 
+  },
+  { 
+    symbol: '🌳', 
+    name: 'ケルト占星術', 
+    result: mockDivinationData.celticAstrology.treeSign, 
+    description: mockDivinationData.celticAstrology.interpretation 
+  }
 ];
 
 export function DetailedDivinations() {

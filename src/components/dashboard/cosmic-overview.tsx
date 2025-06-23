@@ -1,18 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { mockDivinationData, getDailyVariation } from '@/lib/mock/divination-data';
 
 export function CosmicOverview() {
-  const [score, setScore] = useState(92);
+  const [score, setScore] = useState(mockDivinationData.overallScore);
   
   // リアルタイムスコア更新シミュレーション
   useEffect(() => {
     const interval = setInterval(() => {
-      setScore(prev => {
-        const change = (Math.random() - 0.5) * 2;
-        const newScore = prev + change;
-        return Math.max(85, Math.min(95, Math.round(newScore)));
-      });
+      setScore(Math.round(getDailyVariation(mockDivinationData.overallScore)));
     }, 5000);
     
     return () => clearInterval(interval);
@@ -52,9 +49,9 @@ export function CosmicOverview() {
       </div>
       
       <p className="text-sm leading-relaxed opacity-80 italic">
-        10の古代の智慧が示すあなたの今日。<br />
-        宇宙のエネルギーが高い調和を保っています。<br />
-        新しい始まりに最適な日です。
+        {mockDivinationData.integration.keyThemes.join('、')}のエネルギーに満ちています。<br />
+        {mockDivinationData.integration.dominantElement}の要素が強く、<br />
+        {mockDivinationData.integration.synchronicities[0]}。
       </p>
       
       <style jsx>{`

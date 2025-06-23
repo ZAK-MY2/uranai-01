@@ -1,8 +1,13 @@
 'use client';
 
 import React from 'react';
+import { mockDivinationData, getHourlyEnergy } from '@/lib/mock/divination-data';
 
 export function DailyGuidance() {
+  const hourlyEnergy = getHourlyEnergy();
+  const todaysGuidance = mockDivinationData.integration.guidanceMessage;
+  const actionSteps = mockDivinationData.integration.actionSteps;
+  
   return (
     <div 
       className="border border-violet-500/15 rounded-2xl p-6"
@@ -10,13 +15,20 @@ export function DailyGuidance() {
     >
       <h2 className="text-base font-extralight mb-4 text-violet-400">今日の宇宙指針</h2>
       
-      <p className="text-sm leading-relaxed opacity-80">
-        変化の風が吹いています。<br />
-        新しい可能性に心を開き、<br />
-        直感を信じて行動してください。<br /><br />
-        今日は創造性が高まる日。<br />
-        アイデアを形にする絶好の機会です。
+      <p className="text-xs mb-3 text-purple-300/70">{hourlyEnergy}</p>
+      
+      <p className="text-sm leading-relaxed opacity-80 mb-4">
+        {todaysGuidance}
       </p>
+      
+      <div className="mt-4 pt-4 border-t border-violet-500/10">
+        <p className="text-xs font-light mb-2 text-violet-400">今日の実践ポイント:</p>
+        <ul className="text-xs leading-relaxed opacity-70 space-y-1">
+          {actionSteps.slice(0, 2).map((step, index) => (
+            <li key={index}>• {step}</li>
+          ))}
+        </ul>
+      </div>
       
       <style jsx>{`
         @keyframes gentleFloat {

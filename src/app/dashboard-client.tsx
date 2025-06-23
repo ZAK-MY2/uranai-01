@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { User } from '@supabase/supabase-js';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { CosmicOverview } from '@/components/dashboard/cosmic-overview';
@@ -9,12 +10,19 @@ import { DailyGuidance } from '@/components/dashboard/daily-guidance';
 import { DivinationOverview } from '@/components/dashboard/divination-overview';
 import { DetailedDivinations } from '@/components/dashboard/detailed-divinations';
 import { IntegrationPanel } from '@/components/dashboard/integration-panel';
+import { EnvironmentData } from '@/types/database';
 
-export default function DashboardClient() {
+interface DashboardClientProps {
+  user: User;
+  environmentData: EnvironmentData | null;
+  sessions: any[];
+}
+
+export default function DashboardClient({ user, environmentData, sessions }: DashboardClientProps) {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
-      <DashboardHeader user={null} />
+      <DashboardHeader user={user} />
       
       <main className="relative z-10 pt-20 min-h-screen">
         <div className="max-w-[1400px] mx-auto px-5">
@@ -27,7 +35,7 @@ export default function DashboardClient() {
             
             {/* 環境データ（右上） */}
             <div className="lg:col-span-1">
-              <EnvironmentalData environmentData={null} />
+              <EnvironmentalData environmentData={environmentData} />
             </div>
             
             {/* 今日の指針（右中） */}

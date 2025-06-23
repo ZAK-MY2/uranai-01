@@ -1,13 +1,39 @@
 'use client';
 
 import React from 'react';
+import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const miniDivinations = [
-  { symbol: '○', name: '数秘術', result: '7', status: '探求' },
-  { symbol: '◯', name: 'タロット', result: '輪', status: '転換' },
-  { symbol: '☽', name: '占星術', result: '♋', status: '感情' },
-  { symbol: '☰', name: '易経', result: '夬', status: '決断' },
-  { symbol: '◈', name: '四柱推命', result: '調和', status: '安定' }
+  { 
+    symbol: '○', 
+    name: '数秘術', 
+    result: `${mockDivinationData.numerology.lifePathNumber}`, 
+    status: mockDivinationData.numerology.interpretation.lifePathMeaning.split('と')[0] 
+  },
+  { 
+    symbol: '◯', 
+    name: 'タロット', 
+    result: mockDivinationData.tarot.cards.present.name, 
+    status: mockDivinationData.tarot.cards.present.keywords[0] 
+  },
+  { 
+    symbol: '☽', 
+    name: '占星術', 
+    result: mockDivinationData.astrology.sunSign, 
+    status: mockDivinationData.astrology.todaysTransit.split('-')[0].trim() 
+  },
+  { 
+    symbol: '☰', 
+    name: '易経', 
+    result: mockDivinationData.iChing.hexagram.name.slice(2), 
+    status: '豊かさ' 
+  },
+  { 
+    symbol: '◈', 
+    name: '九星気学', 
+    result: mockDivinationData.nineStarKi.mainStar.slice(0, 2), 
+    status: mockDivinationData.nineStarKi.todaysEnergy.split('の')[0] 
+  }
 ];
 
 export function DivinationOverview() {

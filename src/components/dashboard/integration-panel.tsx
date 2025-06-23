@@ -1,11 +1,21 @@
 'use client';
 
 import React from 'react';
+import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const convergenceNodes = [
-  { title: '共通テーマ', content: '変化と成長の時期。新しい段階への移行が示されています。全ての占術が同じ方向を指しています。' },
-  { title: 'エネルギーの流れ', content: '創造性と直感力が高まっています。月のエネルギーが感情と想像力を活性化させています。' },
-  { title: '行動指針', content: '恐れを手放し、新しい可能性に向かって進む時です。内なる声に耳を傾けてください。' }
+  { 
+    title: '共通テーマ', 
+    content: mockDivinationData.integration.synchronicities.join(' ')
+  },
+  { 
+    title: 'エネルギーの流れ', 
+    content: `${mockDivinationData.integration.dominantElement}のエレメントが強く現れています。${mockDivinationData.astrology.interpretation}`
+  },
+  { 
+    title: '行動指針', 
+    content: mockDivinationData.integration.guidanceMessage
+  }
 ];
 
 export function IntegrationPanel() {
@@ -27,8 +37,9 @@ export function IntegrationPanel() {
       
       <p className="text-base leading-relaxed opacity-90 italic max-w-2xl mx-auto">
         今日のあなたは宇宙の大きな調和の中にいます。<br />
-        10の古代の智慧が一つの方向を示し、変化と成長の時であることを告げています。<br />
-        恐れることなく、新しい一歩を踏み出してください。
+        支配的な数字は<span className="text-purple-400 font-medium">{mockDivinationData.integration.dominantNumber}</span>、
+        キーワードは<span className="text-violet-400">{mockDivinationData.integration.keyThemes.slice(0, 2).join('と')}</span>。<br />
+        {mockDivinationData.integration.actionSteps[3]}
       </p>
     </div>
   );
