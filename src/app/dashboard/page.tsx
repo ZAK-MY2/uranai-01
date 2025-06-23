@@ -1,18 +1,19 @@
-'use client';
-
 import React from 'react';
-import { CosmicBackground } from '@/components/ui/cosmic-background';
-import { DashboardHeader } from '@/components/dashboard/header';
-import { CosmicOverview } from '@/components/dashboard/cosmic-overview';
-import { EnvironmentalData } from '@/components/dashboard/environmental-data';
-import { DailyGuidance } from '@/components/dashboard/daily-guidance';
-import { DivinationOverview } from '@/components/dashboard/divination-overview';
-import { DetailedDivinations } from '@/components/dashboard/detailed-divinations';
-import { IntegrationPanel } from '@/components/dashboard/integration-panel';
+import dynamic from 'next/dynamic';
+
+// 動的インポートでハイドレーションエラーを回避
+const CosmicBackground = dynamic(() => import('@/components/ui/cosmic-background').then(mod => mod.CosmicBackground), { ssr: false });
+const DashboardHeader = dynamic(() => import('@/components/dashboard/header').then(mod => mod.DashboardHeader), { ssr: false });
+const CosmicOverview = dynamic(() => import('@/components/dashboard/cosmic-overview').then(mod => mod.CosmicOverview), { ssr: false });
+const EnvironmentalData = dynamic(() => import('@/components/dashboard/environmental-data').then(mod => mod.EnvironmentalData), { ssr: false });
+const DailyGuidance = dynamic(() => import('@/components/dashboard/daily-guidance').then(mod => mod.DailyGuidance), { ssr: false });
+const DivinationOverview = dynamic(() => import('@/components/dashboard/divination-overview').then(mod => mod.DivinationOverview), { ssr: false });
+const DetailedDivinations = dynamic(() => import('@/components/dashboard/detailed-divinations').then(mod => mod.DetailedDivinations), { ssr: false });
+const IntegrationPanel = dynamic(() => import('@/components/dashboard/integration-panel').then(mod => mod.IntegrationPanel), { ssr: false });
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       <DashboardHeader />
       

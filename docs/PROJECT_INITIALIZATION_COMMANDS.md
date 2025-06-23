@@ -19,16 +19,20 @@ cd /Users/masato-mba2024/Develop/Zeami-1\ ZAK
 # プロンプトに従って選択:
 # - プロジェクト名: [英数字、ハイフン、アンダースコアのみ]
 # - プロジェクトタイプ: 1) Next.js 2) Next.js + Firebase 3) シンプル
+# ※URANAI-01の経験から、基本は「Next.js + Supabase」が標準構成
 ```
 
-#### パターンB: 手動作成（カスタム要件がある場合）
+#### パターンB: 手動作成（Next.js + Supabase標準構成）
 ```bash
 # プロジェクトディレクトリ作成
 mkdir -p /Users/masato-mba2024/Develop/Zeami-1\ ZAK/projects/[プロジェクト名]
 cd /Users/masato-mba2024/Develop/Zeami-1\ ZAK/projects/[プロジェクト名]
 
-# Next.js初期化
+# Next.js初期化（URANAI-01標準構成）
 npx create-next-app@latest . --typescript --tailwind --app --eslint
+
+# Supabase関連パッケージインストール
+npm install @supabase/supabase-js @supabase/ssr
 
 # Zeami知識システムの設定
 mkdir -p .zeami-knowledge
@@ -46,7 +50,9 @@ cat > CLAUDE.md << 'EOF'
 
 ## 技術スタック
 - Next.js 15 + TypeScript
-- [その他の主要技術]
+- Supabase（データベース・認証）
+- Tailwind CSS
+- [プロジェクト固有の技術]
 
 ## 開発コマンド
 ```bash
@@ -97,16 +103,23 @@ EOF
 # .env.exampleから.env.localを作成
 cp .env.example .env.local
 
-# 必要に応じて環境変数を設定
-# Next.js + Supabaseの場合の例:
+# Next.js + Supabase標準構成の環境変数
 cat > .env.local << 'EOF'
-# Supabase設定
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# Supabase設定（必須）
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # アプリケーション設定
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# セキュリティ設定（推奨）
+ENCRYPTION_KEY=your_encryption_key
+JWT_SECRET=your_jwt_secret
+
+# 外部API（プロジェクトに応じて）
+# OPENWEATHER_API_KEY=
+# NASA_API_KEY=
 EOF
 ```
 
@@ -116,11 +129,17 @@ EOF
 # 基本的な依存関係
 npm install
 
-# Supabaseプロジェクトの場合
+# Supabase関連（Zeami標準構成）
 npm install @supabase/supabase-js @supabase/ssr
 
 # 型チェック設定（package.jsonに追加）
 npm pkg set scripts.type-check="tsc --noEmit"
+
+# 開発支援ツール（推奨）
+npm install -D @types/node
+
+# Supabase CLI（データベース管理用）
+npm install -D supabase
 ```
 
 ## 🚀 Claude Code開発開始時のコマンド
@@ -174,17 +193,18 @@ Claude Codeに対する標準的な指示文：
 
 ## 📝 テンプレート的な開発指示文
 
-### 新機能開発時
+### 新機能開発時（Next.js + Supabase構成）
 ```
 「[機能名]を実装します。
 
 TodoWriteで以下のタスクを作成し、段階的に進めてください：
-1. 型定義の作成/更新
-2. コアロジックの実装
-3. APIエンドポイント（必要時）
-4. フロントエンド実装
-5. テスト作成
-6. 品質チェック実行
+1. 型定義の作成/更新（src/types/）
+2. Supabaseスキーマ更新（必要時）
+3. コアロジックの実装（src/lib/）
+4. APIエンドポイント（src/app/api/）
+5. フロントエンド実装（src/app/）
+6. テスト作成
+7. 品質チェック実行（lint && type-check && build）
 
 実装完了後は開発ログを作成し、PROJECT_KNOWLEDGE.mdに重要な学びを記録してください。」
 ```
@@ -203,7 +223,81 @@ TodoWriteで以下のタスクを作成し、段階的に進めてください�
 修正内容と学んだことを開発ログに記録してください。」
 ```
 
-## 🔧 プロジェクト設定のカスタマイズ
+## 🔧 Next.js + Supabase標準設定
+
+### Supabase設定ファイル（URANAI-01パターン）
+```bash
+# src/lib/supabase/client.ts (クライアント用)
+mkdir -p src/lib/supabase
+cat > src/lib/supabase/client.ts << 'EOF'
+import { createBrowserClient } from '@supabase/ssr';
+
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+EOF
+
+# src/lib/supabase/server.ts (サーバー用)
+cat > src/lib/supabase/server.ts << 'EOF'
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export function createClient() {
+  const cookieStore = cookies();
+  
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
+}
+EOF
+```
+
+### データベースマイグレーション
+```bash
+# supabaseディレクトリ作成
+mkdir -p supabase/migrations
+
+# 初期スキーマ作成
+cat > supabase/migrations/001_initial_schema.sql << 'EOF'
+-- プロジェクト初期スキーマ
+create extension if not exists "uuid-ossp";
+
+-- ユーザープロファイルテーブル
+create table public.profiles (
+  id uuid references auth.users on delete cascade primary key,
+  email text unique not null,
+  full_name text,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- RLSポリシー
+alter table public.profiles enable row level security;
+
+create policy "Users can view own profile" on public.profiles
+  for select using (auth.uid() = id);
+
+create policy "Users can update own profile" on public.profiles
+  for update using (auth.uid() = id);
+EOF
+```
 
 ### TypeScript設定の標準化
 ```bash
@@ -270,7 +364,7 @@ EOF
 
 ## ⚠️ 重要な注意事項
 
-### 守るべきルール（URANAI-01の経験から）
+### 守るべきルール（URANAI-01: Next.js + Supabaseの経験から）
 
 1. **型エラー対策**
    - 個別修正は避け、包括的アプローチを採用
