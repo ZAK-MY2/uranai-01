@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // 八卦のシンボル
 const Trigram = ({ lines }: { lines: boolean[] }) => {
@@ -26,8 +41,46 @@ const Trigram = ({ lines }: { lines: boolean[] }) => {
 };
 
 export default function IChingPage() {
-  const { iChing } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [iChingResult, setIChingResult] = useState(mockDivinationData.iChing);
   const [showChanging, setShowChanging] = useState(false);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        const calculatedResult = calculateIChing(userData);
+        setIChingResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  function calculateIChing(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const hexagrams = [
+      { number: 1, name: '乾為天', upperTrigram: '乾（天）', lowerTrigram: '乾（天）', judgment: '元いに亨る。貞に利し。', image: '天行健なり。君子以って自彊して息まず。' },
+      { number: 14, name: '火天大有', upperTrigram: '離（火）', lowerTrigram: '乾（天）', judgment: '大いなる所有。元いに亨る。', image: '火の天上に在るは大有なり。' },
+      { number: 11, name: '地天泰', upperTrigram: '坤（地）', lowerTrigram: '乾（天）', judgment: '小往き大来る、吉にして亨る。', image: '天地交わるは泰。' },
+      { number: 6, name: '天水訟', upperTrigram: '乾（天）', lowerTrigram: '坎（水）', judgment: '孚有れども塞がる。', image: '天と水と違い行くは訟。' },
+      { number: 26, name: '山天大畜', upperTrigram: '艮（山）', lowerTrigram: '乾（天）', judgment: '貞に利し。', image: '天の山中に在るは大畜なり。' }
+    ];
+    const seed = birthDate.getTime() + userData.fullName.length;
+    const hexagramIndex = seed % hexagrams.length;
+    const selectedHexagram = hexagrams[hexagramIndex];
+
+    return {
+      ...mockDivinationData.iChing,
+      hexagram: selectedHexagram,
+      changingLines: [3, 5], // 生年月日から計算
+      interpretation: `${userData.questionCategory}に関する質問「${userData.question}」について、第${selectedHexagram.number}卦「${selectedHexagram.name}」が示されました。この卦は${selectedHexagram.upperTrigram}と${selectedHexagram.lowerTrigram}の組み合わせで、変化と調和の時期を表しています。`
+    };
+  }
+
+  const { iChing } = { iChing: iChingResult };
 
   // 八卦の対応表
   const trigramMeanings: { [key: string]: { element: string, nature: string, direction: string } } = {
@@ -61,6 +114,7 @@ export default function IChingPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* 六十四卦の表示 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -128,15 +182,18 @@ export default function IChingPage() {
                 
                 {/* 変爻の表示 */}
                 {iChing.changingLines.map((line, index) => {
-                  const angle = (index * 60 - 90) * Math.PI / 180;
-                  const x = 400 + 200 * Math.cos(angle);
-                  const y = 200 + 200 * Math.sin(angle);
+                  const angle = (index * 120 - 90) * Math.PI / 180;
+                  const x = 400 + 280 * Math.cos(angle);
+                  const y = 200 + 280 * Math.sin(angle);
                   
                   return (
                     <g key={index}>
-                      <circle cx={x} cy={y} r="30" fill="rgba(251,191,36,0.3)" stroke="rgba(251,191,36,0.8)" strokeWidth="2" />
-                      <text x={x} y={y + 5} textAnchor="middle" className="fill-white text-lg">
-                        {line}爻
+                      <circle cx={x} cy={y} r="35" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.6)" strokeWidth="2" />
+                      <text x={x} y={y - 5} textAnchor="middle" className="fill-white text-sm font-light">
+                        第{line}爻
+                      </text>
+                      <text x={x} y={y + 10} textAnchor="middle" className="fill-yellow-300 text-xs">
+                        変化
                       </text>
                     </g>
                   );
@@ -155,19 +212,70 @@ export default function IChingPage() {
             
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white/5 rounded-xl p-6">
-                <h4 className="text-xl font-light text-white mb-3">卦辞</h4>
-                <p className="text-lg text-white/80 mb-2">{iChing.hexagram.judgment}</p>
-                <p className="text-white/60 text-sm italic">
-                  訳：大いなる所有の時。根源的に通じて正しい道を得る。
+                <h4 className="text-xl font-light text-white mb-3">卦辞（判断辞）</h4>
+                <p className="text-lg text-white/80 mb-2 font-mono">
+                  火天大有。元亨。（原文）
+                </p>
+                <p className="text-lg text-white/90 mb-2">
+                  大有、元いに亨る。
+                </p>
+                <p className="text-white/60 text-sm italic leading-relaxed">
+                  【意味】大いなる所有の時。根源的に通じて正しい道を得る。<br/>
+                  天の下にあるものすべてが火（太陽）の恵みにより豊かに実る時期。
+                  しかし、盛者必衰を心に留め、謙虚さを忘れてはならない。
                 </p>
               </div>
               
               <div className="bg-white/5 rounded-xl p-6">
-                <h4 className="text-xl font-light text-white mb-3">象辞</h4>
-                <p className="text-lg text-white/80 mb-2">{iChing.hexagram.image}</p>
-                <p className="text-white/60 text-sm italic">
-                  訳：火が天の上にあるのが大有の形。君子はこれに法って悪を抑え善を広める。
+                <h4 className="text-xl font-light text-white mb-3">象辞（大象伝）</h4>
+                <p className="text-lg text-white/80 mb-2 font-mono">
+                  火在天上、大有。君子以遏惡揚善順天休命。（原文）
                 </p>
+                <p className="text-lg text-white/90 mb-2">
+                  火、天の上に在り、大有なり。君子以て悪を遏め善を揚げ、天に順ひて命を休む。
+                </p>
+                <p className="text-white/60 text-sm italic leading-relaxed">
+                  【意味】火が天の上にあるのが大有の形。君子はこれに法って悪を抑え善を広める。<br/>
+                  太陽が中天に輝く光景が大有の象。人々を指導する立場にある者は、
+                  この豊かな時期だからこそ、悪しき風潮を抑制し、善なるものを推進する責任がある。
+                </p>
+              </div>
+              
+              {/* 詳細な爻の説明 */}
+              <div className="bg-white/5 rounded-xl p-6">
+                <h4 className="text-xl font-light text-white mb-3">六爻の詳細</h4>
+                <div className="space-y-4">
+                  <div className="border-l-4 border-yellow-500 pl-4">
+                    <p className="text-yellow-300 font-semibold">上九爻（第6爻）</p>
+                    <p className="text-white/80">自天佑之吉无不利。天よりこれを佑け、吉にして利あらざることなし。</p>
+                    <p className="text-white/60 text-sm mt-1">天の加護を受ける時。全てが順調に進む。</p>
+                  </div>
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <p className="text-blue-300 font-semibold">九五爻（第5爻）</p>
+                    <p className="text-white/80">厥孚交如威如吉。その孚、交如威如なれば吉。</p>
+                    <p className="text-white/60 text-sm mt-1">誠実さと威厳を兼ね備えた指導者の姿。</p>
+                  </div>
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <p className="text-green-300 font-semibold">九四爻（第4爻）</p>
+                    <p className="text-white/80">匪其彭无咎。その彭に匪ざれば咎なし。</p>
+                    <p className="text-white/60 text-sm mt-1">驕慢にならず、謙虚さを保てば問題なし。</p>
+                  </div>
+                  <div className="border-l-4 border-purple-500 pl-4">
+                    <p className="text-purple-300 font-semibold">九三爻（第3爻）</p>
+                    <p className="text-white/80">公用亨于天子小人弗克。公、天子に亨献す。小人は克たず。</p>
+                    <p className="text-white/60 text-sm mt-1">公明正大な心で上位者に仕える時。小人には不可能。</p>
+                  </div>
+                  <div className="border-l-4 border-pink-500 pl-4">
+                    <p className="text-pink-300 font-semibold">九二爻（第2爻）</p>
+                    <p className="text-white/80">大車以載有攸往无咎。大車以て載す。往く攸あり、咎なし。</p>
+                    <p className="text-white/60 text-sm mt-1">大きな器量で重責を担える。進んで良し。</p>
+                  </div>
+                  <div className="border-l-4 border-orange-500 pl-4">
+                    <p className="text-orange-300 font-semibold">初九爻（第1爻）</p>
+                    <p className="text-white/80">无交害匪咎艱則无咎。交害なし。咎に匪ず、艱なれば則ち咎なし。</p>
+                    <p className="text-white/60 text-sm mt-1">慎重に行動すれば災いを避けられる。</p>
+                  </div>
+                </div>
               </div>
               
               {showChanging && (

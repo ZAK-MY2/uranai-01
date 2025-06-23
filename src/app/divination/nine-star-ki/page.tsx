@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // 九星の配置図コンポーネント
 const NineStarGrid = ({ mainStar }: { mainStar: string }) => {
@@ -53,8 +68,58 @@ const NineStarGrid = ({ mainStar }: { mainStar: string }) => {
 };
 
 export default function NineStarKiPage() {
-  const { nineStarKi } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [nineStarKiResult, setNineStarKiResult] = useState(mockDivinationData.nineStarKi);
   const [selectedDirection, setSelectedDirection] = useState<string>('東');
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        const calculatedResult = calculateNineStarKi(userData);
+        setNineStarKiResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  function calculateNineStarKi(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const birthYear = birthDate.getFullYear();
+    const birthMonth = birthDate.getMonth() + 1;
+    
+    // 九星の計算（簡易版）
+    const nineStars = [
+      '一白水星', '二黒土星', '三碧木星', '四緑木星', '五黄土星',
+      '六白金星', '七赤金星', '八白土星', '九紫火星'
+    ];
+    
+    // 本命星の計算
+    const mainStarIndex = (birthYear - 1900) % 9;
+    const mainStar = nineStars[mainStarIndex];
+    
+    // 月命星の計算
+    const monthStarIndex = (birthMonth + mainStarIndex) % 9;
+    const monthStar = nineStars[monthStarIndex];
+    
+    // 吉方位の計算
+    const directions = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
+    const luckyDirection = directions[(birthYear + birthMonth) % 8];
+
+    return {
+      ...mockDivinationData.nineStarKi,
+      mainStar,
+      monthStar,
+      luckyDirection,
+      todaysEnergy: `${userData.questionCategory}において、${mainStar}のエネルギーが強く働きます`,
+      advice: `質問「${userData.question}」に対して、九星気学では${luckyDirection}の方位が吉とされ、${mainStar}の特性を活かすことが重要です。`
+    };
+  }
+
+  const { nineStarKi } = { nineStarKi: nineStarKiResult };
 
   // 方位の詳細情報
   const directionDetails: { [key: string]: { element: string, season: string, time: string, meaning: string } } = {
@@ -85,6 +150,7 @@ export default function NineStarKiPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* 本命星と九星盤 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -98,7 +164,7 @@ export default function NineStarKiPage() {
             </div>
 
             {/* 三つの星 */}
-            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
               <div className="bg-white/5 rounded-xl p-6 text-center">
                 <p className="text-white/50 text-sm mb-2">本命星</p>
                 <p className="text-2xl text-white mb-2">{nineStarKi.mainStar}</p>
@@ -113,6 +179,93 @@ export default function NineStarKiPage() {
                 <p className="text-white/50 text-sm mb-2">年運星</p>
                 <p className="text-2xl text-white mb-2">{nineStarKi.yearStar}</p>
                 <p className="text-white/60 text-sm">今年の運勢</p>
+              </div>
+            </div>
+
+            {/* 九星の詳細説明 */}
+            <div className="bg-white/5 rounded-xl p-6 max-w-4xl mx-auto">
+              <h4 className="text-xl font-light text-white text-center mb-6">九星の意味と特徴</h4>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="space-y-3">
+                  <div className="border-l-4 border-blue-500 pl-3">
+                    <p className="text-blue-300 font-semibold">一白水星</p>
+                    <p className="text-white/70">方位：北　元素：水</p>
+                    <p className="text-white/60">柔軟性・直感力・包容力</p>
+                  </div>
+                  <div className="border-l-4 border-gray-600 pl-3">
+                    <p className="text-gray-300 font-semibold">二黒土星</p>
+                    <p className="text-white/70">方位：南西　元素：土</p>
+                    <p className="text-white/60">勤勉・誠実・母性</p>
+                  </div>
+                  <div className="border-l-4 border-green-500 pl-3">
+                    <p className="text-green-300 font-semibold">三碧木星</p>
+                    <p className="text-white/70">方位：東　元素：木</p>
+                    <p className="text-white/60">成長・発展・行動力</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="border-l-4 border-emerald-500 pl-3">
+                    <p className="text-emerald-300 font-semibold">四緑木星</p>
+                    <p className="text-white/70">方位：南東　元素：木</p>
+                    <p className="text-white/60">成熟・調和・信頼</p>
+                  </div>
+                  <div className="border-l-4 border-yellow-500 pl-3">
+                    <p className="text-yellow-300 font-semibold">五黄土星</p>
+                    <p className="text-white/70">方位：中央　元素：土</p>
+                    <p className="text-white/60">強力・変化・帝王</p>
+                  </div>
+                  <div className="border-l-4 border-white pl-3">
+                    <p className="text-white font-semibold">六白金星</p>
+                    <p className="text-white/70">方位：北西　元素：金</p>
+                    <p className="text-white/60">責任感・権威・完璧主義</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="border-l-4 border-red-500 pl-3">
+                    <p className="text-red-300 font-semibold">七赤金星</p>
+                    <p className="text-white/70">方位：西　元素：金</p>
+                    <p className="text-white/60">社交性・華やかさ・金運</p>
+                  </div>
+                  <div className="border-l-4 border-amber-600 pl-3">
+                    <p className="text-amber-300 font-semibold">八白土星</p>
+                    <p className="text-white/70">方位：北東　元素：土</p>
+                    <p className="text-white/60">継続・蓄積・不動産</p>
+                  </div>
+                  <div className="border-l-4 border-purple-500 pl-3">
+                    <p className="text-purple-300 font-semibold">九紫火星</p>
+                    <p className="text-white/70">方位：南　元素：火</p>
+                    <p className="text-white/60">名声・知性・芸術性</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 生年月日からの計算過程 */}
+          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+            <h3 className="text-2xl font-light text-white text-center mb-8">本命星の計算方法</h3>
+            
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="bg-white/5 rounded-xl p-6">
+                <h4 className="text-xl font-light text-white mb-4">生年月日からの算出</h4>
+                <div className="space-y-4">
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <p className="text-white/70 mb-2">例：1990年12月31日生まれの場合</p>
+                    <div className="font-mono text-lg text-purple-300 space-y-1">
+                      <p>Step 1: 1990 → 基準年1918を引く → 1990 - 1918 = 72</p>
+                      <p>Step 2: 72 ÷ 9 = 8 余り 0 → 9 (余り0の場合は9)</p>
+                      <p>Step 3: 11 - 9 = 2 → 二黒土星</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-4 border border-purple-500/20">
+                    <p className="text-white/80 text-sm">
+                      ※ 旧暦での立春（2月4日頃）より前に生まれた場合は前年生まれとして計算<br/>
+                      ※ 月命星は生まれた月の干支と本命星の組み合わせで決まる<br/>
+                      ※ 年運星は現在の年の九星で、毎年変化する
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

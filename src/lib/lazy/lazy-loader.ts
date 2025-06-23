@@ -43,28 +43,28 @@ export class LazyLoader {
    * モジュール取得（遅延読み込み）
    */
   async get<T>(key: string): Promise<T> {
-    const module = this.modules.get(key);
-    if (!module) {
+    const lazyModule = this.modules.get(key);
+    if (!lazyModule) {
       throw new Error(`Module ${key} not registered`);
     }
 
     // アクセス統計更新
-    module.accessCount++;
-    module.lastAccessed = Date.now();
+    lazyModule.accessCount++;
+    lazyModule.lastAccessed = Date.now();
 
     // 既に読み込み済み
-    if (module.instance) {
-      return module.instance;
+    if (lazyModule.instance) {
+      return lazyModule.instance;
     }
 
     // 読み込み中
-    if (module.loading) {
-      return module.loading;
+    if (lazyModule.loading) {
+      return lazyModule.loading;
     }
 
     // 新規読み込み
-    module.loading = this.loadModule(key, module);
-    return module.loading;
+    lazyModule.loading = this.loadModule(key, lazyModule);
+    return lazyModule.loading;
   }
 
   /**
@@ -152,14 +152,14 @@ export class LazyLoader {
    * モジュールアンロード
    */
   unload(key: string): boolean {
-    const module = this.modules.get(key);
-    if (module && module.instance) {
+    const lazyModule = this.modules.get(key);
+    if (lazyModule && lazyModule.instance) {
       // クリーンアップ処理があれば実行
-      if (typeof (module.instance as any).cleanup === 'function') {
-        (module.instance as any).cleanup();
+      if (typeof (lazyModule.instance as any).cleanup === 'function') {
+        (lazyModule.instance as any).cleanup();
       }
       
-      module.instance = undefined;
+      lazyModule.instance = undefined;
       console.log(`Module ${key} unloaded`);
       return true;
     }

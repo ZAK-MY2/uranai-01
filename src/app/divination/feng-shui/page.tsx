@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // 八卦図コンポーネント
 const BaguaMap = ({ selectedArea, onSelectArea }: { selectedArea: string, onSelectArea: (area: string) => void }) => {
@@ -73,8 +88,104 @@ const BaguaMap = ({ selectedArea, onSelectArea }: { selectedArea: string, onSele
 };
 
 export default function FengShuiPage() {
-  const { fengShui } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [fengShui, setFengShui] = useState(mockDivinationData.fengShui);
   const [selectedArea, setSelectedArea] = useState<string>('wealth');
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際の風水計算を実行
+        const calculatedResult = calculateFengShui(userData);
+        setFengShui(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // 風水の計算関数
+  function calculateFengShui(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // 五行属性を計算
+    const element = calculateWuXingElement(year);
+    
+    // フライングスターの配置を計算
+    const flyingStars = calculateFlyingStars(year);
+    
+    // バグアのエリア別属性を計算
+    const bagua = calculateBaguaAreas(userData.fullName, element);
+    
+    return {
+      ...mockDivinationData.fengShui,
+      element,
+      flyingStars,
+      bagua,
+      advice: generateFengShuiAdvice(userData.question, element, userData.questionCategory)
+    };
+  }
+
+  function calculateWuXingElement(year: number): string {
+    const elements = ['木', '火', '土', '金', '水'];
+    const elementIndex = (year % 10) % 5;
+    return elements[elementIndex];
+  }
+
+  function calculateFlyingStars(year: number) {
+    // 2024年ベースのフライングスター計算
+    const baseYear = 2024;
+    const yearDiff = year - baseYear;
+    
+    return {
+      prosperity: ((8 + yearDiff) % 9) + 1, // 財運星
+      relationship: ((4 + yearDiff) % 9) + 1, // 人間関係星
+      career: ((1 + yearDiff) % 9) + 1 // 仕事運星
+    };
+  }
+
+  function calculateBaguaAreas(fullName: string, element: string) {
+    // 名前と五行に基づいてバグアエリアを計算
+    const nameValue = fullName.length * 7; // 簡単なハッシュ
+    
+    const baseElements = {
+      '木': { element: '木', color: '緑', enhancement: '観葉植物' },
+      '火': { element: '火', color: '赤', enhancement: 'キャンドル' },
+      '土': { element: '土', color: '黄', enhancement: '水晶' },
+      '金': { element: '金', color: '白', enhancement: '金属製品' },
+      '水': { element: '水', color: '青', enhancement: '水槽' }
+    };
+    
+    const base = baseElements[element as keyof typeof baseElements] || baseElements['土'];
+    
+    return {
+      career: { ...base, enhancement: '置物と水' },
+      wealth: { ...base, enhancement: '植物と紫水晶' },
+      fame: { ...base, enhancement: '赤いアイテム' },
+      love: { ...base, enhancement: 'ペアの装飾品' },
+      health: { ...base, enhancement: '竹や緑の植物' }
+    };
+  }
+
+  function generateFengShuiAdvice(question: string, element: string, category: string): string {
+    const elementAdvice = {
+      '木': '成長と新しい始まりのエネルギーが強い時期',
+      '火': '情熱とエネルギーに満ちた行動力の時期',
+      '土': '安定と基盤を固める重要な時期',
+      '金': '結実と收穫、富を築く時期',
+      '水': '柔軟性と流れを意識する時期'
+    };
+    
+    return `「${question}」に関して、あなたの五行属性「${element}」から、${elementAdvice[element as keyof typeof elementAdvice]}であることが読み取れます。気の流れを整え、特に${category}に関するエリアを活性化させることで、願いの実現に近づくでしょう。`;
+  }
 
   const areaDetails = {
     career: fengShui.bagua.career,
@@ -105,6 +216,7 @@ export default function FengShuiPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* 八卦マップ */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

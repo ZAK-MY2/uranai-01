@@ -7,8 +7,26 @@ export default async function Home() {
   
   const { data: { user } } = await supabase.auth.getUser()
   
+  // 本番環境では認証必須、開発環境ではスキップ可能
   if (!user) {
-    redirect('/login')
+    if (process.env.NODE_ENV === 'production') {
+      redirect('/login')
+    } else {
+      // 開発・テスト用: ダミーユーザーで継続
+      const dummyUser = { 
+        id: 'test-user-001', 
+        email: 'test@cosmic-oracle.dev',
+        user_metadata: {
+          name: 'テストユーザー',
+          avatar_url: null
+        },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString()
+      } as any;
+      
+      return <DashboardClient user={dummyUser} environmentData={null} sessions={[]} />;
+    }
   }
 
   // 環境データを取得
@@ -35,5 +53,5 @@ export default async function Home() {
     .order('created_at', { ascending: false })
     .limit(5);
 
-  return <DashboardClient user={user} environmentData={environmentData} sessions={recentSessions} />;
+  return <DashboardClient user={user} environmentData={environmentData} sessions={recentSessions || []} />;
 }

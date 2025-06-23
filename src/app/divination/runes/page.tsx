@@ -1,13 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
+
 // ルーンシンボルのSVGコンポーネント
 const RuneSymbol = ({ name }: { name: string }) => {
-  const runeShapes: { [key: string]: JSX.Element } = {
+  const runeShapes: { [key: string]: React.ReactElement } = {
     'フェフ': (
       <g>
         <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
@@ -43,8 +58,50 @@ const RuneSymbol = ({ name }: { name: string }) => {
 };
 
 export default function RunesPage() {
-  const { runes } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [runesResult, setRunesResult] = useState(mockDivinationData.runes);
   const [selectedRune, setSelectedRune] = useState(0);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        const calculatedResult = calculateRunes(userData);
+        setRunesResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  function calculateRunes(userData: UserInputData) {
+    const allRunes = [
+      { name: 'フェフ', meaning: '財富', element: '地', position: '正位置' },
+      { name: 'ウルズ', meaning: '鳥獣', element: '火', position: '正位置' },
+      { name: 'アンスズ', meaning: '神', element: '風', position: '逆位置' },
+      { name: 'ライド', meaning: '旅', element: '水', position: '正位置' },
+      { name: 'ケナズ', meaning: '松明', element: '火', position: '正位置' },
+      { name: 'ギフ', meaning: '贈り物', element: '風', position: '逆位置' }
+    ];
+    
+    const birthDate = new Date(userData.birthDate);
+    const seed = birthDate.getTime() + userData.fullName.length;
+    const drawnRunes = [
+      allRunes[seed % allRunes.length],
+      allRunes[(seed + 1) % allRunes.length],
+      allRunes[(seed + 2) % allRunes.length]
+    ];
+
+    return {
+      ...mockDivinationData.runes,
+      drawn: drawnRunes,
+      interpretation: `${userData.questionCategory}について、ルーンが示す道筋。過去の「${drawnRunes[0].name}」から現在の「${drawnRunes[1].name}」、そして未来の「${drawnRunes[2].name}」へと向かう流れが見えます。質問「${userData.question}」に対する答えは、${drawnRunes[1].meaning}のエネルギーを活かすことにあります。`
+    };
+  }
+
+  const { runes } = { runes: runesResult };
 
   // エレメントの色
   const elementColors: { [key: string]: string } = {
@@ -71,6 +128,7 @@ export default function RunesPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* ルーンストーンの配置 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -148,11 +206,17 @@ export default function RunesPage() {
                   const y = 200;
                   return (
                     <g key={index}>
-                      <rect x={x - 20} y={y - 25} width="40" height="50" 
+                      <rect x={x - 25} y={y - 30} width="50" height="60" 
                         fill={`rgba(${index === 0 ? '139,92,246' : index === 1 ? '99,102,241' : '79,70,229'}, 0.3)`}
-                        stroke="white" strokeWidth="1" rx="5" />
-                      <text x={x} y={y + 5} textAnchor="middle" className="fill-white text-sm">
-                        {rune.name[0]}
+                        stroke="rgba(255,255,255,0.6)" strokeWidth="2" rx="8" />
+                      <text x={x} y={y - 10} textAnchor="middle" className="fill-white text-xs font-light">
+                        {rune.name.slice(0, 2)}
+                      </text>
+                      <text x={x} y={y + 10} textAnchor="middle" className="fill-white/70 text-xs">
+                        {rune.element}
+                      </text>
+                      <text x={x} y={y + 25} textAnchor="middle" className="fill-white/50 text-xs">
+                        {rune.position === '正位置' ? '正' : '逆'}
                       </text>
                     </g>
                   );

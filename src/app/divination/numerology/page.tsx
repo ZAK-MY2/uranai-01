@@ -1,12 +1,119 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
+
 export default function NumerologyPage() {
-  const { numerology } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [numerologyResult, setNumerologyResult] = useState(mockDivinationData.numerology);
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際の数秘術計算を実行
+        const calculatedResult = calculateNumerology(userData);
+        setNumerologyResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // 数秘術の計算関数
+  function calculateNumerology(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // ライフパスナンバー計算
+    const lifePathNumber = calculateLifePathNumber(year, month, day);
+    
+    // 運命数計算（名前から）
+    const destinyNumber = calculateDestinyNumber(userData.fullName);
+    
+    return {
+      ...mockDivinationData.numerology,
+      lifePathNumber,
+      destinyNumber,
+      interpretation: {
+        ...mockDivinationData.numerology.interpretation,
+        lifePathMeaning: getLifePathMeaning(lifePathNumber),
+        todaysFocus: `${userData.questionCategory}について、数字${lifePathNumber}のエネルギーが影響しています。`,
+        advice: generatePersonalizedAdvice(userData.question, lifePathNumber)
+      }
+    };
+  }
+
+  function calculateLifePathNumber(year: number, month: number, day: number): number {
+    const sum = year + month + day;
+    return reduceToSingleDigit(sum);
+  }
+
+  function calculateDestinyNumber(fullName: string): number {
+    const letterValues: { [key: string]: number } = {
+      'あ': 1, 'か': 2, 'さ': 3, 'た': 4, 'な': 5, 'は': 6, 'ま': 7, 'や': 8, 'ら': 9, 'わ': 1
+    };
+    
+    let sum = 0;
+    for (const char of fullName) {
+      sum += letterValues[char] || 1;
+    }
+    return reduceToSingleDigit(sum);
+  }
+
+  function reduceToSingleDigit(num: number): number {
+    while (num > 9 && num !== 11 && num !== 22 && num !== 33) {
+      num = num.toString().split('').reduce((a, b) => a + parseInt(b), 0);
+    }
+    return num;
+  }
+
+  function getLifePathMeaning(number: number): string {
+    const meanings: { [key: number]: string } = {
+      1: 'リーダーシップと独立性の道',
+      2: '協調性と平和を築く道',
+      3: '創造性と表現の道',
+      4: '安定と実用性の道',
+      5: '自由と冒険の道',
+      6: '愛と責任の道',
+      7: '探求と智慧の道',
+      8: '成功と物質的豊かさの道',
+      9: '人類への奉仕の道',
+      11: 'スピリチュアルな洞察の道',
+      22: '実現可能な夢の道',
+      33: '無条件の愛の道'
+    };
+    return meanings[number] || '神秘的な道';
+  }
+
+  function generatePersonalizedAdvice(question: string, lifePathNumber: number): string {
+    return `あなたのライフパスナンバー${lifePathNumber}から見ると、「${question}」に対する答えは内なる直感を信じることにあります。`;
+  }
+
+  const { numerology } = { numerology: numerologyResult };
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
@@ -25,6 +132,9 @@ export default function NumerologyPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          
+          {/* ユーザーパラメータ表示 */}
+          <UserParameters />
           
           {/* メインナンバー表示 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -136,7 +246,7 @@ export default function NumerologyPage() {
                           cy="50"
                           r="40"
                           fill="none"
-                          stroke="url(#gradient-{key})"
+                          stroke={`url(#gradient-${key})`}
                           strokeWidth="8"
                           strokeDasharray={`${value * 2.51} 251`}
                           strokeLinecap="round"
@@ -144,8 +254,8 @@ export default function NumerologyPage() {
                         />
                         <defs>
                           <linearGradient id={`gradient-${key}`}>
-                            <stop offset="0%" className={`text-${colors[key as keyof typeof colors].split(' ')[0].split('-')[1]}-500`} stopColor="currentColor" />
-                            <stop offset="100%" className={`text-${colors[key as keyof typeof colors].split(' ')[2].split('-')[1]}-500`} stopColor="currentColor" />
+                            <stop offset="0%" stopColor="#a855f7" />
+                            <stop offset="100%" stopColor="#ec4899" />
                           </linearGradient>
                         </defs>
                       </svg>

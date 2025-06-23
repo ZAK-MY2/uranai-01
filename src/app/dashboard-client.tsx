@@ -1,16 +1,21 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { User } from '@supabase/supabase-js';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { CosmicOverview } from '@/components/dashboard/cosmic-overview';
 import { EnvironmentalData } from '@/components/dashboard/environmental-data';
 import { DailyGuidance } from '@/components/dashboard/daily-guidance';
-import { DivinationOverview } from '@/components/dashboard/divination-overview';
-import { DetailedDivinations } from '@/components/dashboard/detailed-divinations';
 import { IntegrationPanel } from '@/components/dashboard/integration-panel';
 import { EnvironmentData } from '@/types/database';
+
+// DivinationOverviewをdynamic importでSSR無効化
+const DivinationOverview = dynamic(
+  () => import('@/components/dashboard/divination-overview').then(mod => ({ default: mod.DivinationOverview })),
+  { ssr: false }
+);
 
 interface DashboardClientProps {
   user: User;
@@ -18,7 +23,7 @@ interface DashboardClientProps {
   sessions: any[];
 }
 
-export default function DashboardClient({ user, environmentData, sessions }: DashboardClientProps) {
+export default function DashboardClient({ user, environmentData }: DashboardClientProps) {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
@@ -48,9 +53,6 @@ export default function DashboardClient({ user, environmentData, sessions }: Das
               <DivinationOverview />
             </div>
           </div>
-          
-          {/* 詳細占術カード */}
-          <DetailedDivinations />
           
           {/* 統合分析パネル */}
           <IntegrationPanel />

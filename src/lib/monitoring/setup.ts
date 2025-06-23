@@ -3,11 +3,25 @@ import { setupGlobalErrorHandlers } from './error-tracker';
 import { logger } from './logger';
 import { performanceMonitor } from './performance-monitor';
 
+// 初期化状態の追跡
+let isInitialized = false;
+let cleanupRegistered = false;
+
 /**
  * 監視システムの初期化
  */
 export function initializeMonitoring(): void {
+  // 重複初期化の防止
+  if (isInitialized) {
+    return;
+  }
+
   try {
+    // EventEmitter メモリリーク警告の対策
+    if (typeof process !== 'undefined') {
+      process.setMaxListeners(20); // デフォルトの10から20に増加
+    }
+
     // グローバルエラーハンドラーの設定
     setupGlobalErrorHandlers();
     
@@ -24,19 +38,23 @@ export function initializeMonitoring(): void {
       environment: process.env.NODE_ENV || 'development'
     });
 
-    // プロセス終了時のクリーンアップ設定
-    const cleanup = () => {
-      logger.info('Shutting down monitoring system');
-      logger.destroy();
-      performanceMonitor.destroy();
-    };
+    // プロセス終了時のクリーンアップ設定（重複登録防止）
+    if (!cleanupRegistered && typeof process !== 'undefined') {
+      const cleanup = () => {
+        logger.info('Shutting down monitoring system');
+        logger.destroy();
+        performanceMonitor.destroy();
+        isInitialized = false;
+        cleanupRegistered = false;
+      };
 
-    if (typeof process !== 'undefined') {
       process.on('SIGINT', cleanup);
       process.on('SIGTERM', cleanup);
       process.on('beforeExit', cleanup);
+      cleanupRegistered = true;
     }
 
+    isInitialized = true;
     console.log('🔍 Monitoring system initialized successfully');
   } catch (error) {
     console.error('Failed to initialize monitoring system:', error);

@@ -511,11 +511,19 @@ ${metrics.topErrors
 // シングルトンインスタンス
 export const errorTracker = new ErrorTracker();
 
+// エラーハンドラー登録状態の追跡
+let handlersRegistered = false;
+
 // グローバルエラーハンドラー
 export function setupGlobalErrorHandlers(): void {
+  // 重複登録の防止
+  if (handlersRegistered) {
+    return;
+  }
+
   if (typeof window !== 'undefined') {
     // ブラウザ環境
-    window.addEventListener('error', (event) => {
+    const errorHandler = (event: ErrorEvent) => {
       errorTracker.trackError(
         event.error || new Error(event.message),
         'unknown_error',
@@ -530,9 +538,9 @@ export function setupGlobalErrorHandlers(): void {
           }
         }
       );
-    });
+    };
 
-    window.addEventListener('unhandledrejection', (event) => {
+    const rejectionHandler = (event: PromiseRejectionEvent) => {
       errorTracker.trackError(
         new Error(`Unhandled Promise Rejection: ${event.reason}`),
         'unknown_error',
@@ -542,17 +550,20 @@ export function setupGlobalErrorHandlers(): void {
           component: 'promise'
         }
       );
-    });
-  } else {
+    };
+
+    window.addEventListener('error', errorHandler);
+    window.addEventListener('unhandledrejection', rejectionHandler);
+  } else if (typeof process !== 'undefined') {
     // Node.js環境
-    process.on('uncaughtException', (error) => {
+    const uncaughtExceptionHandler = (error: Error) => {
       errorTracker.trackError(error, 'unknown_error', {
         component: 'process',
         action: 'uncaughtException'
       });
-    });
+    };
 
-    process.on('unhandledRejection', (reason) => {
+    const unhandledRejectionHandler = (reason: any) => {
       errorTracker.trackError(
         new Error(`Unhandled Promise Rejection: ${reason}`),
         'unknown_error',
@@ -561,6 +572,11 @@ export function setupGlobalErrorHandlers(): void {
           action: 'unhandledRejection'
         }
       );
-    });
+    };
+
+    process.on('uncaughtException', uncaughtExceptionHandler);
+    process.on('unhandledRejection', unhandledRejectionHandler);
   }
+
+  handlersRegistered = true;
 }

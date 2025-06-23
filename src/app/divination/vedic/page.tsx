@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // ナヴァムシャチャート（9分割図）
 const NavamshaChart = ({ nakshatra }: { nakshatra: string }) => {
@@ -82,8 +97,85 @@ const NavamshaChart = ({ nakshatra }: { nakshatra: string }) => {
 };
 
 export default function VedicAstrologyPage() {
-  const { vedicAstrology } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [vedicAstrology, setVedicAstrology] = useState(mockDivinationData.vedicAstrology);
   const [selectedTab, setSelectedTab] = useState<'birth' | 'transit' | 'dasha'>('birth');
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のヴェーダ占星術計算を実行
+        const calculatedResult = calculateVedicAstrology(userData);
+        setVedicAstrology(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // ヴェーダ占星術の計算関数
+  function calculateVedicAstrology(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // ナクシャトラ（月宿）の計算
+    const nakshatra = calculateNakshatra(year, month, day);
+    
+    // ダシャー期間計算
+    const planetaryPeriod = calculatePlanetaryPeriod(year, month, day);
+    
+    // 月宿番号計算
+    const moonMansion = ((day + month * 3 + (year % 27)) % 27) + 1;
+    
+    return {
+      ...mockDivinationData.vedicAstrology,
+      nakshatra,
+      moonMansion,
+      planetaryPeriod,
+      interpretation: generateVedicInterpretation(userData.question, nakshatra, planetaryPeriod.mahaDasha)
+    };
+  }
+
+  function calculateNakshatra(year: number, month: number, day: number): string {
+    const nakshatras = [
+      'アシュヴィニー', 'バラニー', 'クリッティカー', 'ローヒニー', 'ムリガシラー',
+      'アールドラー', 'プナルヴァス', 'プシュヤ', 'アーシュレーシャー', 'マガー',
+      'プールヴァ・パルグニー', 'ウッタラ・パルグニー', 'ハスタ', 'チトラー', 'スヴァーティー',
+      'ヴィシャーカー', 'アヌラーダー', 'ジェーシュター', 'ムーラ', 'プールヴァ・アーシャーダー',
+      'ウッタラ・アーシャーダー', 'シュラヴァナ', 'ダニシュター', 'シャタビシャー', 'プールヴァ・バードラパダー',
+      'ウッタラ・バードラパダー', 'レーヴァティー'
+    ];
+    
+    const totalDays = year * 365.25 + month * 30.44 + day;
+    const nakshatraIndex = Math.floor(totalDays % 27);
+    return nakshatras[nakshatraIndex];
+  }
+
+  function calculatePlanetaryPeriod(year: number, month: number, day: number) {
+    const planets = ['太陽', '月', '火星', 'ラーフ', '木星', '土星', '水星', 'ケートゥ', '金星'];
+    const periods = [6, 10, 7, 18, 16, 19, 17, 7, 20];
+    
+    const totalDays = year * 365.25 + month * 30.44 + day;
+    const planetIndex = Math.floor(totalDays / 365.25) % planets.length;
+    const subPlanetIndex = Math.floor((totalDays % 365.25) / 30.44) % planets.length;
+    
+    return {
+      mahaDasha: planets[planetIndex],
+      antarDasha: planets[subPlanetIndex],
+      yearsRemaining: periods[planetIndex] - Math.floor((totalDays % (periods[planetIndex] * 365.25)) / 365.25)
+    };
+  }
+
+  function generateVedicInterpretation(question: string, nakshatra: string, mahaDasha: string): string {
+    return `${nakshatra}ナクシャトラの影響下で、現在は${mahaDasha}のマハーダシャー期にあります。「${question}」について、インドの古代叡智が示すのは、カルマの法則に従って行動することの重要性です。星々の配置は、内なる真理に従って歩むことで、最良の結果がもたらされることを示しています。`;
+  }
 
   // 27ナクシャトラ（月宿）
   const nakshatras = [
@@ -111,6 +203,7 @@ export default function VedicAstrologyPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* ジャンマ・クンダリー（出生図） */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

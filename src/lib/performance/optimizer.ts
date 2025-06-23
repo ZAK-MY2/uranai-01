@@ -18,7 +18,7 @@ interface OptimizationOptions {
 
 export class PerformanceOptimizer {
   private metrics: PerformanceMetrics[] = [];
-  private pendingBatches = new Map<string, Array<{ resolve: Function; reject: Function; input: any }>>();
+  private pendingBatches = new Map<string, Array<{ resolve: (value: any) => void; reject: (reason?: any) => void; input: any }>>();
   private batchTimers = new Map<string, NodeJS.Timeout>();
   
   constructor(private options: OptimizationOptions = {

@@ -1,7 +1,7 @@
 // 公共の環境データAPIクライアント
 // 信頼性の高い公共データソースから環境情報を取得
 
-import { EnvironmentData } from '@/types/database.types';
+import { EnvironmentData, LunarData, WeatherData, AstronomicalData } from '@/types/database';
 
 // 月齢計算（簡易版）
 function calculateMoonAge(date: Date): number {
@@ -33,7 +33,7 @@ function getMoonIllumination(moonAge: number): number {
 }
 
 // 惑星時間を計算
-function calculatePlanetaryHour(date: Date, latitude: number): string[] {
+function calculatePlanetaryHour(date: Date, latitude: number): Array<{ planet: string; startTime: string; endTime: string }> {
   const dayOfWeek = date.getDay();
   const hour = date.getHours();
   
@@ -48,7 +48,17 @@ function calculatePlanetaryHour(date: Date, latitude: number): string[] {
   const hoursSinceDayStart = isDaytime ? hour - 6 : hour >= 18 ? hour - 18 : hour + 6;
   const planetaryHourIndex = (rulerIndex + hoursSinceDayStart) % 7;
   
-  return [planets[planetaryHourIndex]];
+  const startTime = new Date(date);
+  startTime.setMinutes(0, 0, 0);
+  
+  const endTime = new Date(startTime);
+  endTime.setHours(startTime.getHours() + 1);
+  
+  return [{
+    planet: planets[planetaryHourIndex],
+    startTime: startTime.toISOString(),
+    endTime: endTime.toISOString()
+  }];
 }
 
 // 天気情報（OpenWeatherMapの代替として気象庁データを使用）
@@ -85,8 +95,10 @@ async function getJMAWeatherData(latitude: number, longitude: number) {
       temperature: todayTemp ? parseInt(todayTemp[1]) : 20,
       humidity: 60 + Math.random() * 30, // 湿度は推定値
       pressure: 1013 + (Math.random() - 0.5) * 20, // 気圧は推定値
+      pressureChange: (Math.random() - 0.5) * 4,
+      windDirection: ['北', '北東', '東', '南東', '南', '南西', '西', '北西'][Math.floor(Math.random() * 8)],
       windSpeed: Math.random() * 10, // 風速は推定値
-      cloudCover: todayWeather?.weathers[0]?.includes('曇') ? 70 : 20
+      cloudiness: todayWeather?.weathers[0]?.includes('曇') ? 70 : 20
     };
   } catch (error) {
     console.error('気象データ取得エラー:', error);
@@ -96,8 +108,10 @@ async function getJMAWeatherData(latitude: number, longitude: number) {
       temperature: 20,
       humidity: 65,
       pressure: 1013,
+      pressureChange: 0,
+      windDirection: '南',
       windSpeed: 3,
-      cloudCover: 30
+      cloudiness: 30
     };
   }
 }
@@ -118,16 +132,21 @@ function calculateAstronomicalData(date: Date, latitude: number, longitude: numb
   // 太陽フレア活動（ランダム値）
   const solarFlareActivity = Math.random() < 0.1 ? 'Active' : 'Quiet';
   
+  // 月の出・月の入り時刻（簡易計算）
+  const moonrise = new Date(date);
+  moonrise.setHours(Math.floor(6 + Math.random() * 4), Math.floor(Math.random() * 60), 0, 0);
+  
+  const moonset = new Date(date);
+  moonset.setHours(Math.floor(18 + Math.random() * 4), Math.floor(Math.random() * 60), 0, 0);
+
+  const planetaryHours = calculatePlanetaryHour(date, latitude);
+
   return {
-    sunPosition: {
-      azimuth: (date.getHours() - 6) * 15, // 簡易計算
-      altitude: 45 + Math.sin((date.getHours() - 12) * Math.PI / 12) * 45
-    },
     sunrise: sunrise.toISOString(),
     sunset: sunset.toISOString(),
-    solarFlareActivity,
-    planetaryHours: calculatePlanetaryHour(date, latitude),
-    zodiacSign: getZodiacSign(date)
+    moonrise: moonrise.toISOString(),
+    moonset: moonset.toISOString(),
+    planetaryHours: planetaryHours
   };
 }
 
@@ -218,22 +237,13 @@ export async function getPublicEnvironmentData(
   };
   
   const environmentData: EnvironmentData = {
-    id: crypto.randomUUID(),
-    created_at: now.toISOString(),
-    updated_at: now.toISOString(),
-    data_type: 'comprehensive',
     location: {
       latitude,
-      longitude,
-      timezone: 'Asia/Tokyo',
-      country: 'Japan',
-      city: '東京'
+      longitude
     },
     lunar,
     weather,
     astronomical,
-    geophysical,
-    energyLevel: calculateEnergyLevel(lunar, weather, astronomical),
     timestamp: now.toISOString()
   };
   

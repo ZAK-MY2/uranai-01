@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // 生命の樹（セフィロト）コンポーネント
 const TreeOfLife = ({ currentSephirah }: { currentSephirah: string }) => {
@@ -82,8 +97,140 @@ const TreeOfLife = ({ currentSephirah }: { currentSephirah: string }) => {
 };
 
 export default function KabbalahPage() {
-  const { kabbalah } = mockDivinationData;
-  const [selectedPath, setSelectedPath] = useState<number>(kabbalah.treeOfLife.path);
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [kabbalah, setKabbalah] = useState(mockDivinationData.kabbalah);
+  const [selectedPath, setSelectedPath] = useState<number>(mockDivinationData.kabbalah.treeOfLife.path);
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のカバラ数秘術計算を実行
+        const calculatedResult = calculateKabbalah(userData);
+        setKabbalah(calculatedResult);
+        setSelectedPath(calculatedResult.treeOfLife.path);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // カバラ数秘術の計算関数
+  function calculateKabbalah(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // ゲマトリア数値計算
+    const gematria = calculateGematria(userData.fullName);
+    
+    // 生命の樹のパスを計算
+    const path = calculateTreeOfLifePath(year, month, day);
+    
+    // 現在のセフィラーを計算
+    const currentSephirah = calculateCurrentSephirah(gematria, path);
+    
+    // ヘブライ文字を計算
+    const hebrewLetter = calculateHebrewLetter(userData.fullName, path);
+    
+    // 天使の影響を計算
+    const angelicInfluence = calculateAngelicInfluence(currentSephirah);
+    
+    return {
+      ...mockDivinationData.kabbalah,
+      gematria,
+      hebrewLetter,
+      angelicInfluence,
+      treeOfLife: {
+        path,
+        currentSephirah,
+        element: calculateSephirahElement(currentSephirah)
+      },
+      interpretation: generateKabbalahInterpretation(userData.question, currentSephirah, hebrewLetter)
+    };
+  }
+
+  function calculateGematria(fullName: string): number {
+    // ヘブライ文字の数値対応表（簡略版）
+    const hebrewValues: { [key: string]: number } = {
+      'あ': 1, 'か': 20, 'さ': 60, 'た': 9, 'な': 50, 'は': 80, 'ま': 40, 'や': 10, 'ら': 200, 'わ': 6,
+      'い': 10, 'き': 20, 'し': 300, 'ち': 9, 'に': 50, 'ひ': 80, 'み': 40, 'ゆ': 10, 'り': 200, 'を': 6,
+      'う': 6, 'く': 100, 'す': 60, 'つ': 90, 'ぬ': 50, 'ふ': 80, 'む': 40, 'よ': 10, 'る': 200, 'ん': 50,
+      'え': 70, 'け': 100, 'せ': 60, 'て': 400, 'ね': 50, 'へ': 5, 'め': 40, 'れ': 200,
+      'お': 70, 'こ': 100, 'そ': 60, 'と': 400, 'の': 50, 'ほ': 5, 'も': 40, 'ろ': 200
+    };
+    
+    let sum = 0;
+    for (const char of fullName) {
+      sum += hebrewValues[char] || 1;
+    }
+    return sum;
+  }
+
+  function calculateTreeOfLifePath(year: number, month: number, day: number): number {
+    const totalDays = year + month * 30 + day;
+    return ((totalDays % 22) + 1);
+  }
+
+  function calculateCurrentSephirah(gematria: number, path: number): string {
+    const sephiroth = [
+      'ケテル（王冠）', 'コクマー（知恵）', 'ビナー（理解）', 'ケセド（慈悲）', 'ゲブラー（峻厳）',
+      'ティファレト（美）', 'ネツァク（勝利）', 'ホド（栄光）', 'イェソド（基礎）', 'マルクト（王国）'
+    ];
+    
+    const index = (gematria + path) % 10;
+    return sephiroth[index];
+  }
+
+  function calculateHebrewLetter(fullName: string, path: number): string {
+    const hebrewLetters = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ', 'ק', 'ר', 'ש', 'ת'];
+    const nameLength = fullName.length;
+    const index = (nameLength + path) % 22;
+    return hebrewLetters[index];
+  }
+
+  function calculateAngelicInfluence(sephirah: string): string {
+    const angels = {
+      'ケテル（王冠）': 'メタトロン',
+      'コクマー（知恵）': 'ラツィエル',
+      'ビナー（理解）': 'ザフキエル',
+      'ケセド（慈悲）': 'ツァドキエル',
+      'ゲブラー（峻厳）': 'カマエル',
+      'ティファレト（美）': 'ラファエル',
+      'ネツァク（勝利）': 'ハニエル',
+      'ホド（栄光）': 'ミカエル',
+      'イェソド（基礎）': 'ガブリエル',
+      'マルクト（王国）': 'サンダルフォン'
+    };
+    
+    return angels[sephirah as keyof typeof angels] || 'ラファエル';
+  }
+
+  function calculateSephirahElement(sephirah: string): string {
+    const elements = {
+      'ケテル（王冠）': '神性',
+      'コクマー（知恵）': '火',
+      'ビナー（理解）': '水',
+      'ケセド（慈悲）': '火',
+      'ゲブラー（峻厳）': '水',
+      'ティファレト（美）': '空気',
+      'ネツァク（勝利）': '火',
+      'ホド（栄光）': '水',
+      'イェソド（基礎）': '空気',
+      'マルクト（王国）': '土'
+    };
+    
+    return elements[sephirah as keyof typeof elements] || '空気';
+  }
+
+  function generateKabbalahInterpretation(question: string, sephirah: string, hebrewLetter: string): string {
+    return `生命の樹の${sephirah}の高みから、神聖なるヘブライ文字「${hebrewLetter}」が、「${question}」に対する答えを示しています。カバラの古代の叡智によると、あなたの魂は現在、高次元の意識と繋がる時期にあります。内なる光を信じ、神の意志と調和することで、真の道が開かれるでしょう。セフィロトの光があなたを導いています。`;
+  }
 
   // 22のパスとヘブライ文字の対応
   const hebrewPaths = [
@@ -116,6 +263,7 @@ export default function KabbalahPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* 生命の樹 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

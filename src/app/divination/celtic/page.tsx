@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // ケルトの樹木カレンダー
 const CelticTreeCalendar = ({ currentTree }: { currentTree: string }) => {
@@ -93,8 +108,123 @@ const CelticTreeCalendar = ({ currentTree }: { currentTree: string }) => {
 };
 
 export default function CelticAstrologyPage() {
-  const { celticAstrology } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [celticAstrology, setCelticAstrology] = useState(mockDivinationData.celticAstrology);
   const [selectedOgham, setSelectedOgham] = useState<string>('ᚁ');
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のケルト占星術計算を実行
+        const calculatedResult = calculateCelticAstrology(userData);
+        setCelticAstrology(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // ケルト占星術の計算関数
+  function calculateCelticAstrology(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // ケルトの樹木さん計算（ドルイド暦ベース）
+    const treeSign = calculateTreeSign(month, day);
+    
+    // 守護動物と属性を計算
+    const { animal, color, gemstone, element } = calculateCelticAttributes(treeSign, userData.fullName);
+    
+    // 性質の特徴を計算
+    const qualities = calculateCelticQualities(treeSign, userData.birthDate);
+    
+    return {
+      ...mockDivinationData.celticAstrology,
+      treeSign,
+      animal,
+      color,
+      gemstone,
+      element,
+      qualities,
+      interpretation: generateCelticInterpretation(userData.question, treeSign, animal)
+    };
+  }
+
+  function calculateTreeSign(month: number, day: number): string {
+    const trees = [
+      { name: 'カバノキ', start: { month: 12, day: 24 }, end: { month: 1, day: 20 } },
+      { name: 'ナナカマド', start: { month: 1, day: 21 }, end: { month: 2, day: 17 } },
+      { name: 'トネリコ', start: { month: 2, day: 18 }, end: { month: 3, day: 17 } },
+      { name: 'ハンノキ', start: { month: 3, day: 18 }, end: { month: 4, day: 14 } },
+      { name: 'ヤナギ', start: { month: 4, day: 15 }, end: { month: 5, day: 12 } },
+      { name: 'サンザシ', start: { month: 5, day: 13 }, end: { month: 6, day: 9 } },
+      { name: 'オーク', start: { month: 6, day: 10 }, end: { month: 7, day: 7 } },
+      { name: 'ヒイラギ', start: { month: 7, day: 8 }, end: { month: 8, day: 4 } },
+      { name: 'ハシバミ', start: { month: 8, day: 5 }, end: { month: 9, day: 1 } },
+      { name: 'ブドウ', start: { month: 9, day: 2 }, end: { month: 9, day: 29 } },
+      { name: 'ツタ', start: { month: 9, day: 30 }, end: { month: 10, day: 27 } },
+      { name: 'イチイ', start: { month: 10, day: 28 }, end: { month: 11, day: 24 } },
+      { name: 'ニワトコ', start: { month: 11, day: 25 }, end: { month: 12, day: 23 } }
+    ];
+    
+    for (const tree of trees) {
+      if (isDateInRange(month, day, tree.start, tree.end)) {
+        return tree.name;
+      }
+    }
+    return 'オーク'; // デフォルト
+  }
+
+  function isDateInRange(month: number, day: number, start: {month: number, day: number}, end: {month: number, day: number}): boolean {
+    if (start.month <= end.month) {
+      return (month > start.month || (month === start.month && day >= start.day)) &&
+             (month < end.month || (month === end.month && day <= end.day));
+    } else {
+      return (month > start.month || (month === start.month && day >= start.day)) ||
+             (month < end.month || (month === end.month && day <= end.day));
+    }
+  }
+
+  function calculateCelticAttributes(treeSign: string, fullName: string) {
+    const attributes = {
+      'カバノキ': { animal: '白馬', color: '白', gemstone: '水晶', element: '空気' },
+      'ナナカマド': { animal: 'ワシ', color: '緑', gemstone: 'エメラルド', element: '火' },
+      'トネリコ': { animal: '蛇', color: '青', gemstone: 'サファイア', element: '水' },
+      'ハンノキ': { animal: 'くま', color: '紫', gemstone: 'アメジスト', element: '土' },
+      'ヤナギ': { animal: '猫', color: '黄', gemstone: 'トパーズ', element: '水' },
+      'サンザシ': { animal: '蚤', color: 'ピンク', gemstone: 'ローズクォーツ', element: '空気' },
+      'オーク': { animal: 'ライオン', color: '金', gemstone: 'シトリン', element: '火' },
+      'ヒイラギ': { animal: '馬', color: '赤', gemstone: 'ガーネット', element: '火' },
+      'ハシバミ': { animal: 'リス', color: '茶', gemstone: 'タイガーアイ', element: '土' },
+      'ブドウ': { animal: '白鳥', color: '紫', gemstone: 'ラピスラズリ', element: '空気' },
+      'ツタ': { animal: '蛸', color: '黄緑', gemstone: 'オパール', element: '土' },
+      'イチイ': { animal: '鷹', color: '黒', gemstone: 'オブシディアン', element: '土' },
+      'ニワトコ': { animal: '鹿', color: '金', gemstone: 'ゴールドストーン', element: '火' }
+    };
+    
+    return attributes[treeSign as keyof typeof attributes] || attributes['オーク'];
+  }
+
+  function calculateCelticQualities(treeSign: string, birthDate: string): string[] {
+    const baseQualities = {
+      'カバノキ': ['情熱的', '独立心', 'カリスマ'],
+      'ナナカマド': ['理想主義', '守護本能', '直感力'],
+      'オーク': ['リーダーシップ', '勇気', '寛容']
+    };
+    
+    const defaultQualities = ['初心', '成長', '変化'];
+    return baseQualities[treeSign as keyof typeof baseQualities] || defaultQualities;
+  }
+
+  function generateCelticInterpretation(question: string, treeSign: string, animal: string): string {
+    return `あなたの守護樹である${treeSign}と、魂の動物である${animal}が、「${question}」に対する古代ケルトの叡智を伝えています。ドルイドの教えによると、自然のサイクルに合わせて行動することで、真の調和と平和がもたらされます。大地のエネルギーと繋がり、内なる直感を信じて歩んでください。`;
+  }
 
   // オガム文字
   const oghamLetters = [
@@ -125,6 +255,7 @@ export default function CelticAstrologyPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* ケルトの樹木円環 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

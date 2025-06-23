@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // 惑星シンボル
 const planetSymbols: { [key: string]: string } = {
@@ -36,8 +51,137 @@ const zodiacSymbols: { [key: string]: string } = {
 };
 
 export default function AstrologyPage() {
-  const { astrology } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [astrologyResult, setAstrologyResult] = useState(mockDivinationData.astrology);
   const [selectedPlanet, setSelectedPlanet] = useState<string>('venus');
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際の西洋占星術計算を実行
+        const calculatedResult = calculateAstrology(userData);
+        setAstrologyResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // 西洋占星術の計算関数
+  function calculateAstrology(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // 太陽星座の計算（簡易版）
+    const sunSign = calculateSunSign(month, day);
+    
+    // 月星座の計算（生年月日から推定）
+    const moonSign = calculateMoonSign(birthDate);
+    
+    // 上昇星座の計算（出生時間から推定）
+    const ascendant = calculateAscendant(userData.birthTime, month);
+    
+    return {
+      ...mockDivinationData.astrology,
+      sunSign,
+      moonSign,
+      ascendant,
+      interpretation: `${userData.questionCategory}について、太陽星座${sunSign}のあなたは、${getMoonSignMeaning(moonSign)}な内面を持ち、${getAscendantMeaning(ascendant)}として周囲に映っています。質問「${userData.question}」に対する星からのメッセージは、${getSunSignMeaning(sunSign)}ことです。`,
+      todaysTransit: `今日は${sunSign}にとって、内なる感情（${moonSign}）と外的表現（${ascendant}）のバランスを取る日です。`
+    };
+  }
+
+  function calculateSunSign(month: number, day: number): string {
+    if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return '牡羊座';
+    if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return '牡牛座';
+    if ((month === 5 && day >= 21) || (month === 6 && day <= 21)) return '双子座';
+    if ((month === 6 && day >= 22) || (month === 7 && day <= 22)) return '蟹座';
+    if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return '獅子座';
+    if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return '乙女座';
+    if ((month === 9 && day >= 23) || (month === 10 && day <= 23)) return '天秤座';
+    if ((month === 10 && day >= 24) || (month === 11 && day <= 22)) return '蠍座';
+    if ((month === 11 && day >= 23) || (month === 12 && day <= 21)) return '射手座';
+    if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return '山羊座';
+    if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return '水瓶座';
+    return '魚座';
+  }
+
+  function calculateMoonSign(birthDate: Date): string {
+    const signs = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+    const moonCycle = 29.5; // 月のサイクル日数
+    const daysSinceEpoch = Math.floor(birthDate.getTime() / (24 * 60 * 60 * 1000));
+    const moonPhase = (daysSinceEpoch % moonCycle) / moonCycle;
+    return signs[Math.floor(moonPhase * 12)];
+  }
+
+  function calculateAscendant(birthTime: string, month: number): string {
+    const signs = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+    const [hours, minutes] = birthTime.split(':').map(Number);
+    const timeIndex = (hours + month) % 12;
+    return signs[timeIndex];
+  }
+
+  function getSunSignMeaning(sign: string): string {
+    const meanings: { [key: string]: string } = {
+      '牡羊座': '積極的に行動を起こす',
+      '牡牛座': '着実に基盤を固める',
+      '双子座': '多角的な視点で考える',
+      '蟹座': '感情を大切にして進む',
+      '獅子座': '自信を持って表現する',
+      '乙女座': '細部に注意を払って完成させる',
+      '天秤座': 'バランスを取りながら協調する',
+      '蠍座': '深く探求して真実を見つける',
+      '射手座': '視野を広げて新たな地平を目指す',
+      '山羊座': '責任を持って目標を達成する',
+      '水瓶座': '独創的なアイデアで革新する',
+      '魚座': '直感と想像力を活かす'
+    };
+    return meanings[sign] || '宇宙の流れに身を委ねる';
+  }
+
+  function getMoonSignMeaning(sign: string): string {
+    const meanings: { [key: string]: string } = {
+      '牡羊座': '情熱的で行動力溢れる',
+      '牡牛座': '安定を求める穏やか',
+      '双子座': '好奇心旺盛で変化を楽しむ',
+      '蟹座': '家族想いで感受性豊か',
+      '獅子座': 'プライド高く創造的',
+      '乙女座': '完璧主義で分析的',
+      '天秤座': '調和を愛する社交的',
+      '蠍座': '神秘的で深い洞察力',
+      '射手座': '自由を愛する楽天的',
+      '山羊座': '責任感強く現実的',
+      '水瓶座': '独立心強く理想主義',
+      '魚座': '共感力高く芸術的'
+    };
+    return meanings[sign] || '神秘的';
+  }
+
+  function getAscendantMeaning(sign: string): string {
+    const meanings: { [key: string]: string } = {
+      '牡羊座': 'エネルギッシュで自信に満ちた印象',
+      '牡牛座': '落ち着いていて信頼できる印象',
+      '双子座': '知的で話上手な印象',
+      '蟹座': '優しく家庭的な印象',
+      '獅子座': '華やかで魅力的な印象',
+      '乙女座': '真面目で几帳面な印象',
+      '天秤座': '洗練されて美しい印象',
+      '蠍座': 'ミステリアスで魅力的な印象',
+      '射手座': '明るく自由な印象',
+      '山羊座': '堅実で頼りになる印象',
+      '水瓶座': 'ユニークで先進的な印象',
+      '魚座': '優しく幻想的な印象'
+    };
+    return meanings[sign] || '神秘的な印象';
+  }
+
+  const { astrology } = { astrology: astrologyResult };
 
   // 12ハウスの意味
   const houses = [
@@ -72,6 +216,7 @@ export default function AstrologyPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* ホロスコープチャート */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

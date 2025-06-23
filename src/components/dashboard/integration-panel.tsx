@@ -43,12 +43,7 @@ export function IntegrationPanel() {
         {mockDivinationData.integration.actionSteps[3]}
       </p>
       
-      <Link 
-        href="/divination/integrated"
-        className="inline-block px-8 py-3 bg-gradient-to-r from-purple-500/20 to-violet-500/20 rounded-full text-white hover:from-purple-500/30 hover:to-violet-500/30 transition-all duration-300 border border-purple-400/50"
-      >
-        統合占術詳細分析へ →
-      </Link>
+      {/* 統合占術ボタンは DivinationOverview に統一 */}
     </div>
   );
 }

@@ -1,9 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  question: string;
+  questionCategory: string;
+}
 
 // タロットカードのシンボルコンポーネント
 const TarotCardSymbol = ({ card }: { card: any }) => {
@@ -51,8 +66,64 @@ const TarotCardSymbol = ({ card }: { card: any }) => {
 };
 
 export default function TarotPage() {
-  const { tarot } = mockDivinationData;
+  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [tarotResult, setTarotResult] = useState(mockDivinationData.tarot);
   const [selectedCard, setSelectedCard] = useState<'past' | 'present' | 'future'>('present');
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のタロット計算を実行
+        const calculatedResult = calculateTarot(userData);
+        setTarotResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, []);
+
+  // タロット占いの計算関数
+  function calculateTarot(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const currentDate = new Date();
+    
+    // 生年月日と質問内容からカードを選択（実際のアルゴリズム）
+    const majorArcana = [
+      { name: '愚者', number: 0, arcana: 'major', image: 'fool', keywords: ['新しい始まり', '冒険', '無邪気'], interpretation: '新たなスタートを切る時', description: '新たなスタートを切る時' },
+      { name: '魔術師', number: 1, arcana: 'major', image: 'magician', keywords: ['意志の力', '創造', '実行'], interpretation: '意志の力で目標を実現する', description: '意志の力で目標を実現する' },
+      { name: '女教皇', number: 2, arcana: 'major', image: 'priestess', keywords: ['直感', '内なる知恵', '秘密'], interpretation: '内なる声に耳を傾ける時', description: '内なる声に耳を傾ける時' },
+      { name: '女帝', number: 3, arcana: 'major', image: 'empress', keywords: ['豊穣', '母性', '創造性'], interpretation: '豊かさと創造力の時期', description: '豊かさと創造力の時期' },
+      { name: '皇帝', number: 4, arcana: 'major', image: 'emperor', keywords: ['権威', '安定', '統制'], interpretation: '秩序と安定を築く', description: '秩序と安定を築く' },
+      { name: '教皇', number: 5, arcana: 'major', image: 'hierophant', keywords: ['精神的指導', '伝統', '学び'], interpretation: '精神的な成長の時', description: '精神的な成長の時' },
+      { name: '恋人', number: 6, arcana: 'major', image: 'lovers', keywords: ['愛', '選択', '調和'], interpretation: '重要な選択を迫られる', description: '重要な選択を迫られる' },
+      { name: '戦車', number: 7, arcana: 'major', image: 'chariot', keywords: ['勝利', '意志力', '前進'], interpretation: '困難を乗り越えて前進', description: '困難を乗り越えて前進' },
+      { name: '力', number: 8, arcana: 'major', image: 'strength', keywords: ['内なる力', '勇気', '忍耐'], interpretation: '内なる力を発揮する時', description: '内なる力を発揮する時' },
+      { name: '隠者', number: 9, arcana: 'major', image: 'hermit', keywords: ['内省', '探求', '導き'], interpretation: '内面を見つめ直す時期', description: '内面を見つめ直す時期' }
+    ];
+
+    // シンプルなハッシュ関数でカードを選択
+    const seed = birthDate.getTime() + userData.fullName.length + userData.question.length;
+    const pastIndex = seed % majorArcana.length;
+    const presentIndex = (seed + 1) % majorArcana.length;
+    const futureIndex = (seed + 2) % majorArcana.length;
+
+    return {
+      ...mockDivinationData.tarot,
+      cards: {
+        past: majorArcana[pastIndex],
+        present: majorArcana[presentIndex],
+        future: majorArcana[futureIndex]
+      },
+      interpretation: `${userData.questionCategory}について、あなたのタロットが示す道筋。過去の「${majorArcana[pastIndex].name}」から現在の「${majorArcana[presentIndex].name}」へ、そして未来の「${majorArcana[futureIndex].name}」へと向かう流れが見えます。質問「${userData.question}」に対する答えは、${majorArcana[presentIndex].description}という現在の状況を受け入れることから始まります。`
+    };
+  }
+
+  const { tarot } = { tarot: tarotResult };
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
@@ -71,6 +142,7 @@ export default function TarotPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
+          <UserParameters />
           
           {/* 3カードスプレッド */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

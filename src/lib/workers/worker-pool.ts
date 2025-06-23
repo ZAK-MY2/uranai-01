@@ -31,7 +31,7 @@ export class WorkerPool {
     private workerScript: string,
     private options: WorkerPoolOptions = {
       minWorkers: 2,
-      maxWorkers: Math.max(2, Math.ceil(require('os').cpus().length / 2)),
+      maxWorkers: Math.max(2, Math.ceil(4 / 2)), // Fallback to 4 CPUs
       maxQueueSize: 100,
       workerIdleTimeout: 60000, // 1分
       taskTimeout: 30000 // 30秒
