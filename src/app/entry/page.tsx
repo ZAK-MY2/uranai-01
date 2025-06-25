@@ -12,16 +12,10 @@ export default function EntryPage() {
   const router = useRouter();
   const { isAuthenticated, hasCompletedInput, authenticate } = useSession();
 
-  // 既に認証済みの場合は適切なページにリダイレクト
+  // デモモード: 認証をスキップして直接入力画面へ
   useEffect(() => {
-    if (isAuthenticated) {
-      if (hasCompletedInput) {
-        router.push('/'); // ダッシュボードへ
-      } else {
-        router.push('/input'); // 入力画面へ
-      }
-    }
-  }, [isAuthenticated, hasCompletedInput, router]);
+    router.push('/input');
+  }, [router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

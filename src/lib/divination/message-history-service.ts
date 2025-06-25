@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types/database.types';
+import { Database } from '@/types/database';
 
 /**
  * メッセージ履歴管理サービス

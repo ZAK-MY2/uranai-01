@@ -77,38 +77,97 @@ export default function RunesPage() {
   }, []);
 
   function calculateRunes(userData: UserInputData) {
-    const allRunes = [
-      { name: 'フェフ', meaning: '財富', element: '地', position: '正位置' },
-      { name: 'ウルズ', meaning: '鳥獣', element: '火', position: '正位置' },
-      { name: 'アンスズ', meaning: '神', element: '風', position: '逆位置' },
-      { name: 'ライド', meaning: '旅', element: '水', position: '正位置' },
-      { name: 'ケナズ', meaning: '松明', element: '火', position: '正位置' },
-      { name: 'ギフ', meaning: '贈り物', element: '風', position: '逆位置' }
+    // エルダー・フサルク（24文字）ルーンシステム
+    const elderFuthark = [
+      { name: 'フェフ', meaning: '家畜・富', element: '地', rune: 'ᚠ', keywords: ['豊穣', '成功', '財産'] },
+      { name: 'ウルズ', meaning: '原牛・力', element: '火', rune: 'ᚢ', keywords: ['強さ', '勇気', '野生'] },
+      { name: 'スリサズ', meaning: '棘・巨人', element: '火', rune: 'ᚦ', keywords: ['破壊', '変革', '試練'] },
+      { name: 'アンスズ', meaning: '神・口', element: '風', rune: 'ᚨ', keywords: ['叡智', '通信', '啓示'] },
+      { name: 'ライドー', meaning: '旅・馬', element: '風', rune: 'ᚱ', keywords: ['旅行', '進歩', '動き'] },
+      { name: 'ケナズ', meaning: '松明・火', element: '火', rune: 'ᚲ', keywords: ['創造', '情熱', '技巧'] },
+      { name: 'ギフー', meaning: '贈り物', element: '風', rune: 'ᚷ', keywords: ['寛大', '犠牲', '交換'] },
+      { name: 'ウンジョ', meaning: '喜び', element: '風', rune: 'ᚹ', keywords: ['幸福', '調和', '成就'] },
+      { name: 'ハガラズ', meaning: '雹・破壊', element: '水', rune: 'ᚺ', keywords: ['混乱', '試練', '変化'] },
+      { name: 'ナウディズ', meaning: '必要・欠乏', element: '火', rune: 'ᚾ', keywords: ['制約', '耐久', '忍耐'] },
+      { name: 'イサ', meaning: '氷', element: '水', rune: 'ᛁ', keywords: ['静止', '待機', '集中'] },
+      { name: 'ヤラ', meaning: '年・収穫', element: '地', rune: 'ᛃ', keywords: ['サイクル', '報い', '正義'] },
+      { name: 'エイワズ', meaning: 'イチイの木', element: '地', rune: 'ᛇ', keywords: ['防御', '信頼', '忍耐'] },
+      { name: 'ペルソ', meaning: '蓮の実', element: '水', rune: 'ᛈ', keywords: ['秘密', '記憶', '運命'] },
+      { name: 'アルギズ', meaning: 'ヘラジカ', element: '風', rune: 'ᛉ', keywords: ['保護', '直感', '高次'] },
+      { name: 'ソウィロ', meaning: '太陽', element: '火', rune: 'ᛊ', keywords: ['勝利', '成功', '指導'] },
+      { name: 'ティワズ', meaning: '戦神', element: '火', rune: 'ᛏ', keywords: ['勇気', '犠牲', '正義'] },
+      { name: 'ベルカナ', meaning: 'カバノキ', element: '地', rune: 'ᛒ', keywords: ['成長', '再生', '豊穣'] },
+      { name: 'エワズ', meaning: '馬', element: '地', rune: 'ᛖ', keywords: ['進歩', '信頼', '協力'] },
+      { name: 'マンナズ', meaning: '人間', element: '風', rune: 'ᛗ', keywords: ['自己', '協力', '文明'] },
+      { name: 'ラグズ', meaning: '湖・水', element: '水', rune: 'ᛚ', keywords: ['流れ', '直感', '感情'] },
+      { name: 'イングワズ', meaning: '英雄神', element: '地', rune: 'ᛜ', keywords: ['豊穣', '平和', '内なる力'] },
+      { name: 'オシラ', meaning: '故郷', element: '地', rune: 'ᛟ', keywords: ['継承', '財産', '伝統'] },
+      { name: 'ダガズ', meaning: '夜明け', element: '火', rune: 'ᛞ', keywords: ['啓蒙', '覚醒', '新しい始まり'] }
     ];
     
     const birthDate = new Date(userData.birthDate);
-    const seed = Math.abs(birthDate.getTime() + userData.fullName.length);
-    const drawnRunes = [
-      allRunes[seed % allRunes.length],
-      allRunes[(seed + 1) % allRunes.length],
-      allRunes[(seed + 2) % allRunes.length]
-    ].filter(rune => rune !== undefined);
-
-    // フォールバック
-    if (drawnRunes.length < 3) {
-      const fallbackRunes = [allRunes[0], allRunes[1], allRunes[2]];
-      return {
-        ...mockDivinationData.runes,
-        drawn: fallbackRunes,
-        interpretation: `${userData.questionCategory}について、ルーンが示す道筋。過去の「${fallbackRunes[0].name}」から現在の「${fallbackRunes[1].name}」、そして未来の「${fallbackRunes[2].name}」へと向かう流れが見えます。質問「${userData.question}」に対する答えは、${fallbackRunes[1].meaning}のエネルギーを活かすことにあります。`
-      };
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // より複雑なランダム化（生年月日 + 名前 + 質問から）
+    const nameSum = userData.fullName.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const questionSum = userData.question.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const dateSum = year + month * 31 + day;
+    
+    // 3つのルーンを選択（過去・現在・未来）
+    const seeds = [
+      (dateSum + nameSum) % elderFuthark.length,
+      (dateSum + questionSum) % elderFuthark.length,
+      (nameSum + questionSum + day) % elderFuthark.length
+    ];
+    
+    // 重複を避ける
+    const uniqueSeeds = [...new Set(seeds)];
+    while (uniqueSeeds.length < 3) {
+      uniqueSeeds.push((uniqueSeeds[uniqueSeeds.length - 1] + 7) % elderFuthark.length);
     }
+    
+    const drawnRunes = uniqueSeeds.slice(0, 3).map((seed, index) => {
+      const rune = elderFuthark[seed];
+      // 位置を決定（奇数なら逆位置）
+      const isReversed = (seed + index + questionSum) % 2 === 1;
+      return {
+        ...rune,
+        position: isReversed ? '逆位置' : '正位置'
+      };
+    });
 
     return {
       ...mockDivinationData.runes,
       drawn: drawnRunes,
-      interpretation: `${userData.questionCategory}について、ルーンが示す道筋。過去の「${drawnRunes[0].name}」から現在の「${drawnRunes[1].name}」、そして未来の「${drawnRunes[2].name}」へと向かう流れが見えます。質問「${userData.question}」に対する答えは、${drawnRunes[1].meaning}のエネルギーを活かすことにあります。`
+      interpretation: generateRuneInterpretation(userData, drawnRunes)
     };
+  }
+
+  function generateRuneInterpretation(userData: UserInputData, drawnRunes: any[]): string {
+    const [pastRune, presentRune, futureRune] = drawnRunes;
+    
+    const positionMeaning = (rune: any, position: string) => {
+      if (position === '正位置') {
+        return rune.keywords[0]; // ポジティブな意味
+      } else {
+        return rune.keywords[1] || '停滞'; // ネガティブまたは内向きの意味
+      }
+    };
+    
+    return `「${userData.question}」について、北欧の古代ルーンが以下の道筋を示しています。
+
+過去の影響「${pastRune.name}（${pastRune.rune}）」${pastRune.position}：
+${pastRune.meaning}のエネルギーが、${positionMeaning(pastRune, pastRune.position)}として現在に影響を与えています。
+
+現在の状況「${presentRune.name}（${presentRune.rune}）」${presentRune.position}：
+${presentRune.meaning}の力が、${positionMeaning(presentRune, presentRune.position)}という形で現れています。この状況を理解し、受け入れることが重要です。
+
+未来の可能性「${futureRune.name}（${futureRune.rune}）」${futureRune.position}：
+${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futureRune.position)}をもたらす可能性があります。
+
+オーディンの知恵に従い、運命を受け入れながらも、自らの意志で道を切り開いてください。`;
   }
 
   const { runes } = { runes: runesResult };
@@ -128,7 +187,7 @@ export default function RunesPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
             ← ダッシュボードに戻る
           </Link>
           <h1 className="text-2xl font-light text-white">ルーン占い詳細分析</h1>
@@ -365,8 +424,14 @@ export default function RunesPage() {
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 
-              href="/divination/iching"
+              href="/divination/nine-star-ki"
               className="px-8 py-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all duration-300"
+            >
+              ← 九星気学へ
+            </Link>
+            <Link 
+              href="/divination/iching"
+              className="px-8 py-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-md rounded-full text-white hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 border border-purple-400/50"
             >
               易経へ →
             </Link>

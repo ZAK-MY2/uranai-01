@@ -90,33 +90,154 @@ export default function NineStarKiPage() {
     const birthDate = new Date(userData.birthDate);
     const birthYear = birthDate.getFullYear();
     const birthMonth = birthDate.getMonth() + 1;
+    const birthDay = birthDate.getDate();
     
-    // 九星の計算（簡易版）
+    // 九星の配列（一白水星=1, 二黒土星=2, ..., 九紫火星=9）
     const nineStars = [
-      '一白水星', '二黒土星', '三碧木星', '四緑木星', '五黄土星',
-      '六白金星', '七赤金星', '八白土星', '九紫火星'
+      '九紫火星', '一白水星', '二黒土星', '三碧木星', '四緑木星',
+      '五黄土星', '六白金星', '七赤金星', '八白土星'
     ];
     
-    // 本命星の計算
-    const mainStarIndex = (birthYear - 1900) % 9;
-    const mainStar = nineStars[mainStarIndex];
+    // 本命星の正確な計算（九星気学の伝統的計算法）
+    // 立春（2月4日頃）を年の境目とする
+    const isBeforeRisshun = birthMonth === 1 || (birthMonth === 2 && birthDay < 4);
+    const adjustedYear = isBeforeRisshun ? birthYear - 1 : birthYear;
     
-    // 月命星の計算
-    const monthStarIndex = (birthMonth + mainStarIndex) % 9;
-    const monthStar = nineStars[monthStarIndex];
+    // 九星は9年周期で循環（1918年が一白水星の年として計算）
+    const mainStarNumber = ((1918 - adjustedYear) % 9 + 9) % 9 + 1;
+    const mainStar = getStarName(mainStarNumber);
     
-    // 吉方位の計算
-    const directions = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
-    const luckyDirection = directions[(birthYear + birthMonth) % 8];
-
+    // 月命星の計算（年命星と月から算出）
+    const monthStarNumber = calculateMonthStar(mainStarNumber, birthMonth, isBeforeRisshun);
+    const monthStar = getStarName(monthStarNumber);
+    
+    // 現在の年月の九星を計算（開運方位算出用）
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentDay = currentDate.getDate();
+    const isCurrentBeforeRisshun = currentMonth === 1 || (currentMonth === 2 && currentDay < 4);
+    const adjustedCurrentYear = isCurrentBeforeRisshun ? currentYear - 1 : currentYear;
+    
+    const currentYearStar = ((1918 - adjustedCurrentYear) % 9 + 9) % 9 + 1;
+    const currentMonthStar = calculateMonthStar(currentYearStar, currentMonth, isCurrentBeforeRisshun);
+    
+    // 吉方位計算（本命星に基づく基本的な吉方位）
+    const luckyDirections = calculateLuckyDirections(mainStarNumber, monthStarNumber, currentYearStar, currentMonthStar);
+    
+    // 大運期の計算（人生の9年周期）
+    const currentAge = currentYear - birthYear + (isCurrentBeforeRisshun ? -1 : 0);
+    const majorCycle = calculateMajorCycle(currentAge, mainStarNumber);
+    
     return {
       ...mockDivinationData.nineStarKi,
       mainStar,
       monthStar,
-      luckyDirection,
-      todaysEnergy: `${userData.questionCategory}において、${mainStar}のエネルギーが強く働きます`,
-      advice: `質問「${userData.question}」に対して、九星気学では${luckyDirection}の方位が吉とされ、${mainStar}の特性を活かすことが重要です。`
+      luckyDirection: luckyDirections.best,
+      avoidDirection: luckyDirections.worst,
+      majorCycle,
+      currentAge,
+      todaysEnergy: generateTodaysEnergy(userData.questionCategory, mainStar, currentMonthStar),
+      advice: generateNineStarAdvice(userData.question, mainStar, luckyDirections.best, majorCycle)
     };
+  }
+
+  function getStarName(starNumber: number): string {
+    const stars = [
+      '', '一白水星', '二黒土星', '三碧木星', '四緑木星', 
+      '五黄土星', '六白金星', '七赤金星', '八白土星', '九紫火星'
+    ];
+    return stars[starNumber] || '五黄土星';
+  }
+
+  function calculateMonthStar(yearStarNumber: number, month: number, isBeforeRisshun: boolean): number {
+    // 月盤計算（節入り考慮）
+    let adjustedMonth = month;
+    if (isBeforeRisshun && month <= 2) {
+      adjustedMonth = month + 12; // 前年の続きとして扱う
+    }
+    
+    // 月命星算出表（年命星ごとに異なる）
+    const monthStarMatrix = [
+      [0], // ダミー（0番目は使わない）
+      [0, 8, 7, 6, 5, 4, 3, 2, 1, 9, 8, 7, 6], // 一白水星年生まれ
+      [0, 2, 1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 9], // 二黒土星年生まれ
+      [0, 5, 4, 3, 2, 1, 9, 8, 7, 6, 5, 4, 3], // 三碧木星年生まれ
+      [0, 8, 7, 6, 5, 4, 3, 2, 1, 9, 8, 7, 6], // 四緑木星年生まれ
+      [0, 2, 1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 9], // 五黄土星年生まれ
+      [0, 5, 4, 3, 2, 1, 9, 8, 7, 6, 5, 4, 3], // 六白金星年生まれ
+      [0, 8, 7, 6, 5, 4, 3, 2, 1, 9, 8, 7, 6], // 七赤金星年生まれ
+      [0, 2, 1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 9], // 八白土星年生まれ
+      [0, 5, 4, 3, 2, 1, 9, 8, 7, 6, 5, 4, 3]  // 九紫火星年生まれ
+    ];
+    
+    const monthIndex = Math.max(1, Math.min(12, adjustedMonth));
+    return monthStarMatrix[yearStarNumber]?.[monthIndex] || 5;
+  }
+
+  function calculateLuckyDirections(mainStar: number, monthStar: number, currentYearStar: number, currentMonthStar: number) {
+    // 基本的な吉方位表（簡略版）
+    const basicLuckyDirections: { [key: number]: string[] } = {
+      1: ['東', '南東'], // 一白水星
+      2: ['北東', '南西'], // 二黒土星  
+      3: ['南', '北'], // 三碧木星
+      4: ['南東', '北西'], // 四緑木星
+      5: ['東', '西'], // 五黄土星
+      6: ['西', '北西'], // 六白金星
+      7: ['西', '北'], // 七赤金星
+      8: ['北東', '南西'], // 八白土星
+      9: ['南', '東'] // 九紫火星
+    };
+    
+    const directions = basicLuckyDirections[mainStar] || ['東', '南'];
+    return {
+      best: directions[0],
+      secondary: directions[1] || directions[0],
+      worst: getOppositeDirection(directions[0])
+    };
+  }
+
+  function getOppositeDirection(direction: string): string {
+    const opposites: { [key: string]: string } = {
+      '東': '西', '西': '東', '南': '北', '北': '南',
+      '北東': '南西', '南西': '北東', '南東': '北西', '北西': '南東'
+    };
+    return opposites[direction] || '西';
+  }
+
+  function calculateMajorCycle(age: number, mainStar: number): { cycle: string, phase: string, advice: string } {
+    const cycleAge = age % 9;
+    const cycles = [
+      { cycle: '種まき期', phase: '新しい始まり', advice: '基盤作りに専念' },
+      { cycle: '成長期', phase: '発展と学習', advice: '積極的な行動を' },
+      { cycle: '拡大期', phase: '人間関係重視', advice: '協力関係を築く' },
+      { cycle: '安定期', phase: '基盤固め', advice: '着実な歩みを' },
+      { cycle: '変化期', phase: '転換点', advice: '変化を受け入れる' },
+      { cycle: '充実期', phase: '創造と表現', advice: '才能を発揮する' },
+      { cycle: '調整期', phase: '見直しと改善', advice: '内省と準備を' },
+      { cycle: '完成期', phase: '成果の収穫', advice: '努力が実る時期' },
+      { cycle: '終了期', phase: '次への準備', advice: '新たな目標設定を' }
+    ];
+    
+    return cycles[cycleAge];
+  }
+
+  function generateTodaysEnergy(category: string, mainStar: string, currentMonthStar: number): string {
+    const energyMap: { [key: string]: string } = {
+      '一白水星': '知恵と直感', '二黒土星': '努力と継続', '三碧木星': '成長と発展',
+      '四緑木星': '信頼と調和', '五黄土星': '変化と強力', '六白金星': '指導と責任',
+      '七赤金星': '表現と交流', '八白土星': '継承と安定', '九紫火星': '情熱と創造'
+    };
+    
+    return `${category}において、${mainStar}の${energyMap[mainStar]}が強く働きます`;
+  }
+
+  function generateNineStarAdvice(question: string, mainStar: string, luckyDirection: string, majorCycle: any): string {
+    return `「${question}」について、九星気学では以下の指針が示されています。
+
+あなたの${mainStar}の特性を活かし、${luckyDirection}の方位のエネルギーを取り入れることが重要です。現在は人生の${majorCycle.cycle}（${majorCycle.phase}）にあり、${majorCycle.advice}ことが開運につながります。
+
+九星気学の智慧に従い、自然のリズムと調和した行動を心がけてください。`;
   }
 
   const { nineStarKi } = { nineStarKi: nineStarKiResult };
@@ -140,7 +261,7 @@ export default function NineStarKiPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
             ← ダッシュボードに戻る
           </Link>
           <h1 className="text-2xl font-light text-white">九星気学詳細分析</h1>

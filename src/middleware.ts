@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // レスポンス作成
-    let response = NextResponse.next();
+    const response = NextResponse.next();
 
     // セキュリティヘッダー設定
     response.headers.set('X-Content-Type-Options', 'nosniff');

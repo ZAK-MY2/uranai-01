@@ -17,8 +17,11 @@
   - コズミックUIダッシュボード実装
   - 占術モックデータシステム構築
   - 公共API環境データ取得機能
-  - 3占術インフォグラフィックページ（数秘術、タロット、占星術）
-- **次の目標**: 残り7占術の詳細ページ、Complexシステム
+  - 全10占術インフォグラフィックページ完成
+  - パラメータ入力フロー復旧（entry → input → dashboard）
+  - アクセシビリティメニューのハンバーガー統合
+  - UIナビゲーション最適化（ORACLE ECHOブランディング）
+- **次の目標**: 残り7占術の実データ計算エンジン、統合占術システム
 
 ## 🔧 開発環境
 
@@ -287,6 +290,12 @@ npm run test        # テスト実行（実装後）
 **重要**: このガイドラインに従って、必ず開発ログを記録し、プロジェクトの知識を蓄積してください。継続的な記録が成功の鍵です。
 
 **更新履歴**
+- 2025-06-25: UIフロー復旧とデザイン改善完了
+  - パラメータ入力フロー復旧（entry → input → dashboard）
+  - アクセシビリティメニューのハンバーガー統合
+  - ハンバーガーメニューアイコンデザイン改善
+  - 全占術ページのナビゲーション統一開始
+  - ORACLE ECHOブランディング更新
 - 2025-06-23: 全10占術システム実装完了
   - 包括的ダッシュボード実装
   - 占術モックデータシステム構築
@@ -474,3 +483,50 @@ location.reload();
 2. Consoleタブで `localStorage.clear()` を実行
 3. ページをリフレッシュ（F5）
 ```
+
+## 🧠 忘却防止・制約克服システム（2025-06-25新設）
+
+### Claude制約の根本的解決
+1. **32K制限対策**: 自動フェーズ分割、セッション状態管理
+2. **読み取り制限**: スマートファイル読み込み、分割読み取り支援
+3. **忘却対策**: 完全引継書、自動コンテキスト復元
+4. **作業継続**: 中断耐性設計、状態保存システム
+
+### 新セッション開始時（必須実行）
+```bash
+# 完全コンテキスト復元
+./scripts/claude-context-recovery.sh
+
+# 記憶力強化システム開始
+./scripts/claude-memory-booster.sh start
+
+# 現状確認
+TodoRead
+```
+
+### 制約克服ツール群
+- `HANDOVER_GUIDE.md`: 完全引継書（即座実行可能）
+- `claude-context-recovery.sh`: 自動コンテキスト復元
+- `claude-memory-booster.sh`: 記憶力強化・制約対策
+- 開発ログシステム: 全決定事項の永続保存
+
+### 大規模ファイル対応
+```bash
+# 制約を考慮したファイル読み取り
+./scripts/claude-memory-booster.sh smart-read large-file.ts 100
+./scripts/claude-memory-booster.sh analyze-file complex-file.ts
+
+# Readツール併用
+Read file_path offset=100 limit=100  # 続きを読む
+```
+
+### セッション終了時（推奨実行）
+```bash
+# コンテキスト要約生成
+./scripts/claude-memory-booster.sh context-summary
+
+# 重要な状態保存
+./scripts/claude-memory-booster.sh checkpoint "セッション終了"
+```
+
+**詳細は `HANDOVER_GUIDE.md` と `scripts/` を参照**

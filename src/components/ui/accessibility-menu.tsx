@@ -4,20 +4,23 @@ import React, { useState } from 'react';
 import { Settings, Eye, Move, Type, X } from 'lucide-react';
 import { useAccessibility } from '@/hooks/use-accessibility';
 
-export const AccessibilityMenu: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface AccessibilityMenuProps {
+  onClose?: () => void;
+}
+
+export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ onClose }) => {
+  const [isOpen, setIsOpen] = useState(true); // ハンバーガーメニューから呼ばれるので初期状態はtrue
   const { fontSize, changeFontSize, isHighContrast, isReducedMotion } = useAccessibility();
+
+  const handleClose = () => {
+    setIsOpen(false);
+    onClose?.();
+  };
+
+  if (!isOpen) return null;
 
   return (
     <>
-      {/* アクセシビリティメニューボタン */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-8 z-40 w-12 h-12 bg-purple-600/80 hover:bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 group"
-        aria-label="アクセシビリティ設定を開く"
-      >
-        <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-      </button>
 
       {/* アクセシビリティメニューパネル */}
       {isOpen && (
@@ -25,7 +28,7 @@ export const AccessibilityMenu: React.FC = () => {
           {/* オーバーレイ */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
+            onClick={handleClose}
             aria-hidden="true"
           />
 
@@ -37,7 +40,7 @@ export const AccessibilityMenu: React.FC = () => {
             aria-modal="true"
           >
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
               aria-label="閉じる"
             >

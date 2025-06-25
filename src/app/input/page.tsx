@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
-import RouteGuard from '@/components/auth/route-guard';
-import { useSession } from '@/hooks/use-session';
 
 interface UserInput {
   fullName: string;
@@ -22,7 +20,6 @@ interface UserInput {
 
 function UserInputPageContent() {
   const router = useRouter();
-  const { markInputCompleted } = useSession();
   const [formData, setFormData] = useState<UserInput>({
     fullName: '',
     birthDate: '',
@@ -81,12 +78,9 @@ function UserInputPageContent() {
     // ローカルストレージに保存
     localStorage.setItem('uranai_user_data', JSON.stringify(formData));
     
-    // セッションに入力完了をマーク
-    markInputCompleted(formData);
-    
-    // ダッシュボードへリダイレクト（Complexは別途アクセス）
+    // ダッシュボードへリダイレクト
     setTimeout(() => {
-      router.push('/');
+      router.push('/dashboard');
     }, 1000);
   };
 
@@ -112,7 +106,7 @@ function UserInputPageContent() {
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+            <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
               ← ダッシュボードに戻る
             </Link>
             <button
@@ -125,7 +119,7 @@ function UserInputPageContent() {
               🔄 入力をリセット
             </button>
           </div>
-          <h1 className="text-2xl font-light text-white">COSMIC ORACLE 占術診断</h1>
+          <h1 className="text-2xl font-light text-white">ORACLE ECHO 占術診断</h1>
           <div className="w-32"></div>
         </div>
       </header>
@@ -449,9 +443,5 @@ function UserInputPageContent() {
 }
 
 export default function UserInputPage() {
-  return (
-    <RouteGuard requireAuth={true}>
-      <UserInputPageContent />
-    </RouteGuard>
-  );
+  return <UserInputPageContent />;
 }

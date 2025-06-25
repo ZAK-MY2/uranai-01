@@ -61,33 +61,92 @@ export default function IChingPage() {
 
   function calculateIChing(userData: UserInputData) {
     const birthDate = new Date(userData.birthDate);
-    const hexagrams = [
-      { number: 1, name: '乾為天', upperTrigram: '乾（天）', lowerTrigram: '乾（天）', judgment: '元いに亨る。貞に利し。', image: '天行健なり。君子以って自彊して息まず。' },
-      { number: 14, name: '火天大有', upperTrigram: '離（火）', lowerTrigram: '乾（天）', judgment: '大いなる所有。元いに亨る。', image: '火の天上に在るは大有なり。' },
-      { number: 11, name: '地天泰', upperTrigram: '坤（地）', lowerTrigram: '乾（天）', judgment: '小往き大来る、吉にして亨る。', image: '天地交わるは泰。' },
-      { number: 6, name: '天水訟', upperTrigram: '乾（天）', lowerTrigram: '坎（水）', judgment: '孚有れども塞がる。', image: '天と水と違い行くは訟。' },
-      { number: 26, name: '山天大畜', upperTrigram: '艮（山）', lowerTrigram: '乾（天）', judgment: '貞に利し。', image: '天の山中に在るは大畜なり。' }
-    ];
-    const seed = birthDate.getTime() + userData.fullName.length;
-    const hexagramIndex = Math.abs(seed) % hexagrams.length;
-    const selectedHexagram = hexagrams[hexagramIndex];
-
-    if (!selectedHexagram) {
-      // フォールバックとして最初の卦を使用
-      const fallbackHexagram = hexagrams[0];
-      return {
-        ...mockDivinationData.iChing,
-        hexagram: fallbackHexagram,
-        changingLines: [3, 5],
-        interpretation: `${userData.questionCategory}に関する質問「${userData.question}」について、第${fallbackHexagram.number}卦「${fallbackHexagram.name}」が示されました。この卦は${fallbackHexagram.upperTrigram}と${fallbackHexagram.lowerTrigram}の組み合わせで、変化と調和の時期を表しています。`
-      };
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // 本格的な易経計算：筮竹法の簡易版
+    // 名前の文字数と生年月日から六爻を算出
+    const nameLength = userData.fullName.length;
+    const dateSum = year + month + day;
+    
+    // 6つの爻を生成（1=陰爻, 2=陽爻）
+    const lines: boolean[] = [];
+    for (let i = 0; i < 6; i++) {
+      const lineValue = ((dateSum * (i + 1)) + nameLength + userData.question.length) % 4;
+      lines.push(lineValue >= 2 ? true : false); // true=陽, false=陰
     }
-
+    
+    // 上卦（上3爻）と下卦（下3爻）から卦を決定
+    const trigrams = [
+      { name: '乾', symbol: '☰', lines: [true, true, true], element: '天' },
+      { name: '兌', symbol: '☱', lines: [false, true, true], element: '沢' },
+      { name: '離', symbol: '☲', lines: [true, false, true], element: '火' },
+      { name: '震', symbol: '☳', lines: [false, false, true], element: '雷' },
+      { name: '巽', symbol: '☴', lines: [true, true, false], element: '風' },
+      { name: '坎', symbol: '☵', lines: [false, true, false], element: '水' },
+      { name: '艮', symbol: '☶', lines: [true, false, false], element: '山' },
+      { name: '坤', symbol: '☷', lines: [false, false, false], element: '地' }
+    ];
+    
+    // 上卦と下卦を特定
+    const upperTrigram = trigrams.find(t => 
+      t.lines[0] === lines[5] && t.lines[1] === lines[4] && t.lines[2] === lines[3]
+    ) || trigrams[0];
+    
+    const lowerTrigram = trigrams.find(t => 
+      t.lines[0] === lines[2] && t.lines[1] === lines[1] && t.lines[2] === lines[0]
+    ) || trigrams[0];
+    
+    // 64卦マトリックスから卦番号を決定
+    const hexagramMatrix = [
+      [1, 34, 5, 26, 11, 9, 14, 43],  // 乾
+      [25, 51, 3, 27, 24, 42, 21, 17], // 震
+      [6, 40, 29, 4, 7, 59, 64, 47],   // 坎
+      [33, 62, 39, 52, 15, 53, 56, 31], // 艮
+      [12, 16, 8, 23, 2, 20, 35, 45],  // 坤
+      [44, 32, 48, 18, 46, 57, 50, 28], // 巽
+      [13, 55, 63, 22, 36, 37, 30, 49], // 離
+      [10, 54, 60, 41, 19, 61, 38, 58]  // 兌
+    ];
+    
+    const upperIndex = trigrams.indexOf(upperTrigram);
+    const lowerIndex = trigrams.indexOf(lowerTrigram);
+    const hexagramNumber = hexagramMatrix[lowerIndex][upperIndex];
+    
+    // 卦名データベース（主要な卦のみ）
+    const hexagramNames: { [key: number]: { name: string, judgment: string, image: string } } = {
+      1: { name: '乾為天', judgment: '元いに亨る。貞に利し。', image: '天行健なり。君子以って自彊して息まず。' },
+      2: { name: '坤為地', judgment: '元いに亨り、牝馬の貞に利し。', image: '地勢坤なり。君子以って徳を厚くして物を載す。' },
+      3: { name: '水雷屯', judgment: '元いに亨り、貞に利し。', image: '雲雷屯なり。君子以って経綸す。' },
+      11: { name: '地天泰', judgment: '小往き大来る、吉にして亨る。', image: '天地交わるは泰なり。' },
+      14: { name: '火天大有', judgment: '元いに亨る。', image: '火の天上に在るは大有なり。' },
+      29: { name: '坎為水', judgment: '習坎、孚有り。心亨る。', image: '水洊り至るは習坎なり。' },
+      30: { name: '離為火', judgment: '利貞、亨る。', image: '明両作なれば離なり。' }
+    };
+    
+    const selectedHexagram = hexagramNames[hexagramNumber] || hexagramNames[1];
+    
+    // 変爻の計算（質問の重要度による）
+    const changingLines = [];
+    const questionImportance = userData.question.length % 6;
+    if (questionImportance > 0) {
+      changingLines.push(questionImportance);
+    }
+    
     return {
       ...mockDivinationData.iChing,
-      hexagram: selectedHexagram,
-      changingLines: [3, 5], // 生年月日から計算
-      interpretation: `${userData.questionCategory}に関する質問「${userData.question}」について、第${selectedHexagram.number}卦「${selectedHexagram.name}」が示されました。この卦は${selectedHexagram.upperTrigram}と${selectedHexagram.lowerTrigram}の組み合わせで、変化と調和の時期を表しています。`
+      hexagram: {
+        number: hexagramNumber,
+        name: selectedHexagram.name,
+        upperTrigram: `${upperTrigram.name}（${upperTrigram.element}）`,
+        lowerTrigram: `${lowerTrigram.name}（${lowerTrigram.element}）`,
+        judgment: selectedHexagram.judgment,
+        image: selectedHexagram.image
+      },
+      changingLines,
+      lines,
+      interpretation: `「${userData.question}」に関して、第${hexagramNumber}卦「${selectedHexagram.name}」が示されました。この卦は${upperTrigram.element}と${lowerTrigram.element}の組み合わせで構成され、${selectedHexagram.judgment}という判断が示されています。${selectedHexagram.image}の教えに従い、自然の流れに調和して行動することが重要です。`
     };
   }
 
@@ -105,8 +164,8 @@ export default function IChingPage() {
     '坤（地）': { element: '地', nature: '受容', direction: '南西' }
   };
 
-  // 六十四卦のパターン（例として火天大有）
-  const hexagramLines = [true, false, true, true, true, true]; // 下から上へ
+  // 計算された実際の爻線
+  const hexagramLines = (iChing as any).lines || [true, false, true, true, true, true]; // 下から上へ
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
@@ -115,7 +174,7 @@ export default function IChingPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
             ← ダッシュボードに戻る
           </Link>
           <h1 className="text-2xl font-light text-white">易経詳細分析</h1>

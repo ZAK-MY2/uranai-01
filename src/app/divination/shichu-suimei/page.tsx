@@ -95,7 +95,7 @@ const FiveElementsBalance = ({ elements }: { elements: { [key: string]: number }
 
 export default function ShichuSuimeiPage() {
   const [userInput, setUserInput] = useState<UserInputData | null>(null);
-  const [shichuResult] = useState(mockDivinationData.shichuSuimei);
+  const [shichuResult, setShichuResult] = useState(mockDivinationData.shichuSuimei);
   const [, setShowAnimation] = useState(false);
 
   useEffect(() => {
@@ -104,13 +104,144 @@ export default function ShichuSuimeiPage() {
       try {
         const userData: UserInputData = JSON.parse(storedData);
         setUserInput(userData);
-        // 実際の四柱推命計算をここで行う（現在はモックデータ）
+        
+        // 実際の四柱推命計算を実行
+        const calculatedResult = calculateShichuSuimei(userData);
+        setShichuResult(calculatedResult);
         setShowAnimation(true);
       } catch (error) {
         console.error('ユーザーデータの読み込みエラー:', error);
       }
     }
   }, []);
+
+  function calculateShichuSuimei(userData: UserInputData) {
+    const birthDate = new Date(userData.birthDate);
+    const year = birthDate.getFullYear();
+    const month = birthDate.getMonth() + 1;
+    const day = birthDate.getDate();
+    
+    // 生時は入力がある場合のみ、なければ12時と仮定
+    const birthTime = userData.birthTime || '12:00';
+    const hour = parseInt(birthTime.split(':')[0]);
+    
+    // 十干十二支の配列
+    const heavenlyStems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+    const earthlyBranches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+    const elements = ['木', '火', '土', '金', '水'];
+    
+    // 年柱計算（西暦年から干支を算出）
+    const yearStemIndex = (year - 4) % 10;
+    const yearBranchIndex = (year - 4) % 12;
+    const yearPillar = {
+      heavenlyStem: heavenlyStems[yearStemIndex],
+      earthlyBranch: earthlyBranches[yearBranchIndex],
+      element: getElementFromStem(heavenlyStems[yearStemIndex])
+    };
+    
+    // 月柱計算（年干と月から算出）
+    const monthStemIndex = (yearStemIndex * 2 + month) % 10;
+    const monthBranchIndex = (month + 1) % 12;
+    const monthPillar = {
+      heavenlyStem: heavenlyStems[monthStemIndex],
+      earthlyBranch: earthlyBranches[monthBranchIndex],
+      element: getElementFromStem(heavenlyStems[monthStemIndex])
+    };
+    
+    // 日柱計算（簡易計算式）
+    const dayNumber = getDayNumber(year, month, day);
+    const dayStemIndex = dayNumber % 10;
+    const dayBranchIndex = dayNumber % 12;
+    const dayPillar = {
+      heavenlyStem: heavenlyStems[dayStemIndex],
+      earthlyBranch: earthlyBranches[dayBranchIndex],
+      element: getElementFromStem(heavenlyStems[dayStemIndex])
+    };
+    
+    // 時柱計算
+    const hourBranchIndex = Math.floor(hour / 2);
+    const hourStemIndex = (dayStemIndex * 2 + hourBranchIndex) % 10;
+    const hourPillar = {
+      heavenlyStem: heavenlyStems[hourStemIndex],
+      earthlyBranch: earthlyBranches[hourBranchIndex],
+      element: getElementFromStem(heavenlyStems[hourStemIndex])
+    };
+    
+    // 五行バランス計算
+    const fiveElements = calculateFiveElements([yearPillar, monthPillar, dayPillar, hourPillar]);
+    
+    // 大運計算（10年ごとの運勢周期）
+    const majorCycle = calculateMajorCycle(year, month, day);
+    
+    return {
+      ...mockDivinationData.shichuSuimei,
+      yearPillar,
+      monthPillar,
+      dayPillar,
+      hourPillar,
+      fiveElements,
+      majorCycle,
+      interpretation: generateShichuInterpretation(userData.question, dayPillar, fiveElements)
+    };
+  }
+
+  function getElementFromStem(stem: string): string {
+    const stemElements: { [key: string]: string } = {
+      '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
+      '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+    };
+    return stemElements[stem] || '土';
+  }
+
+  function getDayNumber(year: number, month: number, day: number): number {
+    // 四柱推命の日柱計算（ユリウス通日ベース）
+    const a = Math.floor((14 - month) / 12);
+    const y = year - a;
+    const m = month + 12 * a - 3;
+    const jd = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + 1721119;
+    return (jd + 49) % 60; // 60進法による日柱計算
+  }
+
+  function calculateFiveElements(pillars: any[]) {
+    const elements = { wood: 0, fire: 0, earth: 0, metal: 0, water: 0 };
+    const elementMap: { [key: string]: keyof typeof elements } = {
+      '木': 'wood', '火': 'fire', '土': 'earth', '金': 'metal', '水': 'water'
+    };
+    
+    pillars.forEach(pillar => {
+      const elementKey = elementMap[pillar.element];
+      if (elementKey) {
+        elements[elementKey]++;
+      }
+    });
+    
+    return elements;
+  }
+
+  function calculateMajorCycle(year: number, month: number, day: number) {
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - year;
+    const cycleAge = Math.floor(age / 10) * 10;
+    
+    return {
+      period: `${cycleAge}歳～${cycleAge + 9}歳の大運期`,
+      element: '土', // 実際の大運計算では正確に算出
+      fortune: '安定期'
+    };
+  }
+
+  function generateShichuInterpretation(question: string, dayPillar: any, fiveElements: any): string {
+    const strongestElement = Object.keys(fiveElements).reduce((a, b) => fiveElements[a] > fiveElements[b] ? a : b);
+    const elementMeaning: { [key: string]: string } = {
+      wood: '成長と発展の力',
+      fire: '情熱と行動力',
+      earth: '安定と信頼性',
+      metal: '正義と決断力',
+      water: '知恵と柔軟性'
+    };
+    
+    return `日干「${dayPillar.heavenlyStem}」を持つあなたは、${dayPillar.element}の性質を基調とした運命を歩みます。「${question}」について、五行バランスでは${elementMeaning[strongestElement]}が最も強く現れており、この特性を活かすことで最良の結果を得られるでしょう。四柱推命の古典的解釈に従い、自然の摂理に調和した生き方を心がけることが重要です。`;
+  }
 
   const { yearPillar, monthPillar, dayPillar, hourPillar, fiveElements, majorCycle, interpretation } = shichuResult;
 
@@ -121,7 +252,7 @@ export default function ShichuSuimeiPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
             ← ダッシュボードに戻る
           </Link>
           <h1 className="text-2xl font-light text-white tracking-wider">四柱推命</h1>

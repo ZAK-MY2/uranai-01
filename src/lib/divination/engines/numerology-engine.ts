@@ -1,5 +1,12 @@
 import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
-import { dynamicMessageGenerator } from '../dynamic-message-generator';
+import { 
+  NUMEROLOGY_MESSAGES, 
+  MASTER_NUMBER_MESSAGES, 
+  CYCLE_ADVICE,
+  LUCKY_MESSAGE_ELEMENTS,
+  getRandomMessage,
+  getContextualMessage
+} from '../messages/numerology-messages';
 
 export interface NumerologyResult {
   lifePathNumber: number;
@@ -30,13 +37,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
   }
 
   calculate(): NumerologyResult {
-    console.log('🔮 [NumerologyEngine] Starting calculation...');
-    console.log('📊 Input:', {
-      name: this.input.fullName,
-      birthDate: this.input.birthDate,
-      category: this.input.questionCategory,
-      hasEnvironment: !!this.environment
-    });
     
     const lifePathNumber = this.calculateLifePathNumber();
     const destinyNumber = this.calculateDestinyNumber();
@@ -45,14 +45,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     const maturityNumber = this.calculateMaturityNumber();
     const todaysNumber = this.calculateTodaysNumber();
 
-    console.log('🔢 Calculated numbers:', {
-      lifePathNumber,
-      destinyNumber,
-      soulNumber,
-      personalityNumber,
-      maturityNumber,
-      todaysNumber
-    });
 
     const interpretation = this.generateInterpretation(
       lifePathNumber,
@@ -61,19 +53,10 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
       personalityNumber
     );
 
-    console.log('📝 Generated interpretation:', {
-      hasLifePathMeaning: !!interpretation.lifePathMeaning,
-      hasDestinyMeaning: !!interpretation.destinyMeaning,
-      hasSoulMeaning: !!interpretation.soulMeaning,
-      hasCurrentCycle: !!interpretation.currentCycle,
-      hasAdvice: !!interpretation.advice
-    });
 
-    // TODO: Implement async calculate in base engine to support personalized messages
     const personalizedMessage = interpretation.advice;
 
     const luckyMessage = this.generateLuckyMessage();
-    console.log('🍀 Lucky message generated:', luckyMessage);
 
     const result = {
       lifePathNumber,
@@ -89,7 +72,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
       luckyMessage
     };
 
-    console.log('✅ [NumerologyEngine] Calculation complete');
     return result;
   }
 
@@ -157,7 +139,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     soul: number,
     personality: number
   ): NumerologyResult['interpretation'] {
-    console.log('🎯 [generateInterpretation] Starting with:', { lifePath, destiny, soul, personality });
     
     const lifePathMeanings: Record<number, string[]> = {
       1: [
@@ -238,12 +219,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     const meanings = lifePathMeanings[lifePath] || lifePathMeanings[1];
     const randomIndex = Math.floor(Math.random() * meanings.length);
     const baseLifePathMeaning = meanings[randomIndex];
-    console.log('🎲 [generateInterpretation] Random selection:', {
-      lifePath,
-      availableMeanings: meanings.length,
-      selectedIndex: randomIndex,
-      selectedMeaning: baseLifePathMeaning
-    });
 
     const currentAge = new Date().getFullYear() - this.input.birthDate.getFullYear();
     const currentCycle = Math.floor(currentAge / 9) + 1;
@@ -251,64 +226,9 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     const baseDestinyMeaning = `運命数${destiny}があなたの人生の目的を示しています`;
     const baseSoulMeaning = `魂の数${soul}があなたの内なる願いを表しています`;
     
-    console.log('📋 [generateInterpretation] Base messages:', {
-      lifePathBase: baseLifePathMeaning,
-      destinyBase: baseDestinyMeaning,
-      soulBase: baseSoulMeaning,
-      currentCycle,
-      cycleAdvice: this.getCycleAdvice(currentCycle)
-    });
 
-//     const baseLifePathMeaning = dynamicMessageGenerator.generateMessage(
-//       baseLifePathMeaning,
-//       '人生の目的',
-//       this.input,
-//       this.environment
-//     );
-//     console.log('💫 [generateInterpretation] LifePath dynamic:', {
-//       base: baseLifePathMeaning,
-//       dynamic: baseLifePathMeaning,
-//       changed: baseLifePathMeaning !== baseLifePathMeaning
-//     });
-
-//     const baseDestinyMeaning = dynamicMessageGenerator.generateMessage(
-//       baseDestinyMeaning,
-//       '運命と使命',
-//       this.input,
-//       this.environment
-//     );
-//     console.log('💫 [generateInterpretation] Destiny dynamic:', {
-//       base: baseDestinyMeaning,
-//       dynamic: baseDestinyMeaning,
-//       changed: baseDestinyMeaning !== baseDestinyMeaning
-//     });
-
-//     const baseSoulMeaning = dynamicMessageGenerator.generateMessage(
-//       baseSoulMeaning,
-//       '内なる声',
-//       this.input,
-//       this.environment
-//     );
-//     console.log('💫 [generateInterpretation] Soul dynamic:', {
-//       base: baseSoulMeaning,
-//       dynamic: baseSoulMeaning,
-//       changed: baseSoulMeaning !== baseSoulMeaning
-//     });
-
-//     const this.input.questionCategory || "総合運" = dynamicMessageGenerator.generateMessage(
-//       `現在は第${currentCycle}サイクル。${this.getCycleAdvice(currentCycle)}`,
-//       '人生の周期',
-//       this.input,
-//       this.environment
-//     );
-//     console.log('💫 [generateInterpretation] Cycle dynamic:', {
-//       base: `現在は第${currentCycle}サイクル。${this.getCycleAdvice(currentCycle)}`,
-//       dynamic: this.input.questionCategory || "総合運",
-//       changed: `現在は第${currentCycle}サイクル。${this.getCycleAdvice(currentCycle)}` !== this.input.questionCategory || "総合運"
-//     });
 
     const advice = this.generateAdvice(lifePath, destiny, soul, personality);
-    console.log('📌 [generateInterpretation] Generated advice:', advice);
     
     return {
       lifePathMeaning: baseLifePathMeaning,
@@ -348,13 +268,6 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     
     const baseAdvice = baseAdvices[total] || baseAdvices[1];
     
-    // 動的メッセージ生成で表現をバリエーション豊かに
-//     return dynamicMessageGenerator.generateMessage(
-//       baseAdvice,
-//       this.input.questionCategory || '総合運',
-//       this.input,
-//       this.environment
-//     );
     return baseAdvice;
   }
 
@@ -396,19 +309,11 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
   
   // 今日の幸運メッセージを生成
   generateLuckyMessage(): string {
-    console.log('🍀 [generateLuckyMessage] Starting...');
     
     const todaysNumber = this.calculateTodaysNumber();
     const moonPhase = this.environment?.lunar?.phase || 0.5;
     const hour = new Date().getHours();
     
-    console.log('🌙 [generateLuckyMessage] Environment data:', {
-      todaysNumber,
-      moonPhase,
-      hour,
-      hasEnvironment: !!this.environment,
-      lunarData: this.environment?.lunar
-    });
     
     // 数字、月相、時間帯を組み合わせてメッセージを生成
     const numberMeanings = [
@@ -487,40 +392,13 @@ export class NumerologyEngine extends BaseDivinationEngine<NumerologyResult> {
     // ランダム要素を追加
     const randomIndex = Math.floor(Math.random() * 1000);
     
-    console.log('🎲 [generateLuckyMessage] Random selection:', {
-      randomIndex,
-      currentPeriod,
-      currentMoonPhase,
-      numberElement
-    });
-    
     // メッセージを構築
     const timeElement = timeElements[currentPeriod][randomIndex % timeElements[currentPeriod].length];
     const moonElement = moonElements[currentMoonPhase][randomIndex % moonElements[currentMoonPhase].length];
     const outcome = outcomes[randomIndex % outcomes.length];
     
-    console.log('🎯 [generateLuckyMessage] Selected elements:', {
-      timeElement,
-      moonElement,
-      outcome
-    });
     
     const baseMessage = `${timeElement}、${numberElement}のエネルギーと${moonElement}、${outcome}`;
-    
-    console.log('📝 [generateLuckyMessage] Base message:', baseMessage);
-    
-//     const dynamicLuckyMessage = dynamicMessageGenerator.generateMessage(
-//       baseMessage,
-//       '今日の運勢',
-//       this.input,
-//       this.environment
-//     );
-    
-    console.log('✨ [generateLuckyMessage] Dynamic transformation:', {
-      base: baseMessage,
-      dynamic: baseMessage,
-      changed: false
-    });
     
     return baseMessage;
   }

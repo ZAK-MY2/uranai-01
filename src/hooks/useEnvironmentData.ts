@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { EnvironmentData } from '@/types/database.types';
+import { EnvironmentData } from '@/types/database';
 
 export function useEnvironmentData() {
   const [data, setData] = useState<EnvironmentData | null>(null);

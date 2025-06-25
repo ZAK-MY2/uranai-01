@@ -42,7 +42,6 @@ export default function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <AccessibilityMenu />
         <EnvironmentBadge />
       </body>
     </html>

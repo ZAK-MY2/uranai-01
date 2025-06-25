@@ -330,7 +330,7 @@ export default function TarotPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
             ← ダッシュボードに戻る
           </Link>
           <h1 className="text-2xl font-light text-white">タロット詳細分析</h1>

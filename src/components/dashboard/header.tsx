@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Settings } from 'lucide-react';
 
 interface DashboardHeaderProps {
   user?: User | null;
+  onAccessibilityToggle?: () => void;
 }
 
-export function DashboardHeader({ user }: DashboardHeaderProps) {
+export function DashboardHeader({ user, onAccessibilityToggle }: DashboardHeaderProps) {
   const router = useRouter();
   const supabase = createClient();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,13 +25,12 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   // デモモード: ログアウトは無効化
   const handleSignOut = async () => {
     // デモモードでは何もしない
-    console.log('デモモードではログアウトできません');
     setIsMenuOpen(false);
   };
   
   const handleNewParameters = () => {
-    // デモモード: パラメータ画面への遷移を無効化
-    console.log('デモモードでは新しいパラメータ設定はできません');
+    // 入力画面へリダイレクト
+    router.push('/input');
     setIsMenuOpen(false);
   };
   
@@ -87,17 +87,27 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
               <div className="text-cosmic-accent font-medium sm:hidden text-sm">{username}</div>
               <div className="border-t border-white/10 pt-3 space-y-2">
                 <button
+                  onClick={() => {
+                    onAccessibilityToggle?.();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
+                >
+                  <Settings className="w-4 h-4 text-purple-400" />
+                  アクセシビリティ設定
+                </button>
+                <button
                   onClick={handleNewParameters}
                   className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
                 >
-                  <span>🔄</span>
+                  <span className="text-blue-400">🔄</span>
                   新しいパラメータで占う
                 </button>
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
                 >
-                  <span>👋</span>
+                  <span className="text-yellow-400">👋</span>
                   サインアウト
                 </button>
               </div>
