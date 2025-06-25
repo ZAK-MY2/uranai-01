@@ -13,7 +13,6 @@ const RATE_LIMIT_MAX = 100; // 15分で100リクエスト
 
 // 保護されるパス設定
 const PROTECTED_PATHS = [
-  '/dashboard',
   '/profile',
   '/api/divination',
   '/api/user'
