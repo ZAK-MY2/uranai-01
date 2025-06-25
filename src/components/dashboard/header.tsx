@@ -21,14 +21,16 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
     year: 'numeric' 
   });
   
+  // デモモード: ログアウトは無効化
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    // デモモードでは何もしない
+    console.log('デモモードではログアウトできません');
+    setIsMenuOpen(false);
   };
   
   const handleNewParameters = () => {
-    localStorage.removeItem('uranai_user_data');
-    router.push('/input');
+    // デモモード: パラメータ画面への遷移を無効化
+    console.log('デモモードでは新しいパラメータ設定はできません');
     setIsMenuOpen(false);
   };
   
@@ -38,7 +40,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-cosmic-strong bg-cosmic-background-primary border-b border-cosmic-border-light shadow-glass">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 flex justify-between items-center">
         <div className="cosmic-title text-lg sm:text-xl lg:text-2xl text-cosmic-accent animate-gradient-shift">
-          COSMIC ORACLE
+          ORACLE ECHO
         </div>
         
         <div className="flex items-center gap-8">

@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "COSMIC ORACLE - 宇宙の神託",
-  description: "10の古代占術と環境データが織りなす、あなただけの運命の導き",
+  title: "ORACLE ECHO - 古の知恵が響き合う",
+  description: "10の古の知恵が響き合う、あなただけの運命の導き",
 };
 
 export default function RootLayout({

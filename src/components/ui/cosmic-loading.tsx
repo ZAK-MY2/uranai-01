@@ -9,7 +9,7 @@ interface CosmicLoadingProps {
 }
 
 export const CosmicLoading: React.FC<CosmicLoadingProps> = ({
-  message = '宇宙の叡智と接続中...',
+  message = '占術を読み解いています...',
   size = 'medium',
   fullScreen = false
 }) => {
