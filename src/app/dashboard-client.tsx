@@ -24,30 +24,8 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ user, environmentData }: DashboardClientProps) {
-  const { isAuthenticated, hasCompletedInput, isLoading } = useSession();
-
-  // ローディング中は表示
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-cosmic-dark flex items-center justify-center">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // 認証や入力が必要な場合は、クライアントサイドでリダイレクト
-  if (typeof window !== 'undefined') {
-    if (!isAuthenticated) {
-      window.location.href = '/entry';
-      return null;
-    }
-    if (!hasCompletedInput) {
-      window.location.href = '/input';
-      return null;
-    }
-  }
+  // デモモード: 認証チェックをスキップして直接ダッシュボードを表示
+  // const { isAuthenticated, hasCompletedInput, isLoading } = useSession();
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
