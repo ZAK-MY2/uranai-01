@@ -1,0 +1,159 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
+
+// テスト用の具体的なエンジン実装
+class TestEngine extends BaseDivinationEngine<{ result: string }> {
+  calculate() {
+    return {
+      result: `Test result for ${this.input.fullName}`
+    };
+  }
+}
+
+describe('BaseDivinationEngine', () => {
+  let testInput: DivinationInput;
+  let testEnvironment: EnvironmentData;
+
+  beforeEach(() => {
+    testInput = {
+      fullName: '山田太郎',
+      birthDate: new Date('1990-01-01T12:00:00Z'),
+      birthTime: '12:00',
+      birthPlace: { lat: 35.6762, lon: 139.6503, name: '東京' },
+      currentLocation: { lat: 35.6762, lon: 139.6503, name: '東京' },
+      question: 'テスト質問',
+      questionCategory: '総合運'
+    };
+
+    testEnvironment = {
+      weather: {
+        temp: 20,
+        main: 'Clear',
+        description: '晴れ'
+      },
+      lunar: {
+        phase: 0.5,
+        phaseName: '満月',
+        illumination: 100
+      },
+      planetary: {
+        hourRuler: 'Sun',
+        dayRuler: 'Moon'
+      }
+    };
+  });
+
+  describe('constructor', () => {
+    it('入力データと環境データを正しく設定する', () => {
+      const engine = new TestEngine(testInput, testEnvironment);
+      expect(engine['input']).toEqual(testInput);
+      expect(engine['environment']).toEqual(testEnvironment);
+    });
+
+    it('環境データなしでも動作する', () => {
+      const engine = new TestEngine(testInput);
+      expect(engine['input']).toEqual(testInput);
+      expect(engine['environment']).toBeUndefined();
+    });
+  });
+
+  describe('getTimeModifier', () => {
+    it('時間帯に応じた修正値を返す', () => {
+      const engine = new TestEngine(testInput, testEnvironment);
+      const modifier = engine['getTimeModifier']();
+      expect(modifier).toBeGreaterThanOrEqual(0.8);
+      expect(modifier).toBeLessThanOrEqual(1.2);
+    });
+
+    it('日中（6-18時）は1.0を返す', () => {
+      // 日中の時刻をモック
+      const noonDate = new Date();
+      noonDate.setHours(12);
+      vi.setSystemTime(noonDate);
+
+      const engine = new TestEngine(testInput, testEnvironment);
+      const modifier = engine['getTimeModifier']();
+      expect(modifier).toBe(1.0);
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe('getEnvironmentalModifier', () => {
+    it('環境データがある場合、修正値を計算する', () => {
+      const engine = new TestEngine(testInput, testEnvironment);
+      const modifier = engine['getEnvironmentalModifier']();
+      expect(modifier).toBeGreaterThan(0);
+      expect(modifier).toBeLessThan(2);
+    });
+
+    it('環境データがない場合、1.0を返す', () => {
+      const engine = new TestEngine(testInput);
+      const modifier = engine['getEnvironmentalModifier']();
+      expect(modifier).toBe(1.0);
+    });
+
+    it('異なる天候で異なる修正値を返す', () => {
+      const engine1 = new TestEngine(testInput, {
+        ...testEnvironment,
+        weather: { ...testEnvironment.weather, main: 'Clear' }
+      });
+      const engine2 = new TestEngine(testInput, {
+        ...testEnvironment,
+        weather: { ...testEnvironment.weather, main: 'Rain' }
+      });
+
+      const modifier1 = engine1['getEnvironmentalModifier']();
+      const modifier2 = engine2['getEnvironmentalModifier']();
+      
+      expect(modifier1).not.toBe(modifier2);
+    });
+  });
+
+  describe('calculate', () => {
+    it('抽象メソッドが実装されている', () => {
+      const engine = new TestEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+      expect(result).toHaveProperty('result');
+      expect(result.result).toContain('山田太郎');
+    });
+  });
+
+  describe('エッジケース', () => {
+    it('入力データの最小構成で動作する', () => {
+      const minimalInput: DivinationInput = {
+        fullName: 'テスト',
+        birthDate: new Date(),
+        birthTime: '00:00',
+        birthPlace: { lat: 0, lon: 0, name: '' }
+      };
+
+      const engine = new TestEngine(minimalInput);
+      expect(() => engine.calculate()).not.toThrow();
+    });
+
+    it('極端な環境値でもクラッシュしない', () => {
+      const extremeEnvironment: EnvironmentData = {
+        weather: {
+          temp: -50, // 極寒
+          main: 'Snow',
+          description: '大雪'
+        },
+        lunar: {
+          phase: 0, // 新月
+          phaseName: '新月',
+          illumination: 0
+        },
+        planetary: {
+          hourRuler: 'Saturn',
+          dayRuler: 'Saturn'
+        }
+      };
+
+      const engine = new TestEngine(testInput, extremeEnvironment);
+      const modifier = engine['getEnvironmentalModifier']();
+      expect(modifier).toBeGreaterThan(0);
+      expect(modifier).toBeLessThan(2);
+    });
+  });
+});

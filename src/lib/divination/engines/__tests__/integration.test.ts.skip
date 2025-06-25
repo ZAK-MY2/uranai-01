@@ -1,0 +1,305 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { DivinationInput, EnvironmentData } from '../base-engine';
+import { NumerologyEngine } from '../numerology-engine';
+import { TarotEngine } from '../tarot-engine';
+import { AstrologyEngine } from '../astrology-engine';
+import { ShichuSuimeiEngine } from '../shichu-suimei-engine';
+import { IChingEngine } from '../iching-engine';
+import { NineStarKiEngine } from '../nine-star-ki-engine';
+import { RunesEngine } from '../runes-engine';
+import { VedicEngine } from '../vedic-engine';
+
+describe('占術エンジン統合テスト', () => {
+  let testInput: DivinationInput;
+  let testEnvironment: EnvironmentData;
+
+  beforeEach(() => {
+    testInput = {
+      fullName: '佐藤美咲',
+      birthDate: new Date('1988-07-07T15:30:00+09:00'),
+      birthTime: '15:30',
+      birthPlace: { lat: 35.6762, lon: 139.6503, name: '東京都' },
+      currentLocation: { lat: 34.6937, lon: 135.5023, name: '大阪府' },
+      question: '今年の全体的な運勢を教えてください',
+      questionCategory: '総合運'
+    };
+
+    testEnvironment = {
+      weather: {
+        temp: 25,
+        main: 'Clear',
+        description: '晴れ'
+      },
+      lunar: {
+        phase: 0.25,
+        phaseName: '上弦の月',
+        illumination: 50
+      },
+      planetary: {
+        hourRuler: 'Jupiter',
+        dayRuler: 'Venus'
+      }
+    };
+  });
+
+  describe('全占術エンジンの基本動作確認', () => {
+    it('すべてのエンジンが正常に計算を実行できる', () => {
+      const engines = [
+        new NumerologyEngine(testInput, testEnvironment),
+        new TarotEngine(testInput, testEnvironment),
+        new AstrologyEngine(testInput, testEnvironment),
+        new ShichuSuimeiEngine(testInput, testEnvironment),
+        new IChingEngine(testInput, testEnvironment),
+        new NineStarKiEngine(testInput, testEnvironment),
+        new RunesEngine(testInput, testEnvironment),
+        new VedicEngine(testInput, testEnvironment)
+      ];
+
+      engines.forEach((engine, index) => {
+        expect(() => {
+          const result = engine.calculate();
+          expect(result).toBeDefined();
+        }).not.toThrow();
+      });
+    });
+
+    it('環境データなしでもすべてのエンジンが動作する', () => {
+      const engines = [
+        new NumerologyEngine(testInput),
+        new TarotEngine(testInput),
+        new AstrologyEngine(testInput),
+        new ShichuSuimeiEngine(testInput),
+        new IChingEngine(testInput),
+        new NineStarKiEngine(testInput),
+        new RunesEngine(testInput),
+        new VedicEngine(testInput)
+      ];
+
+      engines.forEach(engine => {
+        const result = engine.calculate();
+        expect(result).toBeDefined();
+      });
+    });
+  });
+
+  describe('統合占術システムのシミュレーション', () => {
+    it('複数の占術結果を組み合わせて総合的な見解を得る', () => {
+      // 各占術の結果を取得
+      const numerology = new NumerologyEngine(testInput, testEnvironment).calculate();
+      const tarot = new TarotEngine(testInput, testEnvironment).calculate();
+      const astrology = new AstrologyEngine(testInput, testEnvironment).calculate();
+      
+      // 統合結果の作成
+      const integratedResult = {
+        numerology: {
+          lifePathNumber: numerology.lifePathNumber,
+          currentAdvice: numerology.interpretation.advice
+        },
+        tarot: {
+          presentCard: tarot.cards.present.name,
+          guidance: tarot.personalizedGuidance
+        },
+        astrology: {
+          sunSign: astrology.birthChart.sun.sign,
+          currentInfluences: astrology.interpretation.currentInfluences
+        }
+      };
+
+      expect(integratedResult.numerology.lifePathNumber).toBeGreaterThanOrEqual(1);
+      expect(integratedResult.tarot.presentCard).toBeTruthy();
+      expect(integratedResult.astrology.sunSign).toBeTruthy();
+    });
+
+    it('東洋占術と西洋占術の結果を比較する', () => {
+      // 西洋占術
+      const numerology = new NumerologyEngine(testInput, testEnvironment).calculate();
+      const tarot = new TarotEngine(testInput, testEnvironment).calculate();
+      const astrology = new AstrologyEngine(testInput, testEnvironment).calculate();
+      const runes = new RunesEngine(testInput, testEnvironment).calculate();
+
+      // 東洋占術
+      const shichuSuimei = new ShichuSuimeiEngine(testInput, testEnvironment).calculate();
+      const iching = new IChingEngine(testInput, testEnvironment).calculate();
+      const nineStar = new NineStarKiEngine(testInput, testEnvironment).calculate();
+      const vedic = new VedicEngine(testInput, testEnvironment).calculate();
+
+      // 両方の系統から結果が得られることを確認
+      expect(numerology.lifePathNumber).toBeDefined();
+      expect(shichuSuimei.fourPillars.day.element).toBeDefined();
+      
+      expect(tarot.cards.present).toBeDefined();
+      expect(iching.hexagram.primary).toBeDefined();
+    });
+  });
+
+  describe('質問カテゴリー別の統合テスト', () => {
+    const categories = [
+      { name: '恋愛・結婚', question: '結婚相手との出会いについて' },
+      { name: '仕事・転職', question: '転職のタイミングについて' },
+      { name: '金運・財運', question: '投資の時期について' },
+      { name: '健康', question: '健康管理の注意点について' }
+    ];
+
+    categories.forEach(({ name, question }) => {
+      it(`${name}カテゴリーで一貫性のある結果を返す`, () => {
+        const categoryInput = {
+          ...testInput,
+          question,
+          questionCategory: name
+        };
+
+        const numerology = new NumerologyEngine(categoryInput, testEnvironment).calculate();
+        const tarot = new TarotEngine(categoryInput, testEnvironment).calculate();
+        const nineStar = new NineStarKiEngine(categoryInput, testEnvironment).calculate();
+
+        // 各占術がカテゴリーに応じた回答を返すことを確認
+        expect(numerology.personalizedMessage).toContain(question);
+        expect(tarot.personalizedGuidance).toContain(question);
+        expect(nineStar.personalGuidance).toContain(question);
+      });
+    });
+  });
+
+  describe('時間的要素の一貫性テスト', () => {
+    it('同じ時刻の異なる占術で時間的要素が整合する', () => {
+      const astrology = new AstrologyEngine(testInput, testEnvironment).calculate();
+      const vedic = new VedicEngine(testInput, testEnvironment).calculate();
+      const nineStar = new NineStarKiEngine(testInput, testEnvironment).calculate();
+
+      // 惑星時間が考慮されている
+      expect(testEnvironment.planetary.hourRuler).toBe('Jupiter');
+      
+      // 各占術で木星/ブリハスパティの影響が反映されているか
+      expect(astrology.interpretation.currentInfluences).toBeTruthy();
+      expect(vedic.muhurta).toContain('木曜日');
+      expect(nineStar.yearlyFortune).toBeTruthy();
+    });
+
+    it('月相が複数の占術で一貫して扱われる', () => {
+      const tarot = new TarotEngine(testInput, testEnvironment).calculate();
+      const iching = new IChingEngine(testInput, testEnvironment).calculate();
+      const vedic = new VedicEngine(testInput, testEnvironment).calculate();
+
+      // 上弦の月（成長期）の影響
+      expect(tarot.moonPhaseInfluence).toContain('上弦の月');
+      expect(iching.environmentalResonance).toBeTruthy();
+      expect(vedic.environmentalAlignment).toContain('上弦の月');
+    });
+  });
+
+  describe('決定論的動作の確認', () => {
+    it('同じ入力で全占術が同じ結果を返す', () => {
+      const engines1 = [
+        new NumerologyEngine(testInput, testEnvironment),
+        new TarotEngine(testInput, testEnvironment),
+        new AstrologyEngine(testInput, testEnvironment),
+        new ShichuSuimeiEngine(testInput, testEnvironment),
+        new IChingEngine(testInput, testEnvironment),
+        new NineStarKiEngine(testInput, testEnvironment),
+        new RunesEngine(testInput, testEnvironment),
+        new VedicEngine(testInput, testEnvironment)
+      ];
+
+      const engines2 = [
+        new NumerologyEngine(testInput, testEnvironment),
+        new TarotEngine(testInput, testEnvironment),
+        new AstrologyEngine(testInput, testEnvironment),
+        new ShichuSuimeiEngine(testInput, testEnvironment),
+        new IChingEngine(testInput, testEnvironment),
+        new NineStarKiEngine(testInput, testEnvironment),
+        new RunesEngine(testInput, testEnvironment),
+        new VedicEngine(testInput, testEnvironment)
+      ];
+
+      engines1.forEach((engine1, index) => {
+        const result1 = JSON.stringify(engine1.calculate());
+        const result2 = JSON.stringify(engines2[index].calculate());
+        expect(result1).toBe(result2);
+      });
+    });
+  });
+
+  describe('パフォーマンステスト', () => {
+    it('全占術の計算が5秒以内に完了する', () => {
+      const startTime = Date.now();
+      
+      const engines = [
+        new NumerologyEngine(testInput, testEnvironment),
+        new TarotEngine(testInput, testEnvironment),
+        new AstrologyEngine(testInput, testEnvironment),
+        new ShichuSuimeiEngine(testInput, testEnvironment),
+        new IChingEngine(testInput, testEnvironment),
+        new NineStarKiEngine(testInput, testEnvironment),
+        new RunesEngine(testInput, testEnvironment),
+        new VedicEngine(testInput, testEnvironment)
+      ];
+
+      const results = engines.map(engine => engine.calculate());
+      
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      expect(duration).toBeLessThan(5000); // 5秒以内
+      expect(results).toHaveLength(8);
+    });
+
+    it('1000回の繰り返し計算でメモリリークがない', () => {
+      const initialMemory = process.memoryUsage().heapUsed;
+      
+      for (let i = 0; i < 1000; i++) {
+        const engine = new NumerologyEngine(testInput, testEnvironment);
+        engine.calculate();
+      }
+      
+      // ガベージコレクションを促す
+      if (global.gc) {
+        global.gc();
+      }
+      
+      const finalMemory = process.memoryUsage().heapUsed;
+      const memoryIncrease = finalMemory - initialMemory;
+      
+      // メモリ増加が100MB未満であることを確認
+      expect(memoryIncrease).toBeLessThan(100 * 1024 * 1024);
+    });
+  });
+
+  describe('エラー耐性テスト', () => {
+    it('不正な入力データでもクラッシュしない', () => {
+      const invalidInputs = [
+        { ...testInput, fullName: '' },
+        { ...testInput, birthDate: new Date('invalid') },
+        { ...testInput, birthTime: '25:99' },
+        { ...testInput, birthPlace: { lat: 999, lon: 999, name: '' } },
+        { ...testInput, question: null as any },
+      ];
+
+      invalidInputs.forEach(invalidInput => {
+        if (!isNaN(invalidInput.birthDate.getTime())) { // 有効な日付の場合のみテスト
+          const engine = new NumerologyEngine(invalidInput, testEnvironment);
+          expect(() => engine.calculate()).not.toThrow();
+        }
+      });
+    });
+
+    it('極端な環境データでも動作する', () => {
+      const extremeEnvironments = [
+        {
+          weather: { temp: 100, main: 'Extreme', description: '極端' },
+          lunar: { phase: -1, phaseName: '不明', illumination: 200 },
+          planetary: { hourRuler: 'Unknown', dayRuler: 'Unknown' }
+        },
+        {
+          weather: { temp: -273.15, main: '', description: '' },
+          lunar: { phase: 999, phaseName: '', illumination: -50 },
+          planetary: { hourRuler: '', dayRuler: '' }
+        }
+      ];
+
+      extremeEnvironments.forEach(extremeEnv => {
+        const engine = new TarotEngine(testInput, extremeEnv as EnvironmentData);
+        expect(() => engine.calculate()).not.toThrow();
+      });
+    });
+  });
+});

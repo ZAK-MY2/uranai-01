@@ -1,4 +1,9 @@
 // 統合占術システム
+import {
+  IntegratorAnalysis,
+  SystemCorrelations,
+  DivinationResultMap
+} from '@/types/divination-common';
 import { 
   IntegratedDivinationInput, 
   IntegratedDivinationResult, 
@@ -95,7 +100,22 @@ export class DivinationIntegrator {
   /**
    * 完全統合占術の実行（全ての占術を使用）
    */
-  async performCompleteReading(input: IntegratedDivinationInput): Promise<any> {
+  async performCompleteReading(input: IntegratedDivinationInput): Promise<{
+    numerology: NumerologyResult;
+    tarot: TarotReading;
+    astrology?: AstrologyResult;
+    iching?: IChingReading;
+    shichu?: ShichuResult;
+    runes?: RuneReading;
+    kyusei?: KyuseiResult;
+    vedic?: VedicResult;
+    kabbalah?: KabbalahResult;
+    celtic?: CelticAstrologyResult;
+    environment: EnvironmentData;
+    integration: IntegratedDivinationResult['integration'];
+    advancedAstrology?: any;
+    completeAnalysis: IntegratorAnalysis;
+  }> {
     try {
       // 基本的な統合占術を実行
       const basicReading = await this.performIntegratedReading(input);
@@ -343,7 +363,7 @@ export class DivinationIntegrator {
   /**
    * 完全統合分析
    */
-  private performCompleteAnalysis(basicReading: any, advancedAstrology?: any): any {
+  private performCompleteAnalysis(basicReading: IntegratedDivinationResult, advancedAstrology?: any): IntegratorAnalysis {
     return {
       convergence: this.analyzeConvergence(basicReading),
       patterns: this.identifyPatterns(basicReading),
@@ -356,7 +376,7 @@ export class DivinationIntegrator {
   /**
    * 収束性分析
    */
-  private analyzeConvergence(reading: any): string[] {
+  private analyzeConvergence(reading: IntegratedDivinationResult): string[] {
     const convergences = [];
     
     // 各システムで共通して示される特性を分析
@@ -378,7 +398,7 @@ export class DivinationIntegrator {
   /**
    * パターン識別
    */
-  private identifyPatterns(reading: any): string[] {
+  private identifyPatterns(reading: IntegratedDivinationResult): string[] {
     const patterns = [];
     
     // 循環パターンの検出
@@ -397,7 +417,7 @@ export class DivinationIntegrator {
   /**
    * 推奨事項生成
    */
-  private generateRecommendations(reading: any): string[] {
+  private generateRecommendations(reading: IntegratedDivinationResult): string[] {
     const recommendations = [];
     
     recommendations.push('複数の占術システムの一致点を重視して行動してください');
@@ -410,7 +430,7 @@ export class DivinationIntegrator {
   /**
    * 最適タイミング分析
    */
-  private analyzeOptimalTiming(reading: any): any {
+  private analyzeOptimalTiming(reading: IntegratedDivinationResult): IntegratorAnalysis['timing'] {
     return {
       immediate: '今すぐ行動すべき事項',
       nearTerm: '近い将来（1-3ヶ月）の行動指針',
@@ -421,7 +441,7 @@ export class DivinationIntegrator {
   /**
    * 最終統合
    */
-  private createFinalSynthesis(basicReading: any, advancedAstrology?: any): string {
+  private createFinalSynthesis(basicReading: IntegratedDivinationResult, advancedAstrology?: any): string {
     return `
 全ての占術システムを通じて見えてくるあなたの真の姿は、
 複層的で豊かな可能性を秘めた存在です。
@@ -751,7 +771,7 @@ export class DivinationIntegrator {
     vedic?: VedicResult,
     kabbalah?: KabbalahResult,
     celtic?: CelticAstrologyResult
-  ): any {
+  ): SystemCorrelations {
     return {
       eastWest: this.analyzeEastWestCorrelation(shichu, astrology),
       ancientModern: this.analyzeAncientModernCorrelation(iching, numerology),

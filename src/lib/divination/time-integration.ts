@@ -1,5 +1,35 @@
 // 全占術統一時間連動システム
-export interface TimeBasedResult {
+import {
+  TimeBasedResult as ImportedTimeBasedResult,
+  PersonalCycles,
+  CosmicCycles,
+  ElementalCycles,
+  TimeIntegrationData,
+  EnhancedNumerologyResult,
+  EnhancedAstrologyResult,
+  EnhancedIChingResult,
+  EnhancedShichuResult,
+  EnhancedVedicResult,
+  EnhancedRuneResult,
+  EnhancedKyuseiResult,
+  AstrologyTransits,
+  AstrologyProgressions,
+  IChingTimeHexagram,
+  ShichuCurrentPillars,
+  ShichuRyunen,
+  ShichuRyugetsu,
+  ShichuRyujitsu,
+  VedicDasha,
+  VedicGochar,
+  RuneTime
+} from '@/types/divination-common';
+import type { NumerologyResult, AstrologyResult, IChingReading, ShichuResult, VedicResult, RuneReading, KyuseiResult } from '@/types/divination';
+
+// Re-export the imported type
+export type TimeBasedResult = ImportedTimeBasedResult;
+
+// Remove duplicate interface definition
+export interface TimeBasedResultLegacy {
   daily: {
     fortune: string;
     advice: string;
@@ -21,7 +51,11 @@ export interface TimeBasedResult {
   };
 }
 
-export interface UniversalTimeModel {
+// Use TimeIntegrationData from divination-common.ts
+export type UniversalTimeModel = TimeIntegrationData;
+
+// Remove duplicate interface definitions
+export interface UniversalTimeModelLegacy {
   moment: {
     date: Date;
     lunarDay: number;
@@ -35,7 +69,8 @@ export interface UniversalTimeModel {
   };
 }
 
-export interface PersonalCycles {
+// PersonalCycles is imported from divination-common.ts
+export interface PersonalCyclesLegacy {
   lifePhase: number; // 0-1, 人生の段階
   personalYear: number; // 数秘術ベース
   personalMonth: number;
@@ -47,14 +82,16 @@ export interface PersonalCycles {
   };
 }
 
-export interface CosmicCycles {
+// CosmicCycles is imported from divination-common.ts
+export interface CosmicCyclesLegacy {
   lunarPhase: number; // 0-1
   solarSeason: number; // 0-1
   planetaryTransits: string[];
   galacticAlignment: number; // 0-1
 }
 
-export interface ElementalCycles {
+// ElementalCycles is imported from divination-common.ts
+export interface ElementalCyclesLegacy {
   dominant: '木' | '火' | '土' | '金' | '水';
   secondary: '木' | '火' | '土' | '金' | '水';
   balance: Record<string, number>; // 各元素の強さ

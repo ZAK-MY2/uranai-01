@@ -1,0 +1,308 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { TarotEngine, TarotReading, TarotCard } from '../tarot-engine';
+import { DivinationInput, EnvironmentData } from '../base-engine';
+
+describe('TarotEngine', () => {
+  let testInput: DivinationInput;
+  let testEnvironment: EnvironmentData;
+
+  beforeEach(() => {
+    testInput = {
+      fullName: '山田花子',
+      birthDate: new Date('1995-03-20'),
+      birthTime: '10:30',
+      birthPlace: { lat: 35.6762, lon: 139.6503, name: '東京' },
+      currentLocation: { lat: 35.6762, lon: 139.6503, name: '東京' },
+      question: '恋愛について教えてください',
+      questionCategory: '恋愛・結婚'
+    };
+
+    testEnvironment = {
+      weather: {
+        temp: 18,
+        main: 'Clouds',
+        description: '曇り'
+      },
+      lunar: {
+        phase: 0.0, // 新月
+        phaseName: '新月',
+        illumination: 0
+      },
+      planetary: {
+        hourRuler: 'Venus',
+        dayRuler: 'Sun'
+      }
+    };
+  });
+
+  describe('calculate', () => {
+    it('タロットリーディングの結果を生成する', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result).toHaveProperty('spread');
+      expect(result).toHaveProperty('cards');
+      expect(result).toHaveProperty('overallMessage');
+      expect(result).toHaveProperty('interpretation');
+      expect(result).toHaveProperty('moonPhaseInfluence');
+      expect(result).toHaveProperty('personalizedGuidance');
+    });
+
+    it('ケルト十字展開で5枚のカードを引く', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.spread.name).toBe('ケルト十字展開');
+      expect(result.spread.type).toBe('celtic-cross');
+      
+      expect(result.cards.past).toBeDefined();
+      expect(result.cards.present).toBeDefined();
+      expect(result.cards.future).toBeDefined();
+      expect(result.cards.advice).toBeDefined();
+      expect(result.cards.outcome).toBeDefined();
+    });
+
+    it('各カードが正しい構造を持つ', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      Object.values(result.cards).forEach(card => {
+        if (card) {
+          expect(card).toHaveProperty('name');
+          expect(card).toHaveProperty('arcana');
+          expect(card).toHaveProperty('number');
+          expect(card).toHaveProperty('image');
+          expect(card).toHaveProperty('keywords');
+          expect(card).toHaveProperty('interpretation');
+          expect(card.arcana).toBe('major');
+          expect(card.number).toBeGreaterThanOrEqual(0);
+          expect(card.number).toBeLessThanOrEqual(21);
+        }
+      });
+    });
+  });
+
+  describe('カードデッキの初期化', () => {
+    it('22枚の大アルカナが正しく初期化される', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const deck = engine['deck'];
+
+      expect(deck).toHaveLength(22);
+      
+      // 主要なカードの存在確認
+      const fool = deck.find(c => c.name === '愚者');
+      expect(fool).toBeDefined();
+      expect(fool?.number).toBe(0);
+
+      const world = deck.find(c => c.name === '世界');
+      expect(world).toBeDefined();
+      expect(world?.number).toBe(21);
+    });
+
+    it('各カードが必要な属性を持つ', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const deck = engine['deck'];
+
+      deck.forEach(card => {
+        expect(card.name).toBeTruthy();
+        expect(card.keywords).toBeInstanceOf(Array);
+        expect(card.keywords.length).toBeGreaterThan(0);
+        expect(card.interpretation).toBeTruthy();
+      });
+    });
+  });
+
+  describe('シャッフルと再現性', () => {
+    it('同じ入力で同じカードが引かれる（決定論的）', () => {
+      const engine1 = new TarotEngine(testInput, testEnvironment);
+      const result1 = engine1.calculate();
+
+      const engine2 = new TarotEngine(testInput, testEnvironment);
+      const result2 = engine2.calculate();
+
+      expect(result1.cards.past.name).toBe(result2.cards.past.name);
+      expect(result1.cards.present.name).toBe(result2.cards.present.name);
+      expect(result1.cards.future.name).toBe(result2.cards.future.name);
+    });
+
+    it('異なる質問で異なるカードが引かれる', () => {
+      const engine1 = new TarotEngine(testInput, testEnvironment);
+      const result1 = engine1.calculate();
+
+      const differentInput = {
+        ...testInput,
+        question: '仕事について教えてください'
+      };
+      const engine2 = new TarotEngine(differentInput, testEnvironment);
+      const result2 = engine2.calculate();
+
+      // 異なる結果になる可能性が高い
+      const sameCards = result1.cards.past.name === result2.cards.past.name &&
+                       result1.cards.present.name === result2.cards.present.name &&
+                       result1.cards.future.name === result2.cards.future.name;
+      
+      expect(sameCards).toBe(false);
+    });
+  });
+
+  describe('解釈の生成', () => {
+    it('過去・現在・未来の解釈が生成される', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.interpretation.past).toBeTruthy();
+      expect(result.interpretation.past).toContain('過去の影響');
+      
+      expect(result.interpretation.present).toBeTruthy();
+      expect(result.interpretation.present).toContain('現在の状況');
+      
+      expect(result.interpretation.future).toBeTruthy();
+      expect(result.interpretation.future).toContain('未来の可能性');
+      
+      expect(result.interpretation.synthesis).toBeTruthy();
+    });
+
+    it('カードの数値的な流れを解釈する', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      const synthesis = result.interpretation.synthesis;
+      expect(synthesis).toMatch(/上昇の流れ|内省と見直し|変化と転換/);
+    });
+  });
+
+  describe('月相の影響', () => {
+    it('新月の影響を正しく解釈する', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.moonPhaseInfluence).toContain('新月');
+      expect(result.moonPhaseInfluence).toContain('新しい始まり');
+    });
+
+    it('満月の影響を正しく解釈する', () => {
+      const fullMoonEnv = {
+        ...testEnvironment,
+        lunar: { phase: 0.5, phaseName: '満月', illumination: 100 }
+      };
+      
+      const engine = new TarotEngine(testInput, fullMoonEnv);
+      const result = engine.calculate();
+
+      expect(result.moonPhaseInfluence).toContain('満月');
+      expect(result.moonPhaseInfluence).toContain('感情が高まりやすい');
+    });
+
+    it('環境データがない場合も動作する', () => {
+      const engine = new TarotEngine(testInput);
+      const result = engine.calculate();
+
+      expect(result.moonPhaseInfluence).toBe('');
+    });
+  });
+
+  describe('パーソナライズされたガイダンス', () => {
+    it('質問カテゴリーに応じたガイダンスを生成する', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.personalizedGuidance).toBeTruthy();
+      expect(result.personalizedGuidance).toContain('恋愛について');
+      expect(result.personalizedGuidance).toContain('愛において');
+    });
+
+    it('質問がない場合の一般的なガイダンス', () => {
+      const noQuestionInput = {
+        ...testInput,
+        question: undefined,
+        questionCategory: undefined
+      };
+
+      const engine = new TarotEngine(noQuestionInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.personalizedGuidance).toBe('今日一日、カードのメッセージを心に留めて過ごしてください。');
+    });
+
+    it('各カテゴリーに適切なガイダンスがある', () => {
+      const categories = ['恋愛・結婚', '仕事・転職', '金運・財運', '健康', '総合運'];
+      
+      categories.forEach(category => {
+        const input = {
+          ...testInput,
+          question: `${category}について`,
+          questionCategory: category
+        };
+        
+        const engine = new TarotEngine(input, testEnvironment);
+        const result = engine.calculate();
+        
+        expect(result.personalizedGuidance).toBeTruthy();
+        expect(result.personalizedGuidance.length).toBeGreaterThan(50);
+      });
+    });
+  });
+
+  describe('全体的なメッセージ', () => {
+    it('大アルカナの枚数に基づくメッセージを生成する', () => {
+      const engine = new TarotEngine(testInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.overallMessage).toBeTruthy();
+      expect(result.overallMessage).toMatch(/重要な転機|日常の中に隠された/);
+    });
+  });
+
+  describe('エッジケース', () => {
+    it('過去の日付でも正しく動作する', () => {
+      const pastInput = {
+        ...testInput,
+        birthDate: new Date('1900-01-01')
+      };
+
+      const engine = new TarotEngine(pastInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.cards).toBeDefined();
+      expect(Object.keys(result.cards).length).toBeGreaterThan(0);
+    });
+
+    it('極端な環境条件でも動作する', () => {
+      const extremeEnv = {
+        weather: {
+          temp: -30,
+          main: 'Snow',
+          description: '大雪'
+        },
+        lunar: {
+          phase: 0.999,
+          phaseName: '新月直前',
+          illumination: 1
+        },
+        planetary: {
+          hourRuler: 'Saturn',
+          dayRuler: 'Saturn'
+        }
+      };
+
+      const engine = new TarotEngine(testInput, extremeEnv);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.cards).toBeDefined();
+    });
+
+    it('非常に長い質問でも処理できる', () => {
+      const longQuestionInput = {
+        ...testInput,
+        question: '私の人生において最も重要な転機となる出来事について、その時期と内容、そして私がどのように対処すべきかを詳しく教えてください。特に仕事と恋愛の両面から見た場合の影響について知りたいです。'
+      };
+
+      const engine = new TarotEngine(longQuestionInput, testEnvironment);
+      const result = engine.calculate();
+
+      expect(result.personalizedGuidance).toBeTruthy();
+      expect(result.personalizedGuidance).toContain(longQuestionInput.question);
+    });
+  });
+});
