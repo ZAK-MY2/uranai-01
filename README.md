@@ -7,6 +7,8 @@
 ![Project Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-orange)
+![Deployment](https://img.shields.io/badge/Deployment-Vercel-black)
+![Database](https://img.shields.io/badge/Database-Supabase-green)
 
 ## ✨ 特徴
 
@@ -33,6 +35,12 @@
 - **完全レスポンシブ**: モバイル・タブレット・デスクトップ対応
 - **滑らかアニメーション**: CSS Transitionsによる軽量実装
 - **直感的操作**: ユーザーフレンドリーなインターフェース
+
+## 🌐 デモサイト
+
+**[COSMIC ORACLE を体験する](https://cosmic-oracle.vercel.app)**
+
+※ 現在、数秘術・タロット・西洋占星術の3占術が利用可能です。
 
 ## 🚀 技術スタック
 
@@ -228,9 +236,9 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照
 
 ## 📞 サポート・お問い合わせ
 
-- 📧 Email: your-email@example.com
-- 🐛 Issues: [GitHub Issues](https://github.com/your-username/uranai-01/issues)
-- 📖 Wiki: [プロジェクトWiki](https://github.com/your-username/uranai-01/wiki)
+- 🐛 Issues: [GitHub Issues](https://github.com/ZAK-MY2/uranai-01/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/ZAK-MY2/uranai-01/discussions)
+- 📖 Wiki: [プロジェクトWiki](https://github.com/ZAK-MY2/uranai-01/wiki)
 
 ---
 

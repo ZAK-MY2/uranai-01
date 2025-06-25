@@ -1,0 +1,11 @@
+# COSMIC ORACLE robots.txt
+# Allow all robots to access all content
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cosmic-oracle.vercel.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
