@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     
-    // CSP（本番用：厳格）
+    // CSP（本番用のみ：開発環境では無効化）
     if (process.env.NODE_ENV === 'production') {
       response.headers.set('Content-Security-Policy', 
         "default-src 'self'; " +

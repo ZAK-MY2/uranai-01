@@ -1,144 +1,126 @@
-# 🚀 COSMIC ORACLE デプロイ前最終チェックリスト
+# COSMIC ORACLE デプロイメントチェックリスト
 
-## ✅ デプロイ準備完了確認
+## 🚀 デプロイ前の準備
 
-### 🔧 **技術要件**
-- [x] **ビルド成功** - `npm run build` 正常完了
-- [x] **型チェック通過** - TypeScript型エラーなし 
-- [x] **リント通過** - 警告のみ、致命的エラーなし
-- [x] **セキュリティチェック完了** - 脆弱性なし
-- [x] **全10占術実装** - ユーザーパラメータ使用完了
+### 1. 環境変数の準備
+- [ ] Supabaseプロジェクトを作成
+- [ ] 以下の環境変数を取得：
+  ```
+  NEXT_PUBLIC_SUPABASE_URL=
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=
+  SUPABASE_SERVICE_ROLE_KEY=
+  ```
 
-### 📋 **機能要件**
-- [x] **入力フォーム** - 3ステップユーザー入力完成
-- [x] **ダッシュボード** - 10占術概要表示
-- [x] **個別占術ページ** - 詳細分析インフォグラフィック
-- [x] **統合占術** - 全占術統合分析
-- [x] **レスポンシブ対応** - モバイル・タブレット・デスクトップ
-- [x] **データ永続化** - LocalStorage活用
+### 2. Supabaseセットアップ
+- [ ] Supabaseダッシュボードにログイン
+- [ ] 新規プロジェクト作成（リージョン: 東京推奨）
+- [ ] SQL Editorで `/supabase/migrations/001_initial_schema.sql` を実行
+- [ ] Authentication設定：
+  - [ ] Email認証を有効化
+  - [ ] サイトURLを設定
+  - [ ] リダイレクトURLを設定
 
-### 🔒 **セキュリティ要件**
-- [x] **入力検証** - XSS・SQLインジェクション対策
-- [x] **CSPヘッダー** - Content Security Policy設定
-- [x] **HTTPS強制** - セキュアな通信
-- [x] **環境変数分離** - 機密情報の適切な管理
-- [x] **エラーハンドリング** - 適切な例外処理
+### 3. ローカルテスト
+- [ ] `.env.local` に環境変数を設定
+- [ ] `npm run build` でビルド確認
+- [ ] `npm run start` で本番モード確認
+- [ ] 基本機能の動作確認：
+  - [ ] トップページ表示
+  - [ ] 各占術ページ表示
+  - [ ] 環境データ取得
 
-### 🎨 **UI/UX要件**
-- [x] **cosmic テーマ** - 宇宙的デザイン統一
-- [x] **アニメーション** - 滑らかな動作
-- [x] **日本語対応** - 完全日本語インターフェース
-- [x] **アクセシビリティ** - 基本的なa11y対応
-- [x] **パフォーマンス** - 高速読み込み
+## 🌐 Vercelデプロイ
 
----
+### 1. Vercelアカウント準備
+- [ ] [Vercel](https://vercel.com)にログイン
+- [ ] GitHubアカウントと連携
 
-## 🔄 **最終動作確認**
+### 2. プロジェクトインポート
+- [ ] "Import Project"をクリック
+- [ ] GitHubリポジトリを選択
+- [ ] Framework: Next.js を確認
+- [ ] Root Directory: そのまま（変更不要）
 
-### 必須テストフロー：
-1. **入力画面** (`/input`) - フォーム入力完了
-2. **ダッシュボード** (`/`) - 10占術概要表示確認
-3. **個別占術** - 各ページでユーザーデータ反映確認
-4. **統合分析** (`/divination/integration`) - 全占術統合表示
+### 3. 環境変数設定
+Vercelダッシュボードで以下を設定：
+- [ ] `NEXT_PUBLIC_SUPABASE_URL`
+- [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [ ] `SUPABASE_SERVICE_ROLE_KEY`
 
-### 各占術ページ確認：
-- [x] **数秘術** `/divination/numerology` - ライフパスナンバー計算
-- [x] **タロット** `/divination/tarot` - 3カードスプレッド
-- [x] **西洋占星術** `/divination/astrology` - 星座・ハウス分析
-- [x] **易経** `/divination/iching` - 六十四卦表示
-- [x] **九星気学** `/divination/nine-star-ki` - 本命星・方位分析
-- [x] **ルーン** `/divination/runes` - 3ルーンキャスト
-- [x] **ヴェーダ** `/divination/vedic` - ナクシャトラ分析
-- [x] **ケルト** `/divination/celtic` - 樹木占い
-- [x] **風水** `/divination/feng-shui` - 五行・バグア分析
-- [x] **カバラ** `/divination/kabbalah` - 生命の樹・セフィロト
+### 4. デプロイ実行
+- [ ] "Deploy"ボタンをクリック
+- [ ] ビルドログを確認
+- [ ] デプロイ完了を待つ
 
----
+## ✅ デプロイ後の確認
 
-## 📦 **デプロイファイル準備完了**
+### 1. 基本動作確認
+- [ ] 本番URLでアクセス可能
+- [ ] HTTPSが有効
+- [ ] レスポンシブデザイン確認（モバイル/PC）
 
-### 設定ファイル
-- [x] `vercel.json` - Vercel設定ファイル
-- [x] `netlify.toml` - Netlify設定ファイル
-- [x] `.env.production.example` - 本番環境変数例
-- [x] `DEPLOYMENT.md` - 詳細デプロイ手順
-- [x] `DEPLOYMENT_CHECKLIST.md` - このチェックリスト
+### 2. 機能テスト
+- [ ] 占術計算の動作確認：
+  - [ ] 数秘術
+  - [ ] タロット
+  - [ ] 西洋占星術
+- [ ] 環境データ取得確認
+- [ ] エラーページ表示確認
 
-### 必要な環境変数
-```bash
-# 必須
-NEXT_PUBLIC_SUPABASE_URL=https://fvolmkuinnhwfscincod.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-ENCRYPTION_KEY=your_32_byte_key
-JWT_SECRET=your_production_secret
-NODE_ENV=production
-```
+### 3. パフォーマンス確認
+- [ ] Lighthouse実行
+- [ ] Core Web Vitals確認
+- [ ] 画像最適化確認
 
----
+### 4. セキュリティ確認
+- [ ] CSPヘッダー確認
+- [ ] 環境変数の露出なし
+- [ ] エラーメッセージに機密情報なし
 
-## 🚀 **デプロイ実行コマンド**
+## 🔧 トラブルシューティング
 
-### Vercel（推奨）
-```bash
-# 1. Vercel CLI使用
-npx vercel
+### ビルドエラーの場合
+1. ローカルで `npm run build` を実行
+2. エラーメッセージを確認
+3. 型エラーの修正
+4. 再度プッシュ
 
-# 2. 環境変数設定（Vercel Dashboard）
+### 環境変数エラーの場合
+1. Vercel環境変数設定を再確認
+2. 変数名のタイポをチェック
+3. 再デプロイ実行
 
-# 3. 本番デプロイ
-npx vercel --prod
-```
+### Supabase接続エラーの場合
+1. Supabase URLとキーを確認
+2. RLSポリシーを確認
+3. CORSエラーの場合はSupabase設定確認
 
-### Netlify
-```bash
-# 1. Netlify CLI使用
-npx netlify deploy
+## 📝 デプロイ情報記録
 
-# 2. 環境変数設定（Netlify Dashboard）
+デプロイ完了後、以下を記録：
 
-# 3. 本番デプロイ
-npx netlify deploy --prod
-```
+- **本番URL**: https://[your-project].vercel.app
+- **デプロイ日時**: 
+- **デプロイバージョン**: 
+- **確認事項**: 
+  - [ ] 全ページアクセス可能
+  - [ ] 占術計算正常動作
+  - [ ] レスポンシブ対応OK
+  - [ ] パフォーマンス良好
 
----
+## 🎉 デプロイ完了！
 
-## ✅ **デプロイ完了確認**
+おめでとうございます！COSMIC ORACLEが世界に公開されました。
 
-### 1. ヘルスチェック
-```bash
-curl https://your-domain.com/health
-```
-
-### 2. 基本機能テスト
-- [ ] トップページ読み込み
-- [ ] 入力フォーム動作
-- [ ] 各占術ページ表示
-- [ ] ユーザーデータ保存・読み込み
-
-### 3. パフォーマンステスト
-- [ ] PageSpeed Insights スコア確認
-- [ ] モバイル対応確認
-- [ ] 読み込み速度確認
+### 次のステップ
+1. ユーザーフィードバック収集
+2. アナリティクス設定
+3. 残り占術の段階的追加
+4. パフォーマンス最適化
 
 ---
 
-## 🎯 **成功指標**
-
-- **✅ 全機能正常動作**
-- **✅ セキュリティリスクなし**  
-- **✅ パフォーマンス良好**
-- **✅ ユーザーエクスペリエンス向上**
-
----
-
-## 🎉 **準備完了！**
-
-**COSMIC ORACLE は本番デプロイ準備が整いました！**
-
-すべてのチェック項目が完了し、10占術すべてでユーザーパラメータを使用した本格的な占術システムが稼働可能です。
-
-**デプロイ手順**: `DEPLOYMENT.md` を参照してください。
-
-**成功を祈っています！** ⭐✨🌙
+**注意事項**：
+- 本番環境の環境変数は絶対に公開しない
+- 定期的なバックアップを実施
+- エラーログをモニタリング

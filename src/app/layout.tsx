@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { initializeMonitoring } from "@/lib/monitoring/setup";
 import { EnvironmentBadge } from "@/components/EnvironmentBadge";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { SkipToContent } from "@/components/ui/skip-to-content";
+import { AccessibilityMenu } from "@/components/ui/accessibility-menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +38,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        {children}
+        <SkipToContent />
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+        <AccessibilityMenu />
         <EnvironmentBadge />
       </body>
     </html>

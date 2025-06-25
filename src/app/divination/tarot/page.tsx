@@ -8,8 +8,8 @@ import { mockDivinationData } from '@/lib/mock/divination-data';
 import { mockEnvironmentData } from '@/lib/mock/environment-data';
 import { DivinationInput } from '@/lib/divination/base-engine';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -26,6 +26,182 @@ interface UserInputData {
   question: string;
   questionCategory: string;
 }
+
+// タロットカードのアートコンポーネント
+const TarotCardArt = ({ card, isRevealed = true, onClick }: { card: any; isRevealed?: boolean; onClick?: () => void }) => {
+  // メジャーアルカナのシンボルアート
+  const getCardArt = (name: string) => {
+    switch(name) {
+      case '愚者': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M50 70 L30 100 L50 90 L70 100 Z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="30" cy="120" r="3" fill="currentColor"/>
+          <circle cx="50" cy="120" r="3" fill="currentColor"/>
+          <circle cx="70" cy="120" r="3" fill="currentColor"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">0</text>
+        </svg>
+      );
+      case '魔術師': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="30" r="15" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M30 50 L70 50 M50 50 L50 90 M35 90 L65 90" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M20 110 Q50 100 80 110" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">I</text>
+        </svg>
+      );
+      case '女教皇': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="40" r="15" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M30 60 L30 100 L70 100 L70 60" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M35 120 L65 120" stroke="currentColor" strokeWidth="2"/>
+          <circle cx="50" cy="80" r="10" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">II</text>
+        </svg>
+      );
+      case '女帝': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="40" r="15" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M50 25 L45 20 L50 15 L55 20 Z" fill="currentColor"/>
+          <path d="M30 60 Q50 70 70 60" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <ellipse cx="50" cy="90" rx="25" ry="15" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M40 110 Q50 120 60 110" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">III</text>
+        </svg>
+      );
+      case '皇帝': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <rect x="30" y="30" width="40" height="50" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M40 20 L50 10 L60 20" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="50" cy="55" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M30 90 L70 90 M40 90 L40 120 M60 90 L60 120" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">IV</text>
+        </svg>
+      );
+      case '教皇': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <path d="M50 20 L45 30 L55 30 Z" fill="currentColor"/>
+          <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M35 70 L35 100 M65 70 L65 100" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M30 120 L40 110 M70 120 L60 110" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">V</text>
+        </svg>
+      );
+      case '恋人': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="35" cy="50" r="12" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="65" cy="50" r="12" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M35 65 L35 90 M65 65 L65 90" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M50 30 L55 20 L60 30 L50 35 L40 30 L45 20 Z" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">VI</text>
+        </svg>
+      );
+      case '戦車': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <rect x="25" y="70" width="50" height="30" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="35" cy="110" r="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="65" cy="110" r="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M40 70 L40 40 L60 40 L60 70" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="50" cy="40" r="10" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">VII</text>
+        </svg>
+      );
+      case '力': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="40" r="12" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M50 55 L50 90" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M30 70 Q50 80 70 70" fill="none" stroke="currentColor" strokeWidth="2"/>
+          <path d="M35 100 Q50 110 65 100" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M50 30 L60 25 L50 20 L40 25 Z" fill="currentColor"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">VIII</text>
+        </svg>
+      );
+      case '隠者': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <path d="M50 30 Q30 50 30 80 L30 120 L70 120 L70 80 Q70 50 50 30" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M60 70 L70 60 L65 55" stroke="currentColor" strokeWidth="1.5"/>
+          <circle cx="70" cy="60" r="5" fill="none" stroke="currentColor" strokeWidth="1"/>
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">IX</text>
+        </svg>
+      );
+      case '星': return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <path d="M50 30 L55 45 L70 45 L58 55 L63 70 L50 60 L37 70 L42 55 L30 45 L45 45 Z" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => {
+            const angle = (i * 51.4) * Math.PI / 180;
+            const x = 50 + 25 * Math.cos(angle);
+            const y = 75 + 25 * Math.sin(angle);
+            return <circle key={i} cx={x} cy={y} r="3" fill="currentColor" opacity="0.6"/>;
+          })}
+          <text x="50" y="15" textAnchor="middle" className="text-xs fill-current">XVII</text>
+        </svg>
+      );
+      default: return (
+        <svg viewBox="0 0 100 150" className="w-full h-full">
+          <rect x="5" y="5" width="90" height="140" fill="none" stroke="currentColor" strokeWidth="2" rx="5"/>
+          <circle cx="50" cy="75" r="30" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+          <text x="50" y="80" textAnchor="middle" className="text-lg fill-current">?</text>
+        </svg>
+      );
+    }
+  };
+
+  return (
+    <div 
+      className="relative cursor-pointer transform transition-all duration-500 hover:scale-105"
+      onClick={onClick}
+      style={{ transformStyle: 'preserve-3d' }}
+    >
+      {!isRevealed ? (
+        // カードの裏面
+        <div className="relative w-48 h-72 bg-gradient-to-br from-indigo-900 to-purple-900 rounded-lg border-2 border-white/30 p-4 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent rounded-lg"/>
+          <div className="h-full flex items-center justify-center">
+            <div className="text-white/20">
+              <svg viewBox="0 0 100 100" className="w-24 h-24">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2"/>
+                <path d="M50 10 A40 40 0 0 1 50 90 A20 20 0 0 1 50 50 A20 20 0 0 0 50 10" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center text-white/40 text-sm">
+            <p>クリックして開く</p>
+          </div>
+        </div>
+      ) : (
+        // カードの表面
+        <div className="relative w-48 h-72 bg-gradient-to-br from-purple-900/50 to-blue-900/50 backdrop-blur-md rounded-lg border-2 border-white/30 p-4 shadow-2xl animate-flip-in">
+          <div className="text-white/80 h-32">
+            {getCardArt(card.name)}
+          </div>
+          <div className="text-center mt-4">
+            <h4 className="text-xl font-light text-white mb-2">{card.name}</h4>
+            <div className="text-sm text-white/60">
+              {card.keywords.map((keyword: string, index: number) => (
+                <span key={index}>
+                  {keyword}
+                  {index < card.keywords.length - 1 && ' • '}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // タロットカードのシンボルコンポーネント
 const TarotCardSymbol = ({ card }: { card: any }) => {
@@ -78,6 +254,8 @@ export default function TarotPage() {
   const [selectedCard, setSelectedCard] = useState<'past' | 'present' | 'future'>('present');
   const [showInteractive, setShowInteractive] = useState(false);
   const [divinationInput, setDivinationInput] = useState<DivinationInput | null>(null);
+  const [spreadType, setSpreadType] = useState<'one' | 'three'>('three');
+  const [revealedCards, setRevealedCards] = useState<string[]>([]);
 
   useEffect(() => {
     // LocalStorageからユーザーデータを読み込み
@@ -162,7 +340,44 @@ export default function TarotPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
-          <UserParameters />
+          <ParameterBadge />
+          
+          {/* スプレッド選択 */}
+          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-10 border border-white/10">
+            <h3 className="text-2xl font-light text-white text-center mb-6">スプレッドを選択</h3>
+            <div className="flex justify-center gap-6">
+              <button
+                onClick={() => {
+                  setSpreadType('one');
+                  setRevealedCards([]);
+                }}
+                className={`px-8 py-4 rounded-xl border transition-all duration-300 ${
+                  spreadType === 'one' 
+                    ? 'bg-purple-600/30 border-purple-400 text-white' 
+                    : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="text-2xl mb-2">🃏</div>
+                <div className="font-medium">ワンオラクル</div>
+                <div className="text-sm mt-1">今日のメッセージ</div>
+              </button>
+              <button
+                onClick={() => {
+                  setSpreadType('three');
+                  setRevealedCards([]);
+                }}
+                className={`px-8 py-4 rounded-xl border transition-all duration-300 ${
+                  spreadType === 'three' 
+                    ? 'bg-purple-600/30 border-purple-400 text-white' 
+                    : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="text-2xl mb-2">🃏🃏🃏</div>
+                <div className="font-medium">3カードスプレッド</div>
+                <div className="text-sm mt-1">過去・現在・未来</div>
+              </button>
+            </div>
+          </div>
           
           {/* インタラクティブモード切り替え */}
           <div className="flex justify-center mb-8">
@@ -184,44 +399,97 @@ export default function TarotPage() {
             </div>
           ) : null}
           
-          {/* 3カードスプレッド（通常モード時のみ表示） */}
+          {/* カードスプレッド表示 */}
           {!showInteractive && (
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h2 className="text-3xl font-light text-white text-center mb-10">過去・現在・未来の3カードリーディング</h2>
-            
-            {/* カード配置 */}
-            <div className="flex justify-center items-center gap-8 mb-10">
-              {(['past', 'present', 'future'] as const).map((time) => {
-                const card = tarot.cards[time];
-                const isSelected = selectedCard === time;
-                const labels = { past: '過去', present: '現在', future: '未来' };
-                
-                return (
-                  <div
-                    key={time}
-                    className={`cursor-pointer transition-all duration-500 ${
-                      isSelected ? 'scale-110 z-10' : 'scale-100 opacity-70 hover:opacity-100'
-                    }`}
-                    onClick={() => setSelectedCard(time)}
-                  >
-                    <p className="text-center text-white/70 mb-4">{labels[time]}</p>
-                    <TarotCardSymbol card={card} />
+            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+              {spreadType === 'one' ? (
+                // ワンオラクル表示
+                <div>
+                  <h2 className="text-3xl font-light text-white text-center mb-10">今日のメッセージ</h2>
+                  
+                  <div className="flex justify-center mb-10">
+                    {revealedCards.includes('oracle') ? (
+                      <TarotCardArt 
+                        card={tarot.cards.present} 
+                        isRevealed={true}
+                        onClick={() => {}}
+                      />
+                    ) : (
+                      <TarotCardArt 
+                        card={tarot.cards.present} 
+                        isRevealed={false}
+                        onClick={() => setRevealedCards(['oracle'])}
+                      />
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                  
+                  {revealedCards.includes('oracle') && (
+                    <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
+                      <h3 className="text-2xl font-light text-white text-center mb-6">
+                        {tarot.cards.present.name}
+                      </h3>
+                      <p className="text-lg text-white/80 text-center leading-relaxed mb-6">
+                        {tarot.cards.present.interpretation}
+                      </p>
+                      <div className="text-center">
+                        <p className="text-xl text-purple-300 mb-4">今日のキーワード</p>
+                        <div className="flex justify-center gap-4">
+                          {tarot.cards.present.keywords.map((keyword: string, index: number) => (
+                            <span key={index} className="px-4 py-2 bg-purple-600/20 rounded-full text-white/80">
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // 3カードスプレッド表示
+                <div>
+                  <h2 className="text-3xl font-light text-white text-center mb-10">過去・現在・未来の3カードリーディング</h2>
+                  
+                  {/* カード配置 */}
+                  <div className="flex justify-center items-center gap-8 mb-10">
+                    {(['past', 'present', 'future'] as const).map((time) => {
+                      const card = tarot.cards[time];
+                      const labels = { past: '過去', present: '現在', future: '未来' };
+                      const isRevealed = revealedCards.includes(time);
+                      
+                      return (
+                        <div key={time} className="text-center">
+                          <p className="text-white/70 mb-4">{labels[time]}</p>
+                          <TarotCardArt 
+                            card={card} 
+                            isRevealed={isRevealed}
+                            onClick={() => {
+                              if (!isRevealed) {
+                                setRevealedCards([...revealedCards, time]);
+                                setSelectedCard(time);
+                              } else {
+                                setSelectedCard(time);
+                              }
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
 
-            {/* 選択されたカードの詳細 */}
-            <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
-              <h3 className="text-2xl font-light text-white text-center mb-6">
-                {tarot.cards[selectedCard].name} - {selectedCard === 'past' ? '過去' : selectedCard === 'present' ? '現在' : '未来'}
-              </h3>
-              <p className="text-lg text-white/80 text-center leading-relaxed">
-                {tarot.cards[selectedCard].interpretation}
-              </p>
+                  {/* 選択されたカードの詳細 */}
+                  {revealedCards.length > 0 && (
+                    <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
+                      <h3 className="text-2xl font-light text-white text-center mb-6">
+                        {tarot.cards[selectedCard].name} - {selectedCard === 'past' ? '過去' : selectedCard === 'present' ? '現在' : '未来'}
+                      </h3>
+                      <p className="text-lg text-white/80 text-center leading-relaxed">
+                        {tarot.cards[selectedCard].interpretation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-
           )}
           
           {/* カードの配置図（インフォグラフィック）（通常モード時のみ表示） */}

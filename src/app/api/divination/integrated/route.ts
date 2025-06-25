@@ -1,4 +1,4 @@
-// 統合占術 API Route
+// Complex API Route
 import { NextRequest, NextResponse } from 'next/server';
 import { divinationIntegrator } from '@/lib/divination/integrator';
 import { createClient } from '@/lib/supabase/server';
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 統合占術実行
+    // Complex実行
     const result = await divinationIntegrator.performIntegratedReading(body);
 
     // Supabaseクライアント作成

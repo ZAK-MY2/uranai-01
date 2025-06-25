@@ -1,13 +1,9 @@
 import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
+import { allTarotCards, TarotCard as TarotCardData } from '../data/tarot-cards';
 
-export interface TarotCard {
-  name: string;
-  arcana: 'major' | 'minor';
-  number: number;
+export interface TarotCard extends TarotCardData {
   image: string;
-  keywords: string[];
   interpretation: string;
-  description?: string;
 }
 
 export interface TarotSpreadPosition {
@@ -158,77 +154,12 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
   }
 
   private initializeDeck(): TarotCard[] {
-    // メジャーアルカナ（22枚）
-    const majorArcana: TarotCard[] = [
-      { name: '愚者', arcana: 'major', number: 0, image: 'fool', 
-        keywords: ['新しい始まり', '冒険', '無邪気'], 
-        interpretation: '新たな旅の始まり。恐れずに一歩を踏み出す時' },
-      { name: '魔術師', arcana: 'major', number: 1, image: 'magician',
-        keywords: ['意志の力', '創造', '実現'],
-        interpretation: '全ての要素が揃った。今こそ行動の時' },
-      { name: '女教皇', arcana: 'major', number: 2, image: 'priestess',
-        keywords: ['直感', '内なる知恵', '秘密'],
-        interpretation: '内なる声に耳を傾け、直感を信じる時' },
-      { name: '女帝', arcana: 'major', number: 3, image: 'empress',
-        keywords: ['豊穣', '母性', '創造性'],
-        interpretation: '豊かさと愛に満ちた創造の時期' },
-      { name: '皇帝', arcana: 'major', number: 4, image: 'emperor',
-        keywords: ['権威', '安定', '統制'],
-        interpretation: '秩序と規律をもって目標を達成する' },
-      { name: '教皇', arcana: 'major', number: 5, image: 'hierophant',
-        keywords: ['精神的指導', '伝統', '学び'],
-        interpretation: '高次の学びと精神的成長の時' },
-      { name: '恋人', arcana: 'major', number: 6, image: 'lovers',
-        keywords: ['愛', '選択', '調和'],
-        interpretation: '重要な選択。心の声に従う時' },
-      { name: '戦車', arcana: 'major', number: 7, image: 'chariot',
-        keywords: ['勝利', '意志力', '前進'],
-        interpretation: '困難を乗り越えて勝利へ向かう' },
-      { name: '力', arcana: 'major', number: 8, image: 'strength',
-        keywords: ['内なる力', '勇気', '忍耐'],
-        interpretation: '優しさと強さを兼ね備えた真の力' },
-      { name: '隠者', arcana: 'major', number: 9, image: 'hermit',
-        keywords: ['内省', '探求', '導き'],
-        interpretation: '内なる光を見つける孤独な旅' },
-      { name: '運命の輪', arcana: 'major', number: 10, image: 'wheel',
-        keywords: ['変化', '運命', 'サイクル'],
-        interpretation: '運命の転換点。変化を受け入れる' },
-      { name: '正義', arcana: 'major', number: 11, image: 'justice',
-        keywords: ['公正', 'バランス', '真実'],
-        interpretation: '公正な判断と因果応報の時' },
-      { name: '吊られた男', arcana: 'major', number: 12, image: 'hanged',
-        keywords: ['犠牲', '視点の転換', '待機'],
-        interpretation: '新しい視点から物事を見る必要性' },
-      { name: '死神', arcana: 'major', number: 13, image: 'death',
-        keywords: ['変容', '終わりと始まり', '再生'],
-        interpretation: '古いものを手放し、新しい自分へ' },
-      { name: '節制', arcana: 'major', number: 14, image: 'temperance',
-        keywords: ['調和', 'バランス', '中庸'],
-        interpretation: '極端を避け、中道を歩む' },
-      { name: '悪魔', arcana: 'major', number: 15, image: 'devil',
-        keywords: ['束縛', '欲望', '幻想'],
-        interpretation: '自己の影と向き合い、解放される' },
-      { name: '塔', arcana: 'major', number: 16, image: 'tower',
-        keywords: ['崩壊', '啓示', '解放'],
-        interpretation: '突然の変化。古い構造の崩壊' },
-      { name: '星', arcana: 'major', number: 17, image: 'star',
-        keywords: ['希望', 'インスピレーション', '癒し'],
-        interpretation: '希望の光。導きと癒しの時' },
-      { name: '月', arcana: 'major', number: 18, image: 'moon',
-        keywords: ['幻想', '不安', '直感'],
-        interpretation: '不確実性の中で直感を信じる' },
-      { name: '太陽', arcana: 'major', number: 19, image: 'sun',
-        keywords: ['成功', '喜び', '活力'],
-        interpretation: '明るい未来と成功の約束' },
-      { name: '審判', arcana: 'major', number: 20, image: 'judgement',
-        keywords: ['再生', '覚醒', '解放'],
-        interpretation: '過去からの解放と新たな始まり' },
-      { name: '世界', arcana: 'major', number: 21, image: 'world',
-        keywords: ['完成', '成就', '統合'],
-        interpretation: 'サイクルの完成。全てが一つに' }
-    ];
-
-    return majorArcana;
+    // 全78枚のタロットカードをインポートして使用
+    return allTarotCards.map(card => ({
+      ...card,
+      image: card.id,
+      interpretation: card.uprightMeaning
+    }));
   }
 
   private generateSeed(): number {

@@ -6,7 +6,6 @@ import { User } from '@supabase/supabase-js';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { CosmicOverview } from '@/components/dashboard/cosmic-overview';
-import { EnvironmentalData } from '@/components/dashboard/environmental-data';
 import { DailyGuidance } from '@/components/dashboard/daily-guidance';
 import { useSession } from '@/hooks/use-session';
 import { IntegrationPanel } from '@/components/dashboard/integration-panel';
@@ -25,7 +24,7 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ user, environmentData }: DashboardClientProps) {
-  const { isAuthenticated, hasCompletedInput, isLoading, timeRemaining } = useSession();
+  const { isAuthenticated, hasCompletedInput, isLoading } = useSession();
 
   // ローディング中は表示
   if (isLoading) {
@@ -53,30 +52,18 @@ export default function DashboardClient({ user, environmentData }: DashboardClie
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* セッション残り時間表示（30分以下の場合） */}
-      {timeRemaining <= 30 && timeRemaining > 0 && (
-        <div className="fixed top-4 right-4 z-50 bg-yellow-500/90 text-black px-4 py-2 rounded-lg text-sm">
-          セッション残り: {timeRemaining}分
-        </div>
-      )}
-      
       <DashboardHeader user={user} />
       
-      <main className="relative z-10 pt-24 min-h-screen">
+      <main id="main-content" className="relative z-10 pt-24 min-h-screen" role="main">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-8">
           {/* Enhanced dashboard grid with 8px system */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
             {/* 宇宙図概要（左上、大きく） - Enhanced visual hierarchy */}
-            <div className="lg:col-span-8 lg:row-span-2">
+            <div className="lg:col-span-8">
               <CosmicOverview />
             </div>
             
-            {/* 環境データ（右上） - Improved spacing */}
-            <div className="lg:col-span-4">
-              <EnvironmentalData environmentData={environmentData} />
-            </div>
-            
-            {/* 今日の指針（右中） - Enhanced positioning */}
+            {/* 今日の指針（右上） - Enhanced positioning */}
             <div className="lg:col-span-4">
               <DailyGuidance />
             </div>

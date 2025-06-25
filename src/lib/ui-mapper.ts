@@ -8,7 +8,7 @@ export type ElementType = 'button' | 'link' | 'input' | 'select' | 'textarea' |
 
 export type ScreenName = 'entry' | 'input' | 'login' | 'dashboard' | 
   'integrated' | 'numerology' | 'tarot' | 'astrology' | 'iching' | 
-  'runes' | 'vedic' | 'nine-star' | 'feng-shui' | 'celtic' | 'kabbalah';
+  'runes' | 'vedic' | 'nine-star' | 'shichu-suimei' | 'celtic' | 'kabbalah';
 
 export interface UIElement {
   id: string;

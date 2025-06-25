@@ -1,38 +1,26 @@
 import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
-
-// 十干（天干）
-const HEAVENLY_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-const STEM_ELEMENTS = ['木', '木', '火', '火', '土', '土', '金', '金', '水', '水'];
-const STEM_YIN_YANG = ['陽', '陰', '陽', '陰', '陽', '陰', '陽', '陰', '陽', '陰'];
-
-// 十二支（地支）
-const EARTHLY_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-const BRANCH_ELEMENTS = ['水', '土', '木', '木', '土', '火', '火', '土', '金', '金', '土', '水'];
-const BRANCH_YIN_YANG = ['陽', '陰', '陽', '陰', '陽', '陰', '陽', '陰', '陽', '陰', '陽', '陰'];
-
-// 五行の相生相剋関係
-const ELEMENT_RELATIONS = {
-  相生: {
-    '木': '火',
-    '火': '土',
-    '土': '金',
-    '金': '水',
-    '水': '木'
-  },
-  相剋: {
-    '木': '土',
-    '火': '金',
-    '土': '水',
-    '金': '木',
-    '水': '火'
-  }
-};
+import { 
+  tenkan, 
+  chishi, 
+  elementRelations, 
+  tsuhenStars, 
+  juniUn, 
+  shinsatList, 
+  rokujuKanshi,
+  calculateDaiun,
+  TenkanElement,
+  ChishiElement,
+  TsuhenStar
+} from '../data/shichu-suimei';
 
 export interface Pillar {
   stem: string;      // 天干
   branch: string;    // 地支
   element: string;   // 五行
   yinYang: string;   // 陰陽
+  hiddenStems?: string[]; // 蔵干
+  tsuhenStar?: string;    // 通変星
+  juniUn?: string;        // 十二運
 }
 
 export interface ShichuSuimeiReading {
@@ -122,38 +110,44 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
   }
 
   private calculateYearPillar(year: number): Pillar {
-    // 簡易計算（実際は旧暦変換が必要）
-    const stemIndex = (year - 4) % 10;
-    const branchIndex = (year - 4) % 12;
-    
-    const stem = HEAVENLY_STEMS[stemIndex];
-    const branch = EARTHLY_BRANCHES[branchIndex];
+    // 60干支から年柱を計算
+    const kanshiIndex = (year - 4) % 60;
+    const kanshi = rokujuKanshi[kanshiIndex];
+    const stemData = tenkan[kanshi.tenkan];
+    const branchData = chishi[kanshi.chishi];
     
     return {
-      stem,
-      branch,
-      element: STEM_ELEMENTS[stemIndex],
-      yinYang: STEM_YIN_YANG[stemIndex]
+      stem: kanshi.tenkan,
+      branch: kanshi.chishi,
+      element: stemData.element,
+      yinYang: stemData.yinYang,
+      hiddenStems: branchData.hiddenStems
     };
   }
 
   private calculateMonthPillar(year: number, month: number): Pillar {
     // 月柱の天干は年干から導出
-    const yearStemIndex = (year - 4) % 10;
+    const yearKanshiIndex = (year - 4) % 60;
+    const yearKanshi = rokujuKanshi[yearKanshiIndex];
+    const yearStemIndex = Object.keys(tenkan).indexOf(yearKanshi.tenkan);
     const monthStemBase = (yearStemIndex % 5) * 2;
     const monthStemIndex = (monthStemBase + month - 1) % 10;
     
     // 月支は固定（寅月から始まる）
+    const monthBranchKeys = Object.keys(chishi);
     const monthBranchIndex = (month + 1) % 12;
+    const stem = Object.keys(tenkan)[monthStemIndex];
+    const branch = monthBranchKeys[monthBranchIndex];
     
-    const stem = HEAVENLY_STEMS[monthStemIndex];
-    const branch = EARTHLY_BRANCHES[monthBranchIndex];
+    const stemData = tenkan[stem];
+    const branchData = chishi[branch];
     
     return {
       stem,
       branch,
-      element: STEM_ELEMENTS[monthStemIndex],
-      yinYang: STEM_YIN_YANG[monthStemIndex]
+      element: stemData.element,
+      yinYang: stemData.yinYang,
+      hiddenStems: branchData.hiddenStems
     };
   }
 
@@ -162,37 +156,42 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
     const date = new Date(year, month - 1, day);
     const daysSinceEpoch = Math.floor(date.getTime() / 86400000);
     
-    const stemIndex = daysSinceEpoch % 10;
-    const branchIndex = daysSinceEpoch % 12;
-    
-    const stem = HEAVENLY_STEMS[stemIndex];
-    const branch = EARTHLY_BRANCHES[branchIndex];
+    const kanshiIndex = daysSinceEpoch % 60;
+    const kanshi = rokujuKanshi[kanshiIndex];
+    const stemData = tenkan[kanshi.tenkan];
+    const branchData = chishi[kanshi.chishi];
     
     return {
-      stem,
-      branch,
-      element: STEM_ELEMENTS[stemIndex],
-      yinYang: STEM_YIN_YANG[stemIndex]
+      stem: kanshi.tenkan,
+      branch: kanshi.chishi,
+      element: stemData.element,
+      yinYang: stemData.yinYang,
+      hiddenStems: branchData.hiddenStems
     };
   }
 
   private calculateHourPillar(dayStem: string, hour: number): Pillar {
     // 時支の計算（子時から始まる）
+    const branchKeys = Object.keys(chishi);
     const hourBranchIndex = Math.floor((hour + 1) / 2) % 12;
+    const branch = branchKeys[hourBranchIndex];
     
     // 時干は日干から導出
-    const dayStemIndex = HEAVENLY_STEMS.indexOf(dayStem);
+    const stemKeys = Object.keys(tenkan);
+    const dayStemIndex = stemKeys.indexOf(dayStem);
     const hourStemBase = (dayStemIndex % 5) * 2;
     const hourStemIndex = (hourStemBase + hourBranchIndex) % 10;
+    const stem = stemKeys[hourStemIndex];
     
-    const stem = HEAVENLY_STEMS[hourStemIndex];
-    const branch = EARTHLY_BRANCHES[hourBranchIndex];
+    const stemData = tenkan[stem];
+    const branchData = chishi[branch];
     
     return {
       stem,
       branch,
-      element: STEM_ELEMENTS[hourStemIndex],
-      yinYang: STEM_YIN_YANG[hourStemIndex]
+      element: stemData.element,
+      yinYang: stemData.yinYang,
+      hiddenStems: branchData.hiddenStems
     };
   }
 
@@ -208,7 +207,7 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
     // 各柱の五行を集計
     Object.values(fourPillars).forEach(pillar => {
       const stemElement = pillar.element;
-      const branchElement = BRANCH_ELEMENTS[EARTHLY_BRANCHES.indexOf(pillar.branch)];
+      const branchElement = chishi[pillar.branch]?.element || '土';
       
       this.addElement(elements, stemElement);
       this.addElement(elements, branchElement);
@@ -294,7 +293,7 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
   }
 
   private getProducedElement(element: string): string {
-    return ELEMENT_RELATIONS.相生[element as keyof typeof ELEMENT_RELATIONS.相生] || element;
+    return elementRelations[element]?.generates || element;
   }
 
   private getControllingElement(element: string): string {
@@ -399,7 +398,7 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
   }
 
   private getControlledElement(element: string): string {
-    return ELEMENT_RELATIONS.相剋[element as keyof typeof ELEMENT_RELATIONS.相剋] || element;
+    return elementRelations[element]?.controls || element;
   }
 
   private interpretRelationships(
@@ -430,8 +429,10 @@ export class ShichuSuimeiEngine extends BaseDivinationEngine<ShichuSuimeiReading
   }
 
   private isHarmonious(element1: string, element2: string): boolean {
-    return ELEMENT_RELATIONS.相生[element1 as keyof typeof ELEMENT_RELATIONS.相生] === element2 || 
-           ELEMENT_RELATIONS.相生[element2 as keyof typeof ELEMENT_RELATIONS.相生] === element1 ||
+    const rel1 = elementRelations[element1];
+    const rel2 = elementRelations[element2];
+    return (rel1?.generates === element2) || 
+           (rel2?.generates === element1) ||
            element1 === element2;
   }
 

@@ -14,10 +14,10 @@ const detailedDivinations = [
   },
   { 
     symbol: '✦', 
-    name: '風水', 
-    result: '九紫火星', 
-    description: '繁栄と名誉のエネルギーが流れています',
-    href: '/divination/feng-shui'
+    name: '四柱推命', 
+    result: '庚申金', 
+    description: '金の性質による強運期に入っています',
+    href: '/divination/shichu-suimei'
   },
   { 
     symbol: '◯', 

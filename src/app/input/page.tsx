@@ -84,7 +84,7 @@ function UserInputPageContent() {
     // セッションに入力完了をマーク
     markInputCompleted(formData);
     
-    // ダッシュボードへリダイレクト（統合占術は別途アクセス）
+    // ダッシュボードへリダイレクト（Complexは別途アクセス）
     setTimeout(() => {
       router.push('/');
     }, 1000);
@@ -215,7 +215,7 @@ function UserInputPageContent() {
                       >
                         <option value="">月</option>
                         {Array.from({length: 12}, (_, i) => (
-                          <option key={i + 1} value={i + 1} className="bg-slate-800 text-white">
+                          <option key={i + 1} value={(i + 1).toString().padStart(2, '0')} className="bg-slate-800 text-white">
                             {i + 1}月
                           </option>
                         ))}
@@ -232,7 +232,7 @@ function UserInputPageContent() {
                       >
                         <option value="">日</option>
                         {Array.from({length: 31}, (_, i) => (
-                          <option key={i + 1} value={i + 1} className="bg-slate-800 text-white">
+                          <option key={i + 1} value={(i + 1).toString().padStart(2, '0')} className="bg-slate-800 text-white">
                             {i + 1}日
                           </option>
                         ))}

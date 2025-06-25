@@ -10,8 +10,8 @@ import { DivinationInput } from '@/lib/divination/base-engine';
 import { EnvironmentService } from '@/lib/services/environment-service';
 import RouteGuard from '@/components/auth/route-guard';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -104,7 +104,7 @@ function NumerologyPageContent() {
         <div className="max-w-7xl mx-auto px-5">
           
           {/* ユーザーパラメータ表示 */}
-          <UserParameters />
+          <ParameterBadge />
           
           {/* メインナンバー表示 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -284,15 +284,12 @@ function NumerologyPageContent() {
 
           {/* 詳細な読み解き */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-4">詳細な読み解き</h3>
-            <p className="text-center text-white/50 text-sm mb-8">
-              🔄 リロードするたびに異なる表現でメッセージが生成されます
-            </p>
+            <h3 className="text-2xl font-light text-white text-center mb-8">詳細な読み解き</h3>
             
             <div className="space-y-6 text-white/80">
               {numerology.luckyMessage && (
                 <div className="mb-6 p-6 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/20">
-                  <h4 className="text-xl font-light text-yellow-300 mb-3">⭐ 今日の幸運メッセージ（リロードで変化）</h4>
+                  <h4 className="text-xl font-light text-yellow-300 mb-3">⭐ 今日の幸運メッセージ</h4>
                   <p className="text-lg leading-relaxed text-yellow-100">
                     {numerology.luckyMessage}
                   </p>
@@ -303,7 +300,7 @@ function NumerologyPageContent() {
               )}
               
               <div>
-                <h4 className="text-xl font-light text-white mb-3">◐ 今日のフォーカス <span className="text-sm text-blue-300">（動的生成）</span></h4>
+                <h4 className="text-xl font-light text-white mb-3">◐ 今日のフォーカス</h4>
                 <p className="text-lg leading-relaxed pl-6">
                   {numerology.interpretation.currentCycle || '現在は重要な転換期にあります'}
                 </p>

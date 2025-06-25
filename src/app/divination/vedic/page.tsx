@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -204,7 +204,7 @@ export default function VedicAstrologyPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
-          <UserParameters />
+          <ParameterBadge />
           
           {/* ジャンマ・クンダリー（出生図） */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

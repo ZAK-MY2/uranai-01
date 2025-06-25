@@ -27,7 +27,7 @@ iching    - 易経
 runes     - ルーン
 vedic     - ヴェーダ
 nine      - 九星気学
-feng      - 風水
+feng      - 風水 (→ 四柱推命に変更)
 celtic    - ケルト
 kabbalah  - カバラ
 

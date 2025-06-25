@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
 
 interface DashboardHeaderProps {
   user?: User | null;
@@ -12,6 +13,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ user }: DashboardHeaderProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const currentDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
@@ -24,46 +26,82 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
     router.push('/login');
   };
   
+  const handleNewParameters = () => {
+    localStorage.removeItem('uranai_user_data');
+    router.push('/input');
+    setIsMenuOpen(false);
+  };
+  
   const username = user?.email?.split('@')[0] || 'Guest';
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-cosmic-strong bg-cosmic-background-primary border-b border-cosmic-border-light shadow-glass">
-      <div className="max-w-[1440px] mx-auto px-6 lg:px-8 py-5 flex justify-between items-center">
-        <div className="cosmic-title text-2xl text-cosmic-accent animate-gradient-shift">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 flex justify-between items-center">
+        <div className="cosmic-title text-lg sm:text-xl lg:text-2xl text-cosmic-accent animate-gradient-shift">
           COSMIC ORACLE
         </div>
         
-        <div className="flex items-center gap-8 cosmic-label text-cosmic-secondary">
-          <div className="flex items-center gap-2 group">
-            <span className="text-purple-400 group-hover:animate-pulse-gentle">◐</span>
-            <span>13.2</span>
-          </div>
-          <div className="flex items-center gap-2 group">
-            <span className="text-blue-400 group-hover:animate-pulse-gentle">☁️</span>
-            <span>25°C 晴れ</span>
-          </div>
-          <div className="flex items-center gap-2 group">
-            <span className="text-violet-400 group-hover:animate-pulse-gentle">✦</span>
-            <span>{currentDate}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-glow-pulse shadow-sm" />
-              <span className="text-xs text-cosmic-secondary">LIVE</span>
+        <div className="flex items-center gap-8">
+          {/* 環境情報（デスクトップのみ） */}
+          <div className="hidden lg:flex items-center gap-8 cosmic-label text-cosmic-secondary">
+            <div className="flex items-center gap-2 group">
+              <span className="text-purple-400 group-hover:animate-pulse-gentle">◐</span>
+              <span>13.2</span>
+            </div>
+            <div className="flex items-center gap-2 group">
+              <span className="text-blue-400 group-hover:animate-pulse-gentle">☁️</span>
+              <span>25°C 晴れ</span>
+            </div>
+            <div className="flex items-center gap-2 group">
+              <span className="text-violet-400 group-hover:animate-pulse-gentle">✦</span>
+              <span>{currentDate}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-glow-pulse shadow-sm" />
+                <span className="text-xs text-cosmic-secondary">LIVE</span>
+              </div>
             </div>
           </div>
-          {user && (
-            <div className="flex items-center gap-6">
-              <span className="text-cosmic-accent font-medium">{username}</span>
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 cosmic-label rounded-cosmic bg-cosmic-background-glass border border-cosmic-border-light hover:bg-cosmic-background-glass-strong hover:border-cosmic-border-medium transition-all duration-300 shadow-glass hover:shadow-cosmic"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
+
+          {/* ユーザー情報とメニューボタン */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {user && (
+              <span className="text-cosmic-accent font-medium hidden sm:block text-sm sm:text-base">{username}</span>
+            )}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-1.5 sm:p-2 cosmic-label rounded-cosmic bg-cosmic-background-glass border border-cosmic-border-light hover:bg-cosmic-background-glass-strong hover:border-cosmic-border-medium transition-all duration-300 shadow-glass hover:shadow-cosmic"
+            >
+              {isMenuOpen ? <X className="w-4 sm:w-5 h-4 sm:h-5" /> : <Menu className="w-4 sm:w-5 h-4 sm:h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* ドロップダウンメニュー */}
+        {isMenuOpen && (
+          <div className="absolute top-full right-4 sm:right-6 mt-2 w-48 sm:w-64 bg-slate-900/95 backdrop-blur-md border border-white/20 rounded-xl shadow-xl z-50">
+            <div className="p-3 sm:p-4 space-y-3">
+              <div className="text-cosmic-accent font-medium sm:hidden text-sm">{username}</div>
+              <div className="border-t border-white/10 pt-3 space-y-2">
+                <button
+                  onClick={handleNewParameters}
+                  className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
+                >
+                  <span>🔄</span>
+                  新しいパラメータで占う
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
+                >
+                  <span>👋</span>
+                  サインアウト
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

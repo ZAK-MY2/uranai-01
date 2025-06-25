@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -87,12 +87,22 @@ export default function RunesPage() {
     ];
     
     const birthDate = new Date(userData.birthDate);
-    const seed = birthDate.getTime() + userData.fullName.length;
+    const seed = Math.abs(birthDate.getTime() + userData.fullName.length);
     const drawnRunes = [
       allRunes[seed % allRunes.length],
       allRunes[(seed + 1) % allRunes.length],
       allRunes[(seed + 2) % allRunes.length]
-    ];
+    ].filter(rune => rune !== undefined);
+
+    // フォールバック
+    if (drawnRunes.length < 3) {
+      const fallbackRunes = [allRunes[0], allRunes[1], allRunes[2]];
+      return {
+        ...mockDivinationData.runes,
+        drawn: fallbackRunes,
+        interpretation: `${userData.questionCategory}について、ルーンが示す道筋。過去の「${fallbackRunes[0].name}」から現在の「${fallbackRunes[1].name}」、そして未来の「${fallbackRunes[2].name}」へと向かう流れが見えます。質問「${userData.question}」に対する答えは、${fallbackRunes[1].meaning}のエネルギーを活かすことにあります。`
+      };
+    }
 
     return {
       ...mockDivinationData.runes,
@@ -128,7 +138,7 @@ export default function RunesPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
-          <UserParameters />
+          <ParameterBadge />
           
           {/* ルーンストーンの配置 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">

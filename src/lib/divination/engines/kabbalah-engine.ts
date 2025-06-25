@@ -257,13 +257,23 @@ export class KabbalahEngine extends BaseDivinationEngine<KabbalahReading> {
     const currentTime = new Date();
     
     // 現在のセフィラを決定（時間と個人データから）
-    const sephiraIndex = (seed + currentTime.getDate()) % 10;
-    const currentSephira = SEPHIROTH[sephiraIndex];
+    const sephiraIndex = Math.abs((seed + currentTime.getDate()) % SEPHIROTH.length);
+    const currentSephira = SEPHIROTH[sephiraIndex] || SEPHIROTH[0]; // フォールバック
     
     // アクティブなパスを決定
     const pathKeys = Object.keys(PATHS);
-    const pathIndex = seed % pathKeys.length;
-    const activePath = pathKeys[pathIndex];
+    if (pathKeys.length === 0) {
+      // PATHSが空の場合のフォールバック
+      const activePath = '1-2';
+      const guidance = this.generatePathGuidance(currentSephira, activePath);
+      return {
+        currentSephira,
+        activePath,
+        guidance
+      };
+    }
+    const pathIndex = Math.abs(seed % pathKeys.length);
+    const activePath = pathKeys[pathIndex] || pathKeys[0]; // フォールバック
     
     // ガイダンスの生成
     const guidance = this.generatePathGuidance(currentSephira, activePath);
@@ -278,9 +288,14 @@ export class KabbalahEngine extends BaseDivinationEngine<KabbalahReading> {
   private generatePathGuidance(sephira: typeof SEPHIROTH[0], pathKey: string): string {
     const path = PATHS[pathKey as keyof typeof PATHS];
     
+    // 安全性チェック
+    if (!sephira || !path) {
+      return `生命の樹のエネルギーがあなたを導いています。内なる知恵に耳を傾け、真実の道を歩んでください。`;
+    }
+    
     return `現在、あなたは${sephira.name}（${sephira.meaning}）にいます。` +
            `${path.name}を通じて、${path.tarot}のエネルギーが流れています。` +
-           `${sephira.path}の道を歩みながら、${sephira.element}の本質を体現してください。`;
+           `${sephira.path || 'スピリチュアル'}の道を歩みながら、${sephira.element || '宇宙'}の本質を体現してください。`;
   }
 
   private analyzeFourWorlds(): KabbalahReading['fourWorlds'] {
@@ -498,6 +513,6 @@ export class KabbalahEngine extends BaseDivinationEngine<KabbalahReading> {
     // カバラの聖なる数を使用
     const kabbalisticMultiplier = 22 * 10 * 32; // ヘブライ文字 * セフィロト * パス
     
-    return Math.floor((birthTime + nameValue) * kabbalisticMultiplier) % 1000000;
+    return Math.abs(Math.floor((birthTime + nameValue) * kabbalisticMultiplier) % 1000000);
   }
 }

@@ -43,7 +43,7 @@ export function IntegrationPanel() {
         {mockDivinationData.integration.actionSteps[3]}
       </p>
       
-      {/* 統合占術ボタンは DivinationOverview に統一 */}
+      {/* Complexボタンは DivinationOverview に統一 */}
     </div>
   );
 }

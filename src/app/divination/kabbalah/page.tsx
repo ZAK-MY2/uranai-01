@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -264,7 +264,7 @@ export default function KabbalahPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
-          <UserParameters />
+          <ParameterBadge />
           
           {/* 生命の樹 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -434,10 +434,10 @@ export default function KabbalahPage() {
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 
-              href="/divination/feng-shui"
+              href="/divination/shichu-suimei"
               className="px-8 py-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-all duration-300"
             >
-              ← 風水へ
+              ← 四柱推命へ
             </Link>
             <Link 
               href="/divination/vedic"

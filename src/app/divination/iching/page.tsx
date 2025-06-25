@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
   { ssr: false }
 );
 
@@ -69,8 +69,19 @@ export default function IChingPage() {
       { number: 26, name: '山天大畜', upperTrigram: '艮（山）', lowerTrigram: '乾（天）', judgment: '貞に利し。', image: '天の山中に在るは大畜なり。' }
     ];
     const seed = birthDate.getTime() + userData.fullName.length;
-    const hexagramIndex = seed % hexagrams.length;
+    const hexagramIndex = Math.abs(seed) % hexagrams.length;
     const selectedHexagram = hexagrams[hexagramIndex];
+
+    if (!selectedHexagram) {
+      // フォールバックとして最初の卦を使用
+      const fallbackHexagram = hexagrams[0];
+      return {
+        ...mockDivinationData.iChing,
+        hexagram: fallbackHexagram,
+        changingLines: [3, 5],
+        interpretation: `${userData.questionCategory}に関する質問「${userData.question}」について、第${fallbackHexagram.number}卦「${fallbackHexagram.name}」が示されました。この卦は${fallbackHexagram.upperTrigram}と${fallbackHexagram.lowerTrigram}の組み合わせで、変化と調和の時期を表しています。`
+      };
+    }
 
     return {
       ...mockDivinationData.iChing,
@@ -114,7 +125,7 @@ export default function IChingPage() {
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
-          <UserParameters />
+          <ParameterBadge />
           
           {/* 六十四卦の表示 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
@@ -344,6 +355,94 @@ export default function IChingPage() {
             </p>
           </div>
 
+          {/* 投擲プロセスの詳細 */}
+          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+            <h3 className="text-2xl font-light text-white text-center mb-8">三枚硬貨投擲の記録</h3>
+            
+            <div className="max-w-3xl mx-auto">
+              <div className="grid grid-cols-6 gap-4">
+                {[6, 5, 4, 3, 2, 1].map((position) => {
+                  const isChanging = iChing.changingLines.includes(position);
+                  return (
+                    <div key={position} className="text-center">
+                      <p className="text-white/60 text-sm mb-2">第{position}爻</p>
+                      <div className={`w-20 h-20 mx-auto rounded-full flex items-center justify-center ${
+                        isChanging ? 'bg-yellow-500/20 border-2 border-yellow-500' : 'bg-white/10'
+                      }`}>
+                        <div>
+                          <p className="text-2xl">{isChanging ? '○' : '─'}</p>
+                          <p className="text-xs text-white/60">{isChanging ? '老陽' : '少陽'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {iChing.changingLines.length > 0 && (
+                <div className="mt-8 bg-yellow-500/10 rounded-xl p-6 border border-yellow-500/20">
+                  <h4 className="text-lg text-yellow-300 mb-3">之卦への変化</h4>
+                  <p className="text-white/80">
+                    変爻（第{iChing.changingLines.join('・第')}爻）により、
+                    現在の卦は新たな卦へと変化していきます。
+                    これは状況の推移や未来の展開を示唆しています。
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* カテゴリ別の具体的アドバイス */}
+          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+            <h3 className="text-2xl font-light text-white text-center mb-8">分野別の詳細ガイダンス</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              <div className="bg-gradient-to-br from-pink-500/10 to-red-500/10 rounded-xl p-6 border border-pink-500/20">
+                <h4 className="text-lg font-medium text-pink-300 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">💖</span> 恋愛・人間関係
+                </h4>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  火天大有の卦は、明るく開放的な関係性を示します。
+                  お互いの個性を尊重し、豊かな愛情を分かち合える時期。
+                  ただし、驕りや独占欲は避けるべきです。
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 border border-blue-500/20">
+                <h4 className="text-lg font-medium text-blue-300 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">💼</span> 仕事・キャリア
+                </h4>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  大いなる成功と繁栄の時。リーダーシップを発揮し、
+                  周囲と協力して大きな成果を上げられます。
+                  謙虚さを忘れずに、公平な判断を心がけましょう。
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-green-500/20">
+                <h4 className="text-lg font-medium text-green-300 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">💰</span> 財運・金運
+                </h4>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  財運は非常に良好。投資や事業拡大のチャンス。
+                  ただし、浪費や見栄による出費は控えめに。
+                  富を独占せず、適切に分配することで更なる繁栄へ。
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-500/10 to-violet-500/10 rounded-xl p-6 border border-purple-500/20">
+                <h4 className="text-lg font-medium text-purple-300 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">🌟</span> 健康・精神面
+                </h4>
+                <p className="text-white/80 text-sm leading-relaxed">
+                  エネルギーに満ち溢れた状態。活動的で前向きな気持ち。
+                  ただし、過度な活動は消耗を招くので、
+                  適度な休息とバランスを心がけることが大切です。
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
             <h3 className="text-2xl font-light text-white text-center mb-8">周易からのメッセージ</h3>
@@ -366,6 +465,16 @@ export default function IChingPage() {
                   <p className="text-white/70">離為火</p>
                   <p className="text-white/50 text-sm mt-2">明晰なる洞察力</p>
                 </div>
+              </div>
+              
+              {/* 環境との共鳴 */}
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h4 className="text-lg text-white/80 mb-3">🌙 現在の環境エネルギーとの調和</h4>
+                <p className="text-white/60 text-sm">
+                  今日の月相と天候は、この卦のエネルギーと調和しています。
+                  特に日中の明るい時間帯に行動を起こすことで、
+                  より良い結果を得られるでしょう。
+                </p>
               </div>
             </div>
           </div>

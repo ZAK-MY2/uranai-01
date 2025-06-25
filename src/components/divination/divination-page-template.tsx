@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { ChevronLeft } from 'lucide-react';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => ({ default: mod.UserParameters })),
+const ParameterBadge = dynamic(
+  () => import('@/components/divination/parameter-badge').then(mod => ({ default: mod.ParameterBadge })),
   { ssr: false }
 );
 
@@ -39,20 +39,25 @@ export function DivinationPageTemplate({
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
           <Link 
             href="/" 
-            className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors group"
+            className="group flex items-center gap-3 px-4 py-2 -ml-4
+                       text-white/70 hover:text-white transition-all duration-300
+                       hover:bg-white/5 rounded-lg"
           >
-            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span>ダッシュボードに戻る</span>
+            <div className="p-1.5 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors">
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            </div>
+            <span className="text-sm font-light tracking-wider">Dashboard</span>
           </Link>
           {headerTitle && (
             <h1 className="text-2xl font-light text-white tracking-wider">{headerTitle}</h1>
           )}
+          <div className="w-32"></div>{/* バランス用の空要素 */}
         </div>
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-5 py-10">
-        {/* ユーザーパラメータ表示 */}
-        <UserParameters />
+        {/* パラメータバッジ（フローティング） */}
+        <ParameterBadge />
 
         {/* メインタイトル */}
         <div className="text-center mb-12 animate-fade-in">

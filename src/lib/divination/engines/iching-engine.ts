@@ -1,28 +1,5 @@
 import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
-
-// 八卦の定義
-const TRIGRAMS = {
-  '111': { name: '乾', element: '天', nature: '創造', image: '☰' },
-  '011': { name: '兌', element: '沢', nature: '喜び', image: '☱' },
-  '101': { name: '離', element: '火', nature: '明晰', image: '☲' },
-  '001': { name: '震', element: '雷', nature: '動き', image: '☳' },
-  '110': { name: '巽', element: '風', nature: '浸透', image: '☴' },
-  '010': { name: '坎', element: '水', nature: '深淵', image: '☵' },
-  '100': { name: '艮', element: '山', nature: '静止', image: '☶' },
-  '000': { name: '坤', element: '地', nature: '受容', image: '☷' }
-};
-
-// 64卦の情報
-interface Hexagram {
-  number: number;
-  name: string;
-  upperTrigram: string;
-  lowerTrigram: string;
-  judgment: string;
-  image: string;
-  interpretation: string;
-  lines: string[];
-}
+import { hexagrams as allHexagrams, trigrams, Hexagram } from '../data/iching-hexagrams';
 
 export interface IChingReading {
   hexagram: {
@@ -60,7 +37,7 @@ export class IChingEngine extends BaseDivinationEngine<IChingReading> {
 
   constructor(input: DivinationInput, environment?: EnvironmentData) {
     super(input, environment);
-    this.hexagrams = this.initializeHexagrams();
+    this.hexagrams = allHexagrams;
   }
 
   calculate(): IChingReading {
@@ -172,121 +149,37 @@ export class IChingEngine extends BaseDivinationEngine<IChingReading> {
       (line.value === 7 || line.value === 9) ? '1' : '0'
     ).join('');
     
-    const lowerTrigram = binaryString.slice(0, 3);
-    const upperTrigram = binaryString.slice(3, 6);
+    const lowerBinary = binaryString.slice(0, 3);
+    const upperBinary = binaryString.slice(3, 6);
     
-    // 卦番号の計算
-    const hexagramNumber = this.calculateHexagramNumber(upperTrigram, lowerTrigram);
-    
-    return this.hexagrams[hexagramNumber - 1];
-  }
-
-  private calculateHexagramNumber(upper: string, lower: string): number {
-    // 八卦の順序（乾1、坤8、震4、巽5、坎6、離3、艮7、兌2）
-    const trigramOrder: Record<string, number> = {
-      '111': 1, // 乾
-      '011': 2, // 兌
-      '101': 3, // 離
-      '001': 4, // 震
-      '110': 5, // 巽
-      '010': 6, // 坎
-      '100': 7, // 艮
-      '000': 8  // 坤
+    // 二進数文字列を八卦記号に変換
+    const binaryToTrigram: Record<string, string> = {
+      '111': '☰', // 乾
+      '011': '☱', // 兌
+      '101': '☲', // 離  
+      '001': '☳', // 震
+      '110': '☴', // 巽
+      '010': '☵', // 坎
+      '100': '☶', // 艮
+      '000': '☷'  // 坤
     };
     
-    const upperIndex = trigramOrder[upper] - 1;
-    const lowerIndex = trigramOrder[lower] - 1;
+    const upperTrigram = binaryToTrigram[upperBinary];
+    const lowerTrigram = binaryToTrigram[lowerBinary];
     
-    // 64卦の配列位置を計算
-    return upperIndex * 8 + lowerIndex + 1;
+    // 上卦と下卦の記号で該当する卦を探す
+    const hexagram = this.hexagrams.find(h => 
+      h.upperTrigram === upperTrigram && h.lowerTrigram === lowerTrigram
+    );
+    
+    return hexagram || this.hexagrams[0]; // 見つからない場合は乾為天を返す
   }
 
-  private initializeHexagrams(): Hexagram[] {
-    // 64卦の初期化（主要な卦のみ詳細に定義）
-    const hexagrams: Hexagram[] = [];
-    
-    // 1. 乾為天
-    hexagrams.push({
-      number: 1,
-      name: '乾為天',
-      upperTrigram: '111',
-      lowerTrigram: '111',
-      judgment: '元亨利貞',
-      image: '天行健、君子以自強不息',
-      interpretation: '創造的なエネルギーに満ち、大いなる成功の可能性を示す。リーダーシップを発揮する時。',
-      lines: [
-        '潜龍勿用 - 時期尚早、準備の時',
-        '見龍在田 - 才能が認められ始める',
-        '君子終日乾乾 - 慎重に進む必要あり',
-        '或躍在淵 - 選択の岐路に立つ',
-        '飛龍在天 - 大いなる成功の時',
-        '亢龍有悔 - 頂点に達し、謙虚さが必要'
-      ]
-    });
-    
-    // 2. 坤為地
-    hexagrams.push({
-      number: 2,
-      name: '坤為地',
-      upperTrigram: '000',
-      lowerTrigram: '000',
-      judgment: '元亨利牝馬之貞',
-      image: '地勢坤、君子以厚徳載物',
-      interpretation: '受容と忍耐の時。他者をサポートし、基盤を固める時期。',
-      lines: [
-        '履霜堅冰至 - 小さな兆候に注意',
-        '直方大 - 自然体で大きな成果',
-        '含章可貞 - 内に秘めた才能を育てる',
-        '括囊无咎 - 慎重に行動する',
-        '黄裳元吉 - 中庸を保てば吉',
-        '龍戦于野 - 対立は避けるべき'
-      ]
-    });
-    
-    // 他の62卦も同様に初期化（簡略版）
-    const remainingHexagrams = [
-      { number: 3, name: '水雷屯', judgment: '元亨利貞、勿用有攸往', interpretation: '困難な始まり。忍耐と準備が必要。' },
-      { number: 4, name: '山水蒙', judgment: '亨、匪我求童蒙', interpretation: '啓蒙と学習の時。謙虚に教えを受ける。' },
-      { number: 5, name: '水天需', judgment: '有孚、光亨貞吉', interpretation: '待つことの大切さ。時機を見極める。' },
-      { number: 6, name: '天水訟', judgment: '有孚、窒惕中吉', interpretation: '争いは避け、和解を求める。' },
-      { number: 7, name: '地水師', judgment: '貞、丈人吉无咎', interpretation: '統率と規律。組織的な行動が吉。' },
-      { number: 8, name: '水地比', judgment: '吉、原筮元永貞', interpretation: '親和と協力。良い関係を築く時。' },
-      { number: 9, name: '風天小畜', judgment: '亨、密雲不雨', interpretation: '小さな蓄積。着実な準備が大切。' },
-      { number: 10, name: '天沢履', judgment: '履虎尾、不咥人亨', interpretation: '慎重な行動。危険を避けて進む。' },
-      // ... 残りの卦も同様に追加
-    ];
-    
-    // 簡略版のため、基本的な情報のみで残りを埋める
-    for (let i = 3; i <= 64; i++) {
-      const existing = remainingHexagrams.find(h => h.number === i);
-      if (existing) {
-        hexagrams.push({
-          ...existing,
-          upperTrigram: '000', // 実際は計算が必要
-          lowerTrigram: '000', // 実際は計算が必要
-          image: `第${i}卦の象`,
-          lines: Array(6).fill(`第${i}卦の爻辞`)
-        });
-      } else {
-        hexagrams.push({
-          number: i,
-          name: `第${i}卦`,
-          upperTrigram: '000',
-          lowerTrigram: '000',
-          judgment: '卦辞',
-          image: '大象',
-          interpretation: `第${i}卦の解釈`,
-          lines: Array(6).fill('爻辞')
-        });
-      }
-    }
-    
-    return hexagrams;
-  }
+
 
   private analyzeElements(hexagram: Hexagram): IChingReading['elements'] {
-    const upperTrigram = TRIGRAMS[hexagram.upperTrigram as keyof typeof TRIGRAMS];
-    const lowerTrigram = TRIGRAMS[hexagram.lowerTrigram as keyof typeof TRIGRAMS];
+    const upperTrigram = trigrams[hexagram.upperTrigram as keyof typeof trigrams];
+    const lowerTrigram = trigrams[hexagram.lowerTrigram as keyof typeof trigrams];
     
     const elementInteractions: Record<string, Record<string, string>> = {
       '天': {
