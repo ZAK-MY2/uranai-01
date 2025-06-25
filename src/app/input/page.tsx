@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import RouteGuard from '@/components/auth/route-guard';
+import { useSession } from '@/hooks/use-session';
 
 interface UserInput {
   fullName: string;
@@ -18,8 +20,9 @@ interface UserInput {
   questionCategory: string;
 }
 
-export default function UserInputPage() {
+function UserInputPageContent() {
   const router = useRouter();
+  const { markInputCompleted } = useSession();
   const [formData, setFormData] = useState<UserInput>({
     fullName: '',
     birthDate: '',
@@ -78,9 +81,12 @@ export default function UserInputPage() {
     // ローカルストレージに保存
     localStorage.setItem('uranai_user_data', JSON.stringify(formData));
     
-    // 統合占術ページへリダイレクト
+    // セッションに入力完了をマーク
+    markInputCompleted(formData);
+    
+    // ダッシュボードへリダイレクト（統合占術は別途アクセス）
     setTimeout(() => {
-      router.push('/divination/integrated');
+      router.push('/');
     }, 1000);
   };
 
@@ -439,5 +445,13 @@ export default function UserInputPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function UserInputPage() {
+  return (
+    <RouteGuard requireAuth={true}>
+      <UserInputPageContent />
+    </RouteGuard>
   );
 }

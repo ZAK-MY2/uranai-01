@@ -1,24 +1,34 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { useSession } from '@/hooks/use-session';
 
 export default function EntryPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isShaking, setIsShaking] = useState(false);
   const router = useRouter();
+  const { isAuthenticated, hasCompletedInput, authenticate } = useSession();
+
+  // 既に認証済みの場合は適切なページにリダイレクト
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (hasCompletedInput) {
+        router.push('/'); // ダッシュボードへ
+      } else {
+        router.push('/input'); // 入力画面へ
+      }
+    }
+  }, [isAuthenticated, hasCompletedInput, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 呪文の確認（環境変数から取得するか、ハードコード）
-    const correctPassword = process.env.NEXT_PUBLIC_ACCESS_PASSWORD || 'cosmos2025';
+    const success = authenticate(password);
     
-    if (password === correctPassword) {
-      // セッションストレージに認証状態を保存
-      sessionStorage.setItem('cosmic_authenticated', 'true');
+    if (success) {
       router.push('/input');
     } else {
       setError('呪文が違います...');

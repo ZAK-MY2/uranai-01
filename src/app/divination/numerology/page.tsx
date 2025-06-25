@@ -8,6 +8,7 @@ import { mockDivinationData } from '@/lib/mock/divination-data';
 import { NumerologyEngine, NumerologyResult } from '@/lib/divination/engines/numerology-engine';
 import { DivinationInput } from '@/lib/divination/base-engine';
 import { EnvironmentService } from '@/lib/services/environment-service';
+import RouteGuard from '@/components/auth/route-guard';
 
 const UserParameters = dynamic(
   () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
@@ -23,7 +24,7 @@ interface UserInputData {
   questionCategory: string;
 }
 
-export default function NumerologyPage() {
+function NumerologyPageContent() {
   const [, setUserInput] = useState<UserInputData | null>(null);
   const [numerologyResult, setNumerologyResult] = useState<NumerologyResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
@@ -337,5 +338,13 @@ export default function NumerologyPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function NumerologyPage() {
+  return (
+    <RouteGuard requireAuth={true} requireInput={true}>
+      <NumerologyPageContent />
+    </RouteGuard>
   );
 }
