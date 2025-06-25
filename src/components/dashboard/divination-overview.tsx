@@ -71,11 +71,11 @@ const miniDivinations = [
   },
   {
     symbol: '☯',
-    name: '風水',
-    result: '東北',
-    status: '変化',
-    href: '/divination/feng-shui',
-    description: '環境と気の流れの調和'
+    name: '四柱推命',
+    result: '庚申',
+    status: '金性',
+    href: '/divination/shichu-suimei',
+    description: '生年月日時による宿命診断'
   },
   {
     symbol: '💎',
@@ -98,17 +98,17 @@ export function DivinationOverview() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      {/* パラメータ入力案内 */}
+    <div className="space-y-10">
+      {/* Enhanced parameter input notice */}
       <div suppressHydrationWarning>
         {!hasUserData && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 text-center">
-          <p className="text-amber-200 mb-3">
+          <div className="backdrop-blur-cosmic bg-amber-500/8 border border-amber-400/25 rounded-cosmic-lg p-8 text-center shadow-glass animate-gentle-float">
+          <p className="cosmic-text text-amber-200 mb-4 text-base">
             ⚠️ より正確な占術結果のためには、あなたの基本情報が必要です
           </p>
           <Link
             href="/input"
-            className="inline-block bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors text-sm"
+            className="inline-block bg-gradient-to-r from-amber-600 to-orange-600 text-white px-8 py-3 rounded-cosmic hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 cosmic-label shadow-cosmic"
           >
             基本情報を入力する
           </Link>
@@ -116,56 +116,72 @@ export function DivinationOverview() {
         )}
       </div>
 
-      {/* メイン占術 */}
+      {/* Enhanced main divination section */}
       <div>
-        <h3 className="text-lg font-light text-white mb-4 text-center" suppressHydrationWarning>
-          主要占術 {!hasUserData && <span className="text-amber-300 text-sm">(※サンプル表示)</span>}
+        <h3 className="cosmic-title text-2xl text-cosmic-primary mb-6 text-center" suppressHydrationWarning>
+          主要占術 {!hasUserData && <span className="text-amber-300 text-base font-light">(※サンプル表示)</span>}
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {miniDivinations.slice(0, 5).map((div, index) => (
             <Link
               key={index}
               href={div.href}
-              className="group block border border-white/8 rounded-2xl p-5 text-center transition-all duration-600 cursor-pointer hover:transform hover:translate-y-[-10px] hover:scale-105 hover:border-purple-400/30 hover:bg-white/2 animate-pulse"
+              className="group block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light rounded-cosmic p-6 text-center transition-all duration-700 cursor-pointer hover:transform hover:translate-y-[-12px] hover:scale-105 hover:border-purple-400/40 hover:bg-cosmic-background-glass-strong hover:shadow-cosmic-hover animate-gentle-float"
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <div className="text-2xl mb-2 opacity-60 text-purple-400 group-hover:opacity-80 transition-opacity">{div.symbol}</div>
-              <div className="text-xs font-light mb-2 tracking-wider">{div.name}</div>
-              <div className="text-sm font-extralight text-violet-400 mb-1">{div.result}</div>
-              <div className="text-[9px] opacity-50">{div.status}</div>
-              <div className="text-[8px] opacity-40 mt-1 group-hover:opacity-60 transition-opacity">{div.description}</div>
+              <div className="text-3xl mb-3 text-purple-400 group-hover:text-purple-300 transition-all duration-300 animate-pulse-gentle">{div.symbol}</div>
+              <div className="cosmic-label text-sm mb-3">{div.name}</div>
+              <div className="cosmic-text text-base text-violet-400 mb-2 group-hover:text-violet-300 transition-colors">{div.result}</div>
+              <div className="text-xs text-cosmic-secondary mb-2">{div.status}</div>
+              <div className="text-xs text-cosmic-secondary opacity-60 group-hover:opacity-80 transition-opacity">{div.description}</div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* 補助占術 */}
+      {/* Enhanced auxiliary divination section */}
       <div>
-        <h3 className="text-lg font-light text-white mb-4 text-center">補助占術</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+        <h3 className="cosmic-title text-xl text-cosmic-primary mb-6 text-center">補助占術</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {miniDivinations.slice(5).map((div, index) => (
             <Link
               key={index + 5}
               href={div.href}
-              className="group block border border-white/6 rounded-2xl p-4 text-center transition-all duration-600 cursor-pointer hover:transform hover:translate-y-[-8px] hover:scale-102 hover:border-blue-400/20 hover:bg-white/1"
+              className="group block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light/70 rounded-cosmic p-5 text-center transition-all duration-600 cursor-pointer hover:transform hover:translate-y-[-10px] hover:scale-102 hover:border-blue-400/30 hover:bg-cosmic-background-glass shadow-glass animate-gentle-float-delayed"
+              style={{ animationDelay: `${(index + 5) * 0.15}s` }}
             >
-              <div className="text-xl mb-2 opacity-50 text-blue-400 group-hover:opacity-70 transition-opacity">{div.symbol}</div>
-              <div className="text-xs font-light mb-1 tracking-wider">{div.name}</div>
-              <div className="text-sm font-extralight text-blue-400 mb-1">{div.result}</div>
-              <div className="text-[9px] opacity-40">{div.status}</div>
-              <div className="text-[8px] opacity-30 mt-1 group-hover:opacity-50 transition-opacity">{div.description}</div>
+              <div className="text-2xl mb-3 text-blue-400 group-hover:text-blue-300 transition-all duration-300 animate-pulse-gentle">{div.symbol}</div>
+              <div className="cosmic-label text-sm mb-2">{div.name}</div>
+              <div className="cosmic-text text-sm text-blue-400 mb-2 group-hover:text-blue-300 transition-colors">{div.result}</div>
+              <div className="text-xs text-cosmic-secondary mb-1">{div.status}</div>
+              <div className="text-xs text-cosmic-secondary opacity-50 group-hover:opacity-70 transition-opacity">{div.description}</div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* 統合占術ボタン */}
-      <div className="text-center mt-8">
+      {/* Enhanced integration button section */}
+      <div className="text-center mt-12 space-y-6">
         <Link
-          href={hasUserData ? "/divination/integration" : "/input"}
-          className="inline-block bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 font-light tracking-wide"
+          href={hasUserData ? "/divination/integrated" : "/input"}
+          className="inline-block bg-gradient-to-r from-purple-600 via-violet-600 to-blue-600 text-white px-12 py-5 rounded-cosmic-lg hover:from-purple-700 hover:via-violet-700 hover:to-blue-700 transition-all duration-500 transform hover:scale-105 hover:shadow-cosmic-hover cosmic-text text-lg animate-glow-pulse"
         >
           ✨ すべてを統合した本格占術を始める
         </Link>
+        
+        {hasUserData && (
+          <div>
+            <button
+              onClick={() => {
+                localStorage.removeItem('uranai_user_data');
+                window.location.href = '/input';
+              }}
+              className="inline-block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light text-cosmic-primary px-8 py-4 rounded-cosmic hover:bg-cosmic-background-glass-strong hover:border-cosmic-border-medium transition-all duration-300 cosmic-label shadow-glass"
+            >
+              🔄 新しいパラメータで占う
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

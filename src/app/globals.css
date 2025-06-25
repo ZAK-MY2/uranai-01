@@ -1,14 +1,31 @@
 @import "tailwindcss";
 
+/* Enhanced font loading and optimization */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;200;300;400;500;600;700&display=swap');
+
 :root {
   --background: #0f172a;
   --foreground: #e2e8f0;
+  
+  /* Enhanced typography variables */
+  --font-weight-ultra-light: 100;
+  --font-weight-extra-light: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semi-bold: 600;
+  --font-weight-bold: 700;
+  
+  /* Optimized letter spacing for Japanese */
+  --letter-spacing-cosmic: 0.08em;
+  --letter-spacing-wide: 0.05em;
+  --letter-spacing-normal: 0.025em;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic Medium', '游ゴシック Medium', YuGothic, '游ゴシック体', 'Noto Sans JP', sans-serif;
+  --font-sans: 'Noto Sans JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic Medium', '游ゴシック Medium', 'YuGothic', '游ゴシック体', sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -16,11 +33,16 @@ body {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-weight: 300;
+  font-weight: var(--font-weight-light);
   min-height: 100vh;
+  /* Enhanced text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
-/* カスタムアニメーション */
+/* カスタムアニメーション - Enhanced with 8px grid system */
 @keyframes cosmicDrift {
   0%, 100% { transform: translateX(0) translateY(0) scale(1); }
   25% { transform: translateX(-20px) translateY(-30px) scale(1.02); }
@@ -36,4 +58,52 @@ body {
 @keyframes rotateSlow {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Enhanced typography classes */
+.cosmic-title {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-ultra-light);
+  letter-spacing: var(--letter-spacing-cosmic);
+  line-height: 1.2;
+  font-feature-settings: "kern" 1;
+}
+
+.cosmic-text {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-extra-light);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: 1.6;
+}
+
+.cosmic-label {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-light);
+  letter-spacing: var(--letter-spacing-normal);
+  line-height: 1.4;
+}
+
+/* Improved text contrast and readability */
+.text-cosmic-primary {
+  color: #f1f5f9;
+  text-shadow: 0 0 8px rgba(241, 245, 249, 0.3);
+}
+
+.text-cosmic-secondary {
+  color: #cbd5e1;
+  opacity: 0.85;
+}
+
+.text-cosmic-accent {
+  background: linear-gradient(120deg, #a855f7, #3b82f6, #06b6d4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: gradientShift 8s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }

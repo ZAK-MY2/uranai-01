@@ -15,8 +15,8 @@ const detailedDivinations = [
   { 
     symbol: '✦', 
     name: '風水', 
-    result: `${mockDivinationData.fengShui.flyingStars.prosperity}運星`, 
-    description: mockDivinationData.fengShui.advice,
+    result: '九紫火星', 
+    description: '繁栄と名誉のエネルギーが流れています',
     href: '/divination/feng-shui'
   },
   { 
@@ -36,8 +36,8 @@ const detailedDivinations = [
   { 
     symbol: '🌳', 
     name: 'ケルト占星術', 
-    result: mockDivinationData.celticAstrology.treeSign, 
-    description: mockDivinationData.celticAstrology.interpretation,
+    result: 'オーク（樫）', 
+    description: '力強さと守護のエネルギーがあなたを包んでいます',
     href: '/divination/celtic'
   }
 ];

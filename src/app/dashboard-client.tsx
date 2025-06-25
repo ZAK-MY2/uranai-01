@@ -29,33 +29,35 @@ export default function DashboardClient({ user, environmentData }: DashboardClie
       <CosmicBackground />
       <DashboardHeader user={user} />
       
-      <main className="relative z-10 pt-20 min-h-screen">
-        <div className="max-w-[1400px] mx-auto px-5">
-          {/* ダッシュボードグリッド */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-            {/* 宇宙図概要（左上、大きく） */}
-            <div className="lg:col-span-2 lg:row-span-2">
+      <main className="relative z-10 pt-24 min-h-screen">
+        <div className="max-w-[1440px] mx-auto px-6 lg:px-8">
+          {/* Enhanced dashboard grid with 8px system */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+            {/* 宇宙図概要（左上、大きく） - Enhanced visual hierarchy */}
+            <div className="lg:col-span-8 lg:row-span-2">
               <CosmicOverview />
             </div>
             
-            {/* 環境データ（右上） */}
-            <div className="lg:col-span-1">
+            {/* 環境データ（右上） - Improved spacing */}
+            <div className="lg:col-span-4">
               <EnvironmentalData environmentData={environmentData} />
             </div>
             
-            {/* 今日の指針（右中） */}
-            <div className="lg:col-span-1">
+            {/* 今日の指針（右中） - Enhanced positioning */}
+            <div className="lg:col-span-4">
               <DailyGuidance />
             </div>
             
-            {/* 占術概要（下部） */}
-            <div className="lg:col-span-3">
+            {/* 占術概要（下部） - Full width with better spacing */}
+            <div className="lg:col-span-12">
               <DivinationOverview />
             </div>
           </div>
           
-          {/* 統合分析パネル */}
-          <IntegrationPanel />
+          {/* 統合分析パネル - Enhanced bottom spacing */}
+          <div className="mb-16">
+            <IntegrationPanel />
+          </div>
         </div>
       </main>
     </div>

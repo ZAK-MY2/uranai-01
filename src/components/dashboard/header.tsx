@@ -27,26 +27,37 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   const username = user?.email?.split('@')[0] || 'Guest';
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-[30px] border-b border-white/5">
-      <div className="max-w-[1400px] mx-auto px-5 py-4 flex justify-between items-center">
-        <div className="text-xl font-thin tracking-[0.2em] bg-gradient-to-r from-gray-200 to-purple-400 bg-clip-text text-transparent">
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-cosmic-strong bg-cosmic-background-primary border-b border-cosmic-border-light shadow-glass">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-8 py-5 flex justify-between items-center">
+        <div className="cosmic-title text-2xl text-cosmic-accent animate-gradient-shift">
           COSMIC ORACLE
         </div>
         
-        <div className="flex items-center gap-6 text-sm text-gray-400">
-          <div>◐ 13.2</div>
-          <div>25°C 晴れ</div>
-          <div>✦ {currentDate}</div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-xs opacity-60">LIVE</span>
+        <div className="flex items-center gap-8 cosmic-label text-cosmic-secondary">
+          <div className="flex items-center gap-2 group">
+            <span className="text-purple-400 group-hover:animate-pulse-gentle">◐</span>
+            <span>13.2</span>
+          </div>
+          <div className="flex items-center gap-2 group">
+            <span className="text-blue-400 group-hover:animate-pulse-gentle">☁️</span>
+            <span>25°C 晴れ</span>
+          </div>
+          <div className="flex items-center gap-2 group">
+            <span className="text-violet-400 group-hover:animate-pulse-gentle">✦</span>
+            <span>{currentDate}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-glow-pulse shadow-sm" />
+              <span className="text-xs text-cosmic-secondary">LIVE</span>
+            </div>
           </div>
           {user && (
-            <div className="flex items-center gap-4">
-              <span className="text-purple-400">{username}</span>
+            <div className="flex items-center gap-6">
+              <span className="text-cosmic-accent font-medium">{username}</span>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-1.5 text-xs rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/30 transition-all duration-300"
+                className="px-4 py-2 cosmic-label rounded-cosmic bg-cosmic-background-glass border border-cosmic-border-light hover:bg-cosmic-background-glass-strong hover:border-cosmic-border-medium transition-all duration-300 shadow-glass hover:shadow-cosmic"
               >
                 Sign Out
               </button>

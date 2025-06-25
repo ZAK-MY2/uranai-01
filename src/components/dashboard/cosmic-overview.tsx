@@ -17,23 +17,21 @@ export function CosmicOverview() {
   
   return (
     <div 
-      className="border border-purple-500/15 rounded-3xl p-10 text-center h-full flex flex-col justify-center"
-      style={{ animation: 'gentleFloat 30s infinite ease-in-out' }}
+      className="backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light rounded-cosmic-xl p-10 text-center h-full flex flex-col justify-center shadow-cosmic animate-gentle-float"
     >
-      <h1 className="text-4xl font-thin mb-6 tracking-[0.1em] bg-gradient-to-r from-gray-200 to-violet-400 bg-clip-text text-transparent">
+      <h1 className="cosmic-title text-5xl mb-8 text-cosmic-accent">
         あなたの宇宙図
       </h1>
       
-      <div className="flex justify-center items-center gap-5 mb-8">
+      <div className="flex justify-center items-center gap-6 mb-10">
         <div 
-          className="relative w-32 h-32 border-2 border-purple-400/30 rounded-full flex items-center justify-center text-4xl font-thin text-purple-400"
-          style={{ animation: 'rotateSlow 60s infinite linear' }}
+          className="relative w-40 h-40 border-2 border-cosmic-border-medium rounded-full flex items-center justify-center text-5xl font-ultra-light text-cosmic-accent backdrop-blur-cosmic bg-cosmic-background-glass shadow-cosmic animate-rotate-slow"
         >
-          {score}
+          <span className="animate-glow-pulse">{score}</span>
         </div>
       </div>
       
-      <div className="grid grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-5 gap-6 mb-8">
         {[
           { symbol: '◐', label: '月の調和' },
           { symbol: '✦', label: '星の配置' },
@@ -41,30 +39,25 @@ export function CosmicOverview() {
           { symbol: '∞', label: '時の流れ' },
           { symbol: '△', label: '元素調和' }
         ].map((item, index) => (
-          <div key={index} className="text-center">
-            <div className="text-xl text-violet-400 mb-1">{item.symbol}</div>
-            <div className="text-xs opacity-70">{item.label}</div>
+          <div key={index} className="text-center group animate-gentle-float-delayed hover:transform hover:scale-110 transition-all duration-500">
+            <div className="text-2xl text-cosmic-accent mb-2 animate-pulse-gentle group-hover:animate-glow-pulse">{item.symbol}</div>
+            <div className="cosmic-label text-xs text-cosmic-secondary">{item.label}</div>
           </div>
         ))}
       </div>
       
-      <p className="text-sm leading-relaxed opacity-80 italic">
-        {mockDivinationData.integration.keyThemes.join('、')}のエネルギーに満ちています。<br />
-        {mockDivinationData.integration.dominantElement}の要素が強く、<br />
-        {mockDivinationData.integration.synchronicities[0]}。
-      </p>
+      <div className="cosmic-text text-base leading-relaxed text-cosmic-primary max-w-md mx-auto">
+        <p className="mb-3">
+          <span className="text-cosmic-accent font-medium">{mockDivinationData.integration.keyThemes.join('、')}</span>のエネルギーに満ちています。
+        </p>
+        <p className="mb-3">
+          <span className="text-cosmic-accent font-medium">{mockDivinationData.integration.dominantElement}</span>の要素が強く、
+        </p>
+        <p className="text-cosmic-secondary text-sm italic">
+          {mockDivinationData.integration.synchronicities[0]}。
+        </p>
+      </div>
       
-      <style jsx>{`
-        @keyframes gentleFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        
-        @keyframes rotateSlow {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
