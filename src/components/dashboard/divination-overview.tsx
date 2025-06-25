@@ -99,27 +99,12 @@ export function DivinationOverview() {
 
   return (
     <div className="space-y-10">
-      {/* Enhanced parameter input notice */}
-      <div suppressHydrationWarning>
-        {!hasUserData && (
-          <div className="backdrop-blur-cosmic bg-amber-500/8 border border-amber-400/25 rounded-cosmic-lg p-8 text-center shadow-glass animate-gentle-float">
-          <p className="cosmic-text text-amber-200 mb-4 text-base">
-            ⚠️ より正確な占術結果のためには、あなたの基本情報が必要です
-          </p>
-          <Link
-            href="/input"
-            className="inline-block bg-gradient-to-r from-amber-600 to-orange-600 text-white px-8 py-3 rounded-cosmic hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 cosmic-label shadow-cosmic"
-          >
-            基本情報を入力する
-          </Link>
-        </div>
-        )}
-      </div>
+      {/* デモモード: パラメータ入力案内を削除 */}
 
       {/* Enhanced main divination section */}
       <div>
-        <h3 className="cosmic-title text-xl sm:text-2xl text-cosmic-primary mb-4 sm:mb-6 text-center" suppressHydrationWarning>
-          主要占術 {!hasUserData && <span className="text-amber-300 text-sm sm:text-base font-light">(※サンプル表示)</span>}
+        <h3 className="cosmic-title text-xl sm:text-2xl text-cosmic-primary mb-4 sm:mb-6 text-center">
+          主要占術
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {miniDivinations.slice(0, 5).map((div, index) => (

@@ -13,7 +13,7 @@ export function DailyGuidance() {
       className="border border-violet-500/15 rounded-2xl p-6"
       style={{ animation: 'gentleFloat 40s infinite ease-in-out', animationDelay: '10s' }}
     >
-      <h2 className="text-base font-extralight mb-4 text-violet-400">今日の宇宙指針</h2>
+      <h2 className="text-base font-extralight mb-4 text-violet-400">今日の導き</h2>
       
       <p className="text-xs mb-3 text-purple-300/70">{hourlyEnergy}</p>
       

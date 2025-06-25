@@ -20,7 +20,7 @@ export function CosmicOverview() {
       className="backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light rounded-cosmic-xl p-10 text-center h-full flex flex-col justify-center shadow-cosmic animate-gentle-float"
     >
       <h1 className="cosmic-title text-5xl mb-8 text-cosmic-accent">
-        あなたの宇宙図
+        あなたの運命図
       </h1>
       
       <div className="flex justify-center items-center gap-6 mb-10">

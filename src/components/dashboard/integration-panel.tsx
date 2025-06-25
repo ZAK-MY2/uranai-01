@@ -22,7 +22,7 @@ const convergenceNodes = [
 export function IntegrationPanel() {
   return (
     <div className="border-2 border-purple-400/20 rounded-[28px] p-10 mb-16 text-center">
-      <h2 className="text-3xl font-thin mb-8 tracking-[0.1em]">宇宙の収束分析</h2>
+      <h2 className="text-3xl font-thin mb-8 tracking-[0.1em]">統合的な導き</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         {convergenceNodes.map((node, index) => (
@@ -37,7 +37,7 @@ export function IntegrationPanel() {
       </div>
       
       <p className="text-base leading-relaxed opacity-90 italic max-w-2xl mx-auto mb-6">
-        今日のあなたは宇宙の大きな調和の中にいます。<br />
+        今日のあなたは大きな調和の中にいます。<br />
         支配的な数字は<span className="text-purple-400 font-medium">{mockDivinationData.integration.dominantNumber}</span>、
         キーワードは<span className="text-violet-400">{mockDivinationData.integration.keyThemes.slice(0, 2).join('と')}</span>。<br />
         {mockDivinationData.integration.actionSteps[3]}

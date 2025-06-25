@@ -1,7 +1,7 @@
 {
-  "name": "COSMIC ORACLE - 宇宙の叡智を結集したAI占いシステム",
-  "short_name": "COSMIC ORACLE",
-  "description": "10種類の占術と環境データを統合した次世代占いアプリケーション",
+  "name": "ORACLE ECHO - 古今東西の叡智が響き合うAI占いシステム",
+  "short_name": "ORACLE ECHO",
+  "description": "10種類の占術が響き合う次世代占いアプリケーション",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
