@@ -7,26 +7,22 @@ export default async function Home() {
   
   const { data: { user } } = await supabase.auth.getUser()
   
-  // 本番環境では認証必須、ただしデモ用スキップ可能
+  // デモモード: 認証をスキップしてダミーユーザーで継続
   if (!user) {
-    if (process.env.NODE_ENV === 'production' && !process.env.SKIP_AUTH_FOR_DEMO) {
-      redirect('/login')
-    } else {
-      // 開発・テスト用: ダミーユーザーで継続
-      const dummyUser = { 
-        id: 'test-user-001', 
-        email: 'test@cosmic-oracle.dev',
-        user_metadata: {
-          name: 'テストユーザー',
-          avatar_url: null
-        },
-        app_metadata: {},
-        aud: 'authenticated',
-        created_at: new Date().toISOString()
-      } as any;
-      
-      return <DashboardClient user={dummyUser} environmentData={null} sessions={[]} />;
-    }
+    // 開発・デモ用: ダミーユーザーで継続
+    const dummyUser = { 
+      id: 'test-user-001', 
+      email: 'test@cosmic-oracle.dev',
+      user_metadata: {
+        name: 'テストユーザー',
+        avatar_url: null
+      },
+      app_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString()
+    } as any;
+    
+    return <DashboardClient user={dummyUser} environmentData={null} sessions={[]} />;
   }
 
   // 環境データを取得
