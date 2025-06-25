@@ -68,7 +68,7 @@ const NineStarGrid = ({ mainStar }: { mainStar: string }) => {
 };
 
 export default function NineStarKiPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [nineStarKiResult, setNineStarKiResult] = useState(mockDivinationData.nineStarKi);
   const [selectedDirection, setSelectedDirection] = useState<string>('東');
 
@@ -305,7 +305,7 @@ export default function NineStarKiPage() {
                   { dir: '南西', angle: 225, favorable: false },
                   { dir: '西', angle: 270, favorable: false },
                   { dir: '北西', angle: 315, favorable: false }
-                ].map(({ dir, angle, favorable }) => {
+                ].map(({ dir, angle }) => {
                   const radian = (angle - 90) * Math.PI / 180;
                   const x = 200 + 150 * Math.cos(radian);
                   const y = 200 + 150 * Math.sin(radian);

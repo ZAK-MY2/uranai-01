@@ -41,7 +41,7 @@ const Trigram = ({ lines }: { lines: boolean[] }) => {
 };
 
 export default function IChingPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [iChingResult, setIChingResult] = useState(mockDivinationData.iChing);
   const [showChanging, setShowChanging] = useState(false);
 
@@ -313,7 +313,7 @@ export default function IChingPage() {
                   { element: '金', color: '#e5e7eb', x: 300, y: 320 },
                   { element: '水', color: '#3b82f6', x: 100, y: 320 },
                   { element: '木', color: '#10b981', x: 50, y: 150 }
-                ].map((item, index) => (
+                ].map((item) => (
                   <g key={item.element}>
                     <circle cx={item.x} cy={item.y} r="40" fill={`${item.color}33`} stroke={item.color} strokeWidth="2" />
                     <text x={item.x} y={item.y + 5} textAnchor="middle" className="fill-white text-xl">

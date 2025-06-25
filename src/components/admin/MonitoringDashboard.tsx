@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { errorTracker } from '@/lib/monitoring/error-tracker';
 import { performanceMonitor } from '@/lib/monitoring/performance-monitor';
 
@@ -55,24 +55,24 @@ export default function MonitoringDashboard() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30); // seconds
 
-  const loadMetrics = () => {
+  const loadMetrics = useCallback(() => {
     const errorData = errorTracker.getMetrics(timeWindow);
     const perfData = performanceMonitor.getMetrics(timeWindow);
     
     setErrorMetrics(errorData);
     setPerformanceMetrics(perfData);
-  };
+  }, [timeWindow]);
 
   useEffect(() => {
     loadMetrics();
-  }, [timeWindow]);
+  }, [timeWindow, loadMetrics]);
 
   useEffect(() => {
     if (!autoRefresh) return;
 
     const interval = setInterval(loadMetrics, refreshInterval * 1000);
     return () => clearInterval(interval);
-  }, [autoRefresh, refreshInterval]);
+  }, [autoRefresh, refreshInterval, loadMetrics]);
 
   const formatBytes = (bytes: number) => {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;

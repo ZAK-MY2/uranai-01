@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
@@ -97,29 +97,12 @@ const NavamshaChart = ({ nakshatra }: { nakshatra: string }) => {
 };
 
 export default function VedicAstrologyPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [vedicAstrology, setVedicAstrology] = useState(mockDivinationData.vedicAstrology);
   const [selectedTab, setSelectedTab] = useState<'birth' | 'transit' | 'dasha'>('birth');
 
-  useEffect(() => {
-    // LocalStorageからユーザーデータを読み込み
-    const storedData = localStorage.getItem('uranai_user_data');
-    if (storedData) {
-      try {
-        const userData: UserInputData = JSON.parse(storedData);
-        setUserInput(userData);
-        
-        // 実際のヴェーダ占星術計算を実行
-        const calculatedResult = calculateVedicAstrology(userData);
-        setVedicAstrology(calculatedResult);
-      } catch (error) {
-        console.error('ユーザーデータの読み込みエラー:', error);
-      }
-    }
-  }, []);
-
   // ヴェーダ占星術の計算関数
-  function calculateVedicAstrology(userData: UserInputData) {
+  const calculateVedicAstrology = useCallback((userData: UserInputData) => {
     const birthDate = new Date(userData.birthDate);
     const year = birthDate.getFullYear();
     const month = birthDate.getMonth() + 1;
@@ -141,7 +124,25 @@ export default function VedicAstrologyPage() {
       planetaryPeriod,
       interpretation: generateVedicInterpretation(userData.question, nakshatra, planetaryPeriod.mahaDasha)
     };
-  }
+  }, []);
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のヴェーダ占星術計算を実行
+        const calculatedResult = calculateVedicAstrology(userData);
+        setVedicAstrology(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, [calculateVedicAstrology]);
+
 
   function calculateNakshatra(year: number, month: number, day: number): string {
     const nakshatras = [

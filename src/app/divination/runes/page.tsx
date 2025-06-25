@@ -21,44 +21,44 @@ interface UserInputData {
 }
 
 // ルーンシンボルのSVGコンポーネント
-const RuneSymbol = ({ name }: { name: string }) => {
-  const runeShapes: { [key: string]: React.ReactElement } = {
-    'フェフ': (
-      <g>
-        <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
-        <line x1="20" y1="30" x2="50" y2="40" stroke="white" strokeWidth="3" />
-        <line x1="20" y1="50" x2="50" y2="60" stroke="white" strokeWidth="3" />
-      </g>
-    ),
-    'ウルズ': (
-      <g>
-        <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
-        <line x1="60" y1="80" x2="60" y2="40" stroke="white" strokeWidth="3" />
-        <line x1="20" y1="20" x2="60" y2="40" stroke="white" strokeWidth="3" />
-      </g>
-    ),
-    'アンスズ': (
-      <g>
-        <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
-        <line x1="20" y1="30" x2="50" y2="20" stroke="white" strokeWidth="3" />
-        <line x1="20" y1="50" x2="50" y2="40" stroke="white" strokeWidth="3" />
-      </g>
-    )
-  };
-
-  return (
-    <svg viewBox="0 0 80 100" className="w-full h-full">
-      {runeShapes[name] || (
-        <text x="40" y="50" textAnchor="middle" className="fill-white text-2xl">
-          {name[0]}
-        </text>
-      )}
-    </svg>
-  );
-};
+// const RuneSymbol = ({ name }: { name: string }) => {
+//   const runeShapes: { [key: string]: React.ReactElement } = {
+//     'フェフ': (
+//       <g>
+//         <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
+//         <line x1="20" y1="30" x2="50" y2="40" stroke="white" strokeWidth="3" />
+//         <line x1="20" y1="50" x2="50" y2="60" stroke="white" strokeWidth="3" />
+//       </g>
+//     ),
+//     'ウルズ': (
+//       <g>
+//         <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
+//         <line x1="60" y1="80" x2="60" y2="40" stroke="white" strokeWidth="3" />
+//         <line x1="20" y1="20" x2="60" y2="40" stroke="white" strokeWidth="3" />
+//       </g>
+//     ),
+//     'アンスズ': (
+//       <g>
+//         <line x1="20" y1="80" x2="20" y2="20" stroke="white" strokeWidth="3" />
+//         <line x1="20" y1="30" x2="50" y2="20" stroke="white" strokeWidth="3" />
+//         <line x1="20" y1="50" x2="50" y2="40" stroke="white" strokeWidth="3" />
+//       </g>
+//     )
+//   };
+// 
+//   return (
+//     <svg viewBox="0 0 80 100" className="w-full h-full">
+//       {runeShapes[name] || (
+//         <text x="40" y="50" textAnchor="middle" className="fill-white text-2xl">
+//           {name[0]}
+//         </text>
+//       )}
+//     </svg>
+//   );
+// };
 
 export default function RunesPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [runesResult, setRunesResult] = useState(mockDivinationData.runes);
   const [selectedRune, setSelectedRune] = useState(0);
 
@@ -144,10 +144,17 @@ export default function RunesPage() {
                   }`}
                   onClick={() => setSelectedRune(index)}
                 >
-                  <div className={`relative w-32 h-40 bg-gradient-to-br ${elementColors[rune.element]} backdrop-blur-md rounded-xl border border-white/20 p-4`}>
-                    <RuneSymbol name={rune.name} />
-                    <p className="text-center text-white mt-2 text-sm">{rune.name}</p>
-                    <p className="text-center text-white/60 text-xs">{rune.position}</p>
+                  <div className={`relative w-32 h-40 bg-gradient-to-br ${elementColors[rune.element]} backdrop-blur-md rounded-xl border border-white/20 p-4 flex flex-col`}>
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-white text-2xl font-light mb-1">{rune.name.slice(0, 2)}</p>
+                        <p className="text-white/70 text-xs">{rune.element}</p>
+                      </div>
+                    </div>
+                    <div className="text-center mt-2">
+                      <p className="text-white text-sm font-medium">{rune.name}</p>
+                      <p className="text-white/60 text-xs">{rune.position}</p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -206,17 +213,23 @@ export default function RunesPage() {
                   const y = 200;
                   return (
                     <g key={index}>
-                      <rect x={x - 25} y={y - 30} width="50" height="60" 
+                      <rect x={x - 30} y={y - 40} width="60" height="80" 
                         fill={`rgba(${index === 0 ? '139,92,246' : index === 1 ? '99,102,241' : '79,70,229'}, 0.3)`}
                         stroke="rgba(255,255,255,0.6)" strokeWidth="2" rx="8" />
-                      <text x={x} y={y - 10} textAnchor="middle" className="fill-white text-xs font-light">
+                      
+                      {/* ルーン文字を上部に配置 */}
+                      <text x={x} y={y - 20} textAnchor="middle" className="fill-white text-lg font-light">
                         {rune.name.slice(0, 2)}
                       </text>
-                      <text x={x} y={y + 10} textAnchor="middle" className="fill-white/70 text-xs">
+                      
+                      {/* 元素を中央に配置 */}
+                      <text x={x} y={y + 5} textAnchor="middle" className="fill-white/70 text-sm">
                         {rune.element}
                       </text>
+                      
+                      {/* 位置を下部に配置 */}
                       <text x={x} y={y + 25} textAnchor="middle" className="fill-white/50 text-xs">
-                        {rune.position === '正位置' ? '正' : '逆'}
+                        {rune.position === '正位置' ? '正位置' : '逆位置'}
                       </text>
                     </g>
                   );

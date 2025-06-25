@@ -5,9 +5,16 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { mockDivinationData } from '@/lib/mock/divination-data';
+import { mockEnvironmentData } from '@/lib/mock/environment-data';
+import { DivinationInput } from '@/lib/divination/base-engine';
 
 const UserParameters = dynamic(
   () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+);
+
+const TarotInteractive = dynamic(
+  () => import('@/components/divination/tarot-interactive').then(mod => mod.TarotInteractive),
   { ssr: false }
 );
 
@@ -66,9 +73,11 @@ const TarotCardSymbol = ({ card }: { card: any }) => {
 };
 
 export default function TarotPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [tarotResult, setTarotResult] = useState(mockDivinationData.tarot);
   const [selectedCard, setSelectedCard] = useState<'past' | 'present' | 'future'>('present');
+  const [showInteractive, setShowInteractive] = useState(false);
+  const [divinationInput, setDivinationInput] = useState<DivinationInput | null>(null);
 
   useEffect(() => {
     // LocalStorageからユーザーデータを読み込み
@@ -77,6 +86,17 @@ export default function TarotPage() {
       try {
         const userData: UserInputData = JSON.parse(storedData);
         setUserInput(userData);
+        
+        // DivinationInput形式に変換
+        const divInput: DivinationInput = {
+          fullName: userData.fullName,
+          birthDate: new Date(userData.birthDate),
+          birthTime: userData.birthTime,
+          birthPlace: userData.birthPlace,
+          question: userData.question,
+          questionCategory: userData.questionCategory
+        };
+        setDivinationInput(divInput);
         
         // 実際のタロット計算を実行
         const calculatedResult = calculateTarot(userData);
@@ -144,7 +164,28 @@ export default function TarotPage() {
         <div className="max-w-7xl mx-auto px-5">
           <UserParameters />
           
-          {/* 3カードスプレッド */}
+          {/* インタラクティブモード切り替え */}
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={() => setShowInteractive(!showInteractive)}
+              className="px-6 py-3 bg-purple-600/30 hover:bg-purple-600/50 text-white rounded-full transition-colors border border-purple-500/50"
+            >
+              {showInteractive ? '通常表示に戻る' : 'インタラクティブモードで占う'}
+            </button>
+          </div>
+          
+          {/* インタラクティブタロット */}
+          {showInteractive && divinationInput ? (
+            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+              <TarotInteractive 
+                input={divinationInput} 
+                environment={mockEnvironmentData}
+              />
+            </div>
+          ) : null}
+          
+          {/* 3カードスプレッド（通常モード時のみ表示） */}
+          {!showInteractive && (
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
             <h2 className="text-3xl font-light text-white text-center mb-10">過去・現在・未来の3カードリーディング</h2>
             
@@ -181,7 +222,10 @@ export default function TarotPage() {
             </div>
           </div>
 
-          {/* カードの配置図（インフォグラフィック） */}
+          )}
+          
+          {/* カードの配置図（インフォグラフィック）（通常モード時のみ表示） */}
+          {!showInteractive && (
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
             <h3 className="text-2xl font-light text-white text-center mb-8">エネルギーの流れ</h3>
             
@@ -222,7 +266,10 @@ export default function TarotPage() {
             </div>
           </div>
 
-          {/* 生データ：カード引き結果 */}
+          )}
+          
+          {/* 生データ：カード引き結果（通常モード時のみ表示） */}
+          {!showInteractive && (
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
             <h3 className="text-2xl font-light text-white text-center mb-8">引いたカードの詳細データ</h3>
             
@@ -269,7 +316,10 @@ export default function TarotPage() {
             </div>
           </div>
 
-          {/* 総合メッセージ */}
+          )}
+          
+          {/* 総合メッセージ（通常モード時のみ表示） */}
+          {!showInteractive && (
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
             <h3 className="text-2xl font-light text-white text-center mb-8">総合的なメッセージ</h3>
             
@@ -305,6 +355,7 @@ export default function TarotPage() {
               </div>
             </div>
           </div>
+          )}
           
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">

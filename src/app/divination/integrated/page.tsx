@@ -1,621 +1,392 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import dynamic from 'next/dynamic'
-import { IntegratedDivinationInput, IntegratedDivinationResult } from '@/types/divination'
-import { CosmicBackground } from '@/components/ui/cosmic-background'
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Brain, Heart, Compass, Layers, Infinity, Star, Moon, Sun, Eye, Zap, Flower } from 'lucide-react';
+import { DivinationPageTemplate } from '@/components/divination/divination-page-template';
+import { EnvironmentDisplay } from '@/components/environment/environment-display';
+import { DivinationInput } from '@/lib/divination/base-engine';
+import { useEnvironmentData } from '@/hooks/use-environment-data';
 
-const UserParameters = dynamic(
-  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
-  { ssr: false }
-)
-
-interface UserInputData {
-  fullName: string;
-  birthDate: string;
-  birthTime: string;
-  birthPlace: string;
+// デフォルトユーザー入力データ
+const defaultUserInput: DivinationInput = {
+  fullName: '山田太郎',
+  birthDate: new Date('1990-01-01'),
+  birthTime: '12:00',
+  birthPlace: '東京都',
   currentLocation: {
-    latitude: number;
-    longitude: number;
-  } | null;
-  question: string;
-  questionCategory: string;
-}
+    latitude: 35.6762,
+    longitude: 139.6503
+  },
+  question: '私の人生の目的と進むべき道を知りたい',
+  questionCategory: '総合運'
+};
 
 export default function IntegratedDivinationPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<IntegratedDivinationResult | null>(null)
-  const [userInputData, setUserInputData] = useState<UserInputData | null>(null)
+  const [reading, setReading] = useState<any>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [, setUserInput] = useState<DivinationInput>(defaultUserInput);
+  const { data: environmentData, loading: envLoading } = useEnvironmentData();
 
-  const [formData, setFormData] = useState<IntegratedDivinationInput>({
-    fullName: '',
-    birthDate: '',
-    birthTime: '',
-    birthLocation: undefined,
-    question: '',
-    spreadType: 'three_card',
-    currentLocation: undefined
-  })
-
-  const [useCurrentLocation, setUseCurrentLocation] = useState(false)
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt')
-
-  // LocalStorageからユーザー入力データを読み込み
+  // ユーザーデータをlocalStorageから読み込み
   useEffect(() => {
-    const storedData = localStorage.getItem('uranai_user_data');
-    if (storedData) {
+    const savedUserData = localStorage.getItem('uranai_user_data');
+    if (savedUserData) {
       try {
-        const userData: UserInputData = JSON.parse(storedData);
-        setUserInputData(userData);
-        setFormData(prev => ({
-          ...prev,
+        const userData = JSON.parse(savedUserData);
+        const processedInput: DivinationInput = {
           fullName: userData.fullName,
-          birthDate: userData.birthDate,
-          birthTime: userData.birthTime,
+          birthDate: new Date(userData.birthDate),
+          birthTime: userData.birthTime || '12:00',
+          birthPlace: userData.birthPlace,
+          currentLocation: userData.currentLocation || defaultUserInput.currentLocation,
           question: userData.question,
-          currentLocation: userData.currentLocation || undefined
-        }));
-        if (userData.currentLocation) {
-          setUseCurrentLocation(true);
-          setLocationPermission('granted');
-        }
+          questionCategory: userData.questionCategory
+        };
+        setUserInput(processedInput);
       } catch (error) {
-        console.error('Failed to parse user data from localStorage:', error);
+        console.error('ユーザーデータの解析エラー:', error);
       }
     }
-  }, [])
+  }, []);
 
-  // 位置情報の取得
-  const getCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setError('お使いのブラウザでは位置情報がサポートされていません')
-      return
-    }
-
-    setIsLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData(prev => ({
-          ...prev,
-          currentLocation: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          }
-        }))
-        setLocationPermission('granted')
-        setIsLoading(false)
-      },
-      (error) => {
-        console.error('位置情報取得エラー:', error)
-        setError('位置情報の取得に失敗しました。手動で設定するか、ブラウザの位置情報許可を確認してください。')
-        setLocationPermission('denied')
-        setIsLoading(false)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5分間キャッシュ
-      }
-    )
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // 必須フィールドのバリデーション
-      if (!formData.fullName || !formData.birthDate || !formData.question) {
-        throw new Error('名前、生年月日、質問は必須です')
-      }
-
-      const response = await fetch('/api/divination/integrated', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const data = await response.json()
+  useEffect(() => {
+    if (!envLoading && environmentData && !reading) {
+      setIsCalculating(true);
       
-      console.log('API Response:', data); // デバッグ用
-
-      if (!data.success) {
-        throw new Error(data.error || '統合占術の実行に失敗しました')
-      }
-
-      setResult(data.data)
-    } catch (err) {
-      console.error('Client error:', err); // デバッグ用
-      setError(err instanceof Error ? err.message : '予期しないエラーが発生しました')
-    } finally {
-      setIsLoading(false)
+      // 動的インポートでIntegratedEngineを遅延読み込み
+      import('@/lib/divination/engines/integrated-engine').then(async ({ IntegratedEngine }) => {
+        const engine = new IntegratedEngine(defaultUserInput, environmentData);
+        // 非同期版を使用してより詳細な結果を取得
+        const result = await engine.calculateAsync();
+        setReading(result);
+        setIsCalculating(false);
+      }).catch(error => {
+        console.error('統合占術エンジンの読み込みエラー:', error);
+        // エラー時は同期版にフォールバック
+        import('@/lib/divination/engines/integrated-engine').then(({ IntegratedEngine }) => {
+          const engine = new IntegratedEngine(defaultUserInput, environmentData);
+          const result = engine.calculate();
+          setReading(result);
+          setIsCalculating(false);
+        }).catch(() => {
+          setIsCalculating(false);
+        });
+      });
     }
-  }
+  }, [envLoading, environmentData, reading]);
 
-  if (result) {
+  const relatedDivinations = [
+    {
+      href: '/divination/numerology',
+      label: '数秘術で基本数字を見る',
+      colorClass: 'bg-indigo-600/20 border border-indigo-500/50 text-indigo-300'
+    },
+    {
+      href: '/divination/tarot',
+      label: 'タロットで詳細を見る',
+      colorClass: 'bg-purple-600/20 border border-purple-500/50 text-purple-300'
+    },
+    {
+      href: '/divination/astrology',
+      label: '西洋占星術で星を見る',
+      colorClass: 'bg-blue-600/20 border border-blue-500/50 text-blue-300'
+    }
+  ];
+
+  if (!reading || envLoading || isCalculating) {
     return (
-      <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
-        <CosmicBackground />
-        <div className="container mx-auto px-4 py-8 relative z-10">
-          <UserParameters />
-          <div className="max-w-4xl mx-auto">
-            {/* ヘッダー */}
-            <div className="text-center mb-8">
-              <Link href="/" className="text-blue-300 hover:text-blue-100 text-sm">
-                ← ダッシュボードに戻る
-              </Link>
-              <h1 className="text-3xl font-bold text-white mt-4 mb-2">✨ 統合占術リーディング結果</h1>
-              <p className="text-blue-200">宇宙の叡智が導く統合的なメッセージ</p>
-            </div>
-
-            {/* 環境データ */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-4">🌍 占術実行時の環境エネルギー</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl mb-2">🌙</div>
-                  <div className="text-white font-medium">{result.environment.lunar.phaseName}</div>
-                  <div className="text-blue-200 text-sm">照度: {result.environment.lunar.illumination}%</div>
-                </div>
-                <div>
-                  <div className="text-2xl mb-2">🌤️</div>
-                  <div className="text-white font-medium">{result.environment.weather.condition}</div>
-                  <div className="text-blue-200 text-sm">{result.environment.weather.temperature}°C</div>
-                </div>
-                <div>
-                  <div className="text-2xl mb-2">⏰</div>
-                  <div className="text-white font-medium">
-                    {new Date(result.environment.timestamp).toLocaleString('ja-JP')}
-                  </div>
-                  <div className="text-blue-200 text-sm">占術実行時刻</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 統合解釈 */}
-            <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-md rounded-xl p-6 mb-6 border border-white/30">
-              <h2 className="text-xl font-semibold text-white mb-4">🔮 統合的な指針</h2>
-              <div className="prose prose-invert max-w-none">
-                <div className="text-white whitespace-pre-line">
-                  {result.integration.overallGuidance}
-                </div>
-              </div>
-            </div>
-
-            {/* 個別占術結果 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* 数秘術結果 */}
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">🔢 数秘術</h3>
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-blue-200">ライフパス:</span>
-                    <span className="text-white ml-2 font-medium">{result.numerology.lifePath}</span>
-                  </div>
-                  <div>
-                    <span className="text-blue-200">運命数:</span>
-                    <span className="text-white ml-2 font-medium">{result.numerology.destiny}</span>
-                  </div>
-                  <div className="text-blue-100 text-sm">
-                    {result.numerology.interpretation.overall.substring(0, 100)}...
-                  </div>
-                </div>
-              </div>
-
-              {/* タロット結果 */}
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">🃏 タロット</h3>
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-blue-200">スプレッド:</span>
-                    <span className="text-white ml-2 font-medium">{result.tarot.spread.name}</span>
-                  </div>
-                  <div>
-                    <span className="text-blue-200">キーカード:</span>
-                    <span className="text-white ml-2 font-medium">{result.tarot.cards[0]?.card.name}</span>
-                  </div>
-                  <div className="text-blue-100 text-sm">
-                    {result.tarot.overall.substring(0, 100)}...
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* その他の占術結果 - 第2列 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* 易経結果 */}
-              {result.iching && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">☯️ 易経</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">卦:</span>
-                      <span className="text-white ml-2 font-medium">{result.iching.primaryHexagram?.name || '乾為天'}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.iching.interpretation?.substring(0, 100) || '古代中国の叡智が示すメッセージ'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 四柱推命結果 */}
-              {result.shichu && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">🀄 四柱推命</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">主要素:</span>
-                      <span className="text-white ml-2 font-medium">{result.shichu.elements?.dominant || '木'}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.shichu.analysis?.overall?.substring(0, 100) || '東洋の占術から読み解く運命'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* その他の占術結果 - 第3列 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* ルーン結果 */}
-              {result.runes && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">🎯 ルーン</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">主ルーン:</span>
-                      <span className="text-white ml-2 font-medium">{result.runes.runes?.[0]?.name || 'Fehu'}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.runes.interpretation?.substring(0, 100) || '北欧の古代文字が示す導き'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 九星気学結果 */}
-              {result.kyusei && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">⭐ 九星気学</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">本命星:</span>
-                      <span className="text-white ml-2 font-medium">{result.kyusei.honmeisei.name}</span>
-                    </div>
-                    <div>
-                      <span className="text-blue-200">今日の運勢:</span>
-                      <span className="text-white ml-2 font-medium text-sm">{result.kyusei.timeUnyo.nichiun}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.kyusei.interpretation?.overall?.substring(0, 100) || '九星が示す運命の方向性'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* その他の占術結果 - 第4列 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* ヴェーダ占星術結果 */}
-              {result.vedic && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">🕉️ ヴェーダ占星術</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">月座:</span>
-                      <span className="text-white ml-2 font-medium">{result.vedic.chart?.moonSign || 'Aries'}</span>
-                    </div>
-                    <div>
-                      <span className="text-blue-200">ナクシャトラ:</span>
-                      <span className="text-white ml-2 font-medium">{result.vedic.chart?.nakshatra || 'Ashwini'}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.vedic.interpretation?.overall?.substring(0, 100) || 'インド古代の智慧が示す人生の道筋'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* 西洋占星術結果 */}
-              {result.astrology && (
-                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">♓ 西洋占星術</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-blue-200">太陽座:</span>
-                      <span className="text-white ml-2 font-medium">{result.astrology.chart?.planets?.find(p => p.name === 'Sun')?.sign || '牡羊座'}</span>
-                    </div>
-                    <div>
-                      <span className="text-blue-200">月座:</span>
-                      <span className="text-white ml-2 font-medium">{result.astrology.chart?.planets?.find(p => p.name === 'Moon')?.sign || '不明'}</span>
-                    </div>
-                    <div className="text-blue-100 text-sm">
-                      {result.astrology.interpretation?.overall?.substring(0, 100) || '星々の配置が語る運命の物語'}...
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 共通テーマと矛盾 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">🎭 共通テーマ</h3>
-                <ul className="space-y-2">
-                  {result.integration.commonThemes.map((theme, index) => (
-                    <li key={index} className="text-blue-100 text-sm">• {theme}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">⚖️ 注意点</h3>
-                <ul className="space-y-2">
-                  {result.integration.contradictions.map((contradiction, index) => (
-                    <li key={index} className="text-yellow-200 text-sm">• {contradiction}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* 具体的アドバイス */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">💡 具体的なアドバイス</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {result.integration.specificAdvice.map((advice, index) => (
-                  <div key={index} className="bg-white/5 rounded-lg p-4">
-                    <div className="text-blue-100 text-sm">{advice}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 環境的影響 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">🌟 環境的影響</h3>
-              <div className="text-blue-100">
-                {result.integration.environmentalInfluence}
-              </div>
-            </div>
-
-            {/* アクションボタン */}
-            <div className="text-center space-x-4">
-              <button
-                onClick={() => setResult(null)}
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                もう一度占う
-              </button>
-              <Link
-                href="/"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-block"
-              >
-                ダッシュボードに戻る
-              </Link>
-            </div>
+      <DivinationPageTemplate
+        title="統合占術"
+        subtitle="宇宙の叡智を結集した究極の占い"
+        headerTitle="統合占術"
+        relatedDivinations={relatedDivinations}
+      >
+        <div className="text-center py-20">
+          <div className="inline-block animate-spin">
+            <Sparkles className="w-12 h-12 text-purple-400" />
           </div>
+          <p className="text-white/60 mt-4">
+            {isCalculating ? '宇宙の叡智を統合中...' : '統合占術を初期化中...'}
+          </p>
         </div>
-      </div>
-    )
+      </DivinationPageTemplate>
+    );
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
-      <CosmicBackground />
-      
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">統合占術リーディング</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        <div className="max-w-2xl mx-auto">
-          
-          {/* ユーザー情報の確認表示 */}
-          {userInputData && (
-            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 mb-8 border border-white/10">
-              <h2 className="text-xl font-light text-white text-center mb-6">入力情報の確認</h2>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-white/50">お名前</p>
-                  <p className="text-white">{userInputData.fullName}</p>
-                </div>
-                <div>
-                  <p className="text-white/50">生年月日</p>
-                  <p className="text-white">{userInputData.birthDate}</p>
-                </div>
-                <div>
-                  <p className="text-white/50">相談カテゴリ</p>
-                  <p className="text-white">{userInputData.questionCategory}</p>
-                </div>
-                <div>
-                  <p className="text-white/50">位置情報</p>
-                  <p className="text-white">{userInputData.currentLocation ? '取得済み' : '未取得'}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-white/50">ご相談内容</p>
-                  <p className="text-white text-sm">{userInputData.question}</p>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* タイトル */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-light text-white mb-2">✨ 統合占術リーディング</h1>
-            <p className="text-white/60">9種類の占術と環境データを統合した最強の占いシステム</p>
+    <DivinationPageTemplate
+      title="統合占術"
+      subtitle="宇宙の叡智を結集した究極の占い"
+      headerTitle="統合占術"
+      relatedDivinations={relatedDivinations}
+    >
+      {/* ヒーローセクション */}
+      <div className="relative mb-12 overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-indigo-900/20 p-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 animate-pulse" />
+        <div className="relative z-10 text-center">
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-6 rounded-full bg-gradient-to-r from-purple-500/30 to-blue-500/30 animate-pulse">
+            <Infinity className="w-12 h-12 text-white" />
           </div>
+          <h2 className="text-3xl font-light text-white mb-4">
+            {reading.synthesis?.title || '宇宙の叡智が導く道'}
+          </h2>
+          <p className="text-lg text-white/80 max-w-3xl mx-auto leading-relaxed">
+            {reading.synthesis?.message || 'あなたの人生には多くの可能性が秘められています。星々があなたを導いています。'}
+          </p>
+        </div>
+      </div>
 
-          {/* エラー表示 */}
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-6">
-              <div className="text-red-100">{error}</div>
+      {/* 環境データ */}
+      {environmentData && (
+        <div className="mb-8">
+          <EnvironmentDisplay data={environmentData} />
+        </div>
+      )}
+
+      {/* 統合スコア */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div
+          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <Brain className="w-8 h-8 text-indigo-400" />
+            <div className="text-right">
+              <div className="text-3xl font-bold text-white">{reading.scores?.mental || 85}%</div>
+              <div className="text-sm text-white/60">精神的調和</div>
             </div>
-          )}
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2">
+            <div 
+              className="h-full bg-gradient-to-r from-indigo-500 to-indigo-400 rounded-full"
+              style={{ width: `${reading.scores?.mental || 85}%` }}
+            />
+          </div>
+        </div>
 
-          {/* フォーム */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 基本情報 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-4">👤 基本情報</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    フルネーム（漢字・ひらがな）*
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-300"
-                    placeholder="山田太郎"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    生年月日*
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    出生時刻（正確な占星術のため）
-                  </label>
-                  <input
-                    type="time"
-                    value={formData.birthTime}
-                    onChange={(e) => setFormData({...formData, birthTime: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white"
-                  />
-                  <p className="text-blue-300 text-xs mt-1">
-                    任意ですが、より精密な占星術結果のために推奨
-                  </p>
-                </div>
-              </div>
+        <div
+          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <Heart className="w-8 h-8 text-pink-400" />
+            <div className="text-right">
+              <div className="text-3xl font-bold text-white">{reading.scores?.emotional || 78}%</div>
+              <div className="text-sm text-white/60">感情的充実</div>
             </div>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2">
+            <div 
+              className="h-full bg-gradient-to-r from-pink-500 to-pink-400 rounded-full"
+              style={{ width: `${reading.scores?.emotional || 78}%` }}
+            />
+          </div>
+        </div>
 
-            {/* 質問とタロット設定 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-4">🔮 占いの内容</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    占いたい質問・相談内容*
-                  </label>
-                  <textarea
-                    value={formData.question}
-                    onChange={(e) => setFormData({...formData, question: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-300 h-24"
-                    placeholder="恋愛、仕事、人間関係など、どんなことでもお聞かせください"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    タロットスプレッド
-                  </label>
-                  <select
-                    value={formData.spreadType}
-                    onChange={(e) => setFormData({...formData, spreadType: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/10 border border-white/30 rounded-lg text-white"
-                  >
-                    <option value="single_card">一枚引き</option>
-                    <option value="three_card">過去・現在・未来（3枚）</option>
-                    <option value="five_card">5枚スプレッド</option>
-                    <option value="celtic_cross">ケルト十字（10枚・詳細）</option>
-                  </select>
-                </div>
-              </div>
+        <div
+          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <Zap className="w-8 h-8 text-yellow-400" />
+            <div className="text-right">
+              <div className="text-3xl font-bold text-white">{reading.scores?.spiritual || 92}%</div>
+              <div className="text-sm text-white/60">霊的成長</div>
             </div>
-
-            {/* 位置情報設定 */}
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <h2 className="text-xl font-semibold text-white mb-4">📍 環境データ設定</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="useLocation"
-                    checked={useCurrentLocation}
-                    onChange={(e) => {
-                      setUseCurrentLocation(e.target.checked)
-                      if (e.target.checked) {
-                        getCurrentLocation()
-                      }
-                    }}
-                    className="mr-3"
-                  />
-                  <label htmlFor="useLocation" className="text-white text-sm">
-                    現在地の環境データを使用する（推奨）
-                  </label>
-                </div>
-
-                {useCurrentLocation && formData.currentLocation && (
-                  <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3">
-                    <div className="text-green-100 text-sm">
-                      📍 位置情報が取得されました
-                      <br />
-                      緯度: {formData.currentLocation.latitude.toFixed(4)}°
-                      <br />
-                      経度: {formData.currentLocation.longitude.toFixed(4)}°
-                    </div>
-                  </div>
-                )}
-
-                <p className="text-blue-300 text-xs">
-                  より正確な環境データ（月相・天候・天体データ）を取得するため、位置情報の使用を推奨します。
-                  位置情報は占術計算にのみ使用され、プライバシーは保護されます。
-                </p>
-              </div>
-            </div>
-
-            {/* 送信ボタン */}
-            <div className="text-center">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? '宇宙と対話中...' : '✨ 統合占術を実行する'}
-              </button>
-            </div>
-          </form>
-
-          {/* 注意事項 */}
-          <div className="mt-8 text-center">
-            <p className="text-blue-300 text-xs">
-              占いは娯楽・参考目的であり、重要な人生の決断は慎重にご検討ください
-            </p>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2">
+            <div 
+              className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full"
+              style={{ width: `${reading.scores?.spiritual || 92}%` }}
+            />
           </div>
         </div>
       </div>
-    </div>
-  )
+
+      {/* 共通テーマ */}
+      <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-12 border border-white/10">
+        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+          <Layers className="w-6 h-6 mr-3" />
+          発見された共通テーマ
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {reading.themes?.map((theme: any, index: number) => (
+            <div
+              key={index}
+              className={`p-4 rounded-xl ${
+                theme.strength === 'strong' 
+                  ? 'bg-gradient-to-r from-purple-600/30 to-blue-600/30 border border-purple-500/50' 
+                  : theme.strength === 'medium'
+                  ? 'bg-white/10 border border-white/20'
+                  : 'bg-white/5 border border-white/10'
+              }`}
+            >
+              <h4 className="text-white font-medium mb-2">{theme.theme}</h4>
+              <p className="text-white/60 text-sm mb-2">
+                {theme.sources?.length || 0}つの占術で共通
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {theme.sources?.map((source: string, idx: number) => (
+                  <span key={idx} className="text-xs bg-white/10 px-2 py-1 rounded-full text-white/80">
+                    {source}
+                  </span>
+                )) || []}
+              </div>
+            </div>
+          )) || []}
+        </div>
+      </div>
+
+      {/* 各占術の概要 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        {/* 主要な占術結果 */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-light text-white flex items-center">
+            <Star className="w-5 h-5 mr-2" />
+            主要な占術からのメッセージ
+          </h3>
+          
+          {reading.divinationSummaries?.slice(0, 5).map((summary: any, index: number) => (
+            <div
+              key={index}
+              className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+            >
+              <h4 className="text-lg font-medium text-white mb-2 flex items-center">
+                <span className="text-2xl mr-3">{summary.icon}</span>
+                {summary.name}
+              </h4>
+              <p className="text-white/80 text-sm mb-3">{summary.keyMessage}</p>
+              <div className="text-white/60 text-xs">
+                重要度: <span className="text-purple-400">{summary.importance}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 補助的な占術結果 */}
+        <div className="space-y-6">
+          <h3 className="text-xl font-light text-white flex items-center">
+            <Moon className="w-5 h-5 mr-2" />
+            補助的な占術からの洞察
+          </h3>
+          
+          {reading.divinationSummaries?.slice(5).map((summary: any, index: number) => (
+            <div
+              key={index}
+              className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+            >
+              <h4 className="text-lg font-medium text-white mb-2 flex items-center">
+                <span className="text-2xl mr-3">{summary.icon}</span>
+                {summary.name}
+              </h4>
+              <p className="text-white/80 text-sm mb-3">{summary.keyMessage}</p>
+              <div className="text-white/60 text-xs">
+                重要度: <span className="text-blue-400">{summary.importance}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 矛盾と調和 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
+          <h3 className="text-xl font-light text-white mb-6 flex items-center">
+            <Eye className="w-5 h-5 mr-2" />
+            注意すべき矛盾点
+          </h3>
+          <div className="space-y-4">
+            {reading.contradictions?.map((contradiction: any, index: number) => (
+              <div key={index} className="bg-yellow-500/10 rounded-xl p-4 border border-yellow-500/30">
+                <p className="text-yellow-100 text-sm mb-2">{contradiction.description}</p>
+                <p className="text-yellow-200 text-xs">
+                  {contradiction.source1} vs {contradiction.source2}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
+          <h3 className="text-xl font-light text-white mb-6 flex items-center">
+            <Flower className="w-5 h-5 mr-2" />
+            調和的な要素
+          </h3>
+          <div className="space-y-4">
+            {reading.harmonies?.map((harmony: any, index: number) => (
+              <div key={index} className="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
+                <p className="text-green-100 text-sm mb-2">{harmony.description}</p>
+                <p className="text-green-200 text-xs">
+                  {harmony.sources?.join(' × ') || ''}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 時間軸での運勢 */}
+      <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-12 border border-white/10">
+        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+          <Compass className="w-6 h-6 mr-3" />
+          時間軸での運勢変化
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-blue-500/30 to-blue-600/30 mb-4">
+              <span className="text-2xl">🌅</span>
+            </div>
+            <h4 className="text-white font-medium mb-2">短期（1-3ヶ月）</h4>
+            <p className="text-white/80 text-sm">{reading.timeline?.shortTerm || '新しい始まりの時期です'}</p>
+          </div>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500/30 to-purple-600/30 mb-4">
+              <span className="text-2xl">☀️</span>
+            </div>
+            <h4 className="text-white font-medium mb-2">中期（3-6ヶ月）</h4>
+            <p className="text-white/80 text-sm">{reading.timeline?.midTerm || '発展と成長の時期です'}</p>
+          </div>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-indigo-500/30 to-indigo-600/30 mb-4">
+              <span className="text-2xl">🌌</span>
+            </div>
+            <h4 className="text-white font-medium mb-2">長期（6-12ヶ月）</h4>
+            <p className="text-white/80 text-sm">{reading.timeline?.longTerm || '大きな変化の時期です'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 具体的アドバイス */}
+      <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-md rounded-3xl p-8 border border-white/30">
+        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+          <Sun className="w-6 h-6 mr-3" />
+          統合的なアドバイス
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {reading.advice?.map((item: any, index: number) => (
+            <div
+              key={index}
+              className="bg-white/10 rounded-xl p-6"
+            >
+              <h4 className="text-white font-medium mb-3 flex items-center">
+                <span className="text-2xl mr-3">{item.icon}</span>
+                {item.category}
+              </h4>
+              <p className="text-white/80 text-sm leading-relaxed">{item.advice}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* 環境との調和 */}
+        {reading.environmentalGuidance && (
+          <div className="mt-6 p-6 bg-white/5 rounded-xl">
+            <h4 className="text-white font-medium mb-3 flex items-center">
+              <Sparkles className="w-5 h-5 mr-2" />
+              現在の環境エネルギーとの調和
+            </h4>
+            <p className="text-white/80 text-sm leading-relaxed">
+              {reading.environmentalGuidance}
+            </p>
+          </div>
+        )}
+      </div>
+    </DivinationPageTemplate>
+  );
 }

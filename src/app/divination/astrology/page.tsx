@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
@@ -51,29 +51,11 @@ const zodiacSymbols: { [key: string]: string } = {
 };
 
 export default function AstrologyPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [astrologyResult, setAstrologyResult] = useState(mockDivinationData.astrology);
-  const [selectedPlanet, setSelectedPlanet] = useState<string>('venus');
-
-  useEffect(() => {
-    // LocalStorageからユーザーデータを読み込み
-    const storedData = localStorage.getItem('uranai_user_data');
-    if (storedData) {
-      try {
-        const userData: UserInputData = JSON.parse(storedData);
-        setUserInput(userData);
-        
-        // 実際の西洋占星術計算を実行
-        const calculatedResult = calculateAstrology(userData);
-        setAstrologyResult(calculatedResult);
-      } catch (error) {
-        console.error('ユーザーデータの読み込みエラー:', error);
-      }
-    }
-  }, []);
 
   // 西洋占星術の計算関数
-  function calculateAstrology(userData: UserInputData) {
+  const calculateAstrology = useCallback((userData: UserInputData) => {
     const birthDate = new Date(userData.birthDate);
     const month = birthDate.getMonth() + 1;
     const day = birthDate.getDate();
@@ -95,7 +77,25 @@ export default function AstrologyPage() {
       interpretation: `${userData.questionCategory}について、太陽星座${sunSign}のあなたは、${getMoonSignMeaning(moonSign)}な内面を持ち、${getAscendantMeaning(ascendant)}として周囲に映っています。質問「${userData.question}」に対する星からのメッセージは、${getSunSignMeaning(sunSign)}ことです。`,
       todaysTransit: `今日は${sunSign}にとって、内なる感情（${moonSign}）と外的表現（${ascendant}）のバランスを取る日です。`
     };
-  }
+  }, []);
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際の西洋占星術計算を実行
+        const calculatedResult = calculateAstrology(userData);
+        setAstrologyResult(calculatedResult);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, [calculateAstrology]);
+
 
   function calculateSunSign(month: number, day: number): string {
     if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return '牡羊座';
@@ -122,7 +122,7 @@ export default function AstrologyPage() {
 
   function calculateAscendant(birthTime: string, month: number): string {
     const signs = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
-    const [hours, minutes] = birthTime.split(':').map(Number);
+    const [hours] = birthTime.split(':').map(Number);
     const timeIndex = (hours + month) % 12;
     return signs[timeIndex];
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { securityLogger } from '@/lib/security/security-logger';
 import { rateLimit } from '@/lib/security/rate-limiter';
 
@@ -30,24 +30,24 @@ export default function SecurityDashboard() {
   const [refreshInterval, setRefreshInterval] = useState(30); // seconds
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const loadStats = () => {
+  const loadStats = useCallback(() => {
     const security = securityLogger.getStats(timeWindow);
     const rateLimit_ = rateLimit.getStats();
     
     setSecurityStats(security);
     setRateLimitStats(rateLimit_);
-  };
+  }, [timeWindow]);
 
   useEffect(() => {
     loadStats();
-  }, [timeWindow]);
+  }, [timeWindow, loadStats]);
 
   useEffect(() => {
     if (!autoRefresh) return;
 
     const interval = setInterval(loadStats, refreshInterval * 1000);
     return () => clearInterval(interval);
-  }, [autoRefresh, refreshInterval]);
+  }, [autoRefresh, refreshInterval, loadStats]);
 
   const getAlertColor = (level: string) => {
     switch (level) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
@@ -97,30 +97,12 @@ const TreeOfLife = ({ currentSephirah }: { currentSephirah: string }) => {
 };
 
 export default function KabbalahPage() {
-  const [userInput, setUserInput] = useState<UserInputData | null>(null);
+  const [, setUserInput] = useState<UserInputData | null>(null);
   const [kabbalah, setKabbalah] = useState(mockDivinationData.kabbalah);
   const [selectedPath, setSelectedPath] = useState<number>(mockDivinationData.kabbalah.treeOfLife.path);
 
-  useEffect(() => {
-    // LocalStorageからユーザーデータを読み込み
-    const storedData = localStorage.getItem('uranai_user_data');
-    if (storedData) {
-      try {
-        const userData: UserInputData = JSON.parse(storedData);
-        setUserInput(userData);
-        
-        // 実際のカバラ数秘術計算を実行
-        const calculatedResult = calculateKabbalah(userData);
-        setKabbalah(calculatedResult);
-        setSelectedPath(calculatedResult.treeOfLife.path);
-      } catch (error) {
-        console.error('ユーザーデータの読み込みエラー:', error);
-      }
-    }
-  }, []);
-
   // カバラ数秘術の計算関数
-  function calculateKabbalah(userData: UserInputData) {
+  const calculateKabbalah = useCallback((userData: UserInputData) => {
     const birthDate = new Date(userData.birthDate);
     const year = birthDate.getFullYear();
     const month = birthDate.getMonth() + 1;
@@ -153,7 +135,26 @@ export default function KabbalahPage() {
       },
       interpretation: generateKabbalahInterpretation(userData.question, currentSephirah, hebrewLetter)
     };
-  }
+  }, []);
+
+  useEffect(() => {
+    // LocalStorageからユーザーデータを読み込み
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInput(userData);
+        
+        // 実際のカバラ数秘術計算を実行
+        const calculatedResult = calculateKabbalah(userData);
+        setKabbalah(calculatedResult);
+        setSelectedPath(calculatedResult.treeOfLife.path);
+      } catch (error) {
+        console.error('ユーザーデータの読み込みエラー:', error);
+      }
+    }
+  }, [calculateKabbalah]);
+
 
   function calculateGematria(fullName: string): number {
     // ヘブライ文字の数値対応表（簡略版）
@@ -370,7 +371,7 @@ export default function KabbalahPage() {
                   { world: 'ブリアー', subtitle: '創造界', color: 'rgba(99,102,241,0.2)', y: 150, desc: '大天使の世界' },
                   { world: 'イェツィラー', subtitle: '形成界', color: 'rgba(59,130,246,0.2)', y: 250, desc: '天使の世界' },
                   { world: 'アッシャー', subtitle: '活動界', color: 'rgba(16,185,129,0.2)', y: 350, desc: '物質の世界' }
-                ].map((world, index) => (
+                ].map((world) => (
                   <g key={world.world}>
                     <rect x="100" y={world.y - 40} width="600" height="80" 
                       fill={world.color} stroke="rgba(255,255,255,0.3)" strokeWidth="1" rx="10" />
