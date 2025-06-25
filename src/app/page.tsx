@@ -7,9 +7,9 @@ export default async function Home() {
   
   const { data: { user } } = await supabase.auth.getUser()
   
-  // 本番環境では認証必須、開発環境ではスキップ可能
+  // 本番環境では認証必須、ただしデモ用スキップ可能
   if (!user) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && !process.env.SKIP_AUTH_FOR_DEMO) {
       redirect('/login')
     } else {
       // 開発・テスト用: ダミーユーザーで継続

@@ -110,8 +110,8 @@ export async function middleware(request: NextRequest) {
 
     // 認証保護パス
     if (PROTECTED_PATHS.some(path => pathname.startsWith(path))) {
-      // 本番環境では認証必須、開発環境では緩和
-      if (process.env.NODE_ENV === 'production' && !user) {
+      // 本番環境では認証必須、ただしデモ用スキップ可能
+      if (process.env.NODE_ENV === 'production' && !process.env.SKIP_AUTH_FOR_DEMO && !user) {
         return NextResponse.redirect(new URL('/login', request.url))
       }
     }
