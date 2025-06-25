@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
         "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "img-src 'self' data: blob: https://www.google-analytics.com; " +
-        "font-src 'self' https://fonts.gstatic.com; " +
+        "font-src 'self' data: https://fonts.gstatic.com; " +
         "connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com;"
       );
     }
