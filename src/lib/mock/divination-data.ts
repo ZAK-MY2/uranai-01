@@ -114,21 +114,31 @@ export const mockDivinationData = {
     advice: "新しいプロジェクトの開始に最適"
   },
 
-  // 風水データ
-  fengShui: {
-    bagua: {
-      career: { element: "水", color: "黒", enhancement: "噴水や水槽" },
-      wealth: { element: "木", color: "緑", enhancement: "観葉植物" },
-      fame: { element: "火", color: "赤", enhancement: "照明" },
-      love: { element: "土", color: "ピンク", enhancement: "ペアの装飾品" },
-      health: { element: "土", color: "黄", enhancement: "陶器" }
+  // 四柱推命データ
+  shichuSuimei: {
+    // 命式（生まれた瞬間の天干地支）
+    yearPillar: { heavenlyStem: "甲", earthlyBranch: "子", element: "木" },
+    monthPillar: { heavenlyStem: "丙", earthlyBranch: "寅", element: "火" },
+    dayPillar: { heavenlyStem: "庚", earthlyBranch: "申", element: "金" },
+    hourPillar: { heavenlyStem: "壬", earthlyBranch: "午", element: "水" },
+    
+    // 五行バランス
+    fiveElements: {
+      wood: 1,
+      fire: 2,
+      earth: 0,
+      metal: 2,
+      water: 3
     },
-    flyingStars: {
-      prosperity: 8,
-      relationship: 4,
-      career: 6
+    
+    // 大運（今の運勢の流れ）
+    majorCycle: {
+      period: "35-45歳",
+      element: "金",
+      fortune: "安定期"
     },
-    advice: "北東エリアに水晶を置くと金運アップ"
+    
+    interpretation: "金性が強く、水性も豊か。購金生水の良い相性です。"
   },
 
   // カバラ数秘術データ

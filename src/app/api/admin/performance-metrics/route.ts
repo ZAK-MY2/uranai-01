@@ -4,7 +4,7 @@ import { cacheManager } from '@/lib/cache/cache-manager';
 import { performanceOptimizer } from '@/lib/performance/optimizer';
 import { divinationLazyLoader } from '@/lib/lazy/lazy-loader';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // システムメトリクス取得
     const memoryUsage = process.memoryUsage();

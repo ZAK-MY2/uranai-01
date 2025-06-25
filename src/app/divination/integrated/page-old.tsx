@@ -1,15 +1,34 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { IntegratedDivinationInput, IntegratedDivinationResult } from '@/types/divination'
+import { CosmicBackground } from '@/components/ui/cosmic-background'
+
+const UserParameters = dynamic(
+  () => import('@/components/divination/user-parameters').then(mod => mod.UserParameters),
+  { ssr: false }
+)
+
+interface UserInputData {
+  fullName: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  currentLocation: {
+    latitude: number;
+    longitude: number;
+  } | null;
+  question: string;
+  questionCategory: string;
+}
 
 export default function IntegratedDivinationPage() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<IntegratedDivinationResult | null>(null)
+  const [userInputData, setUserInputData] = useState<UserInputData | null>(null)
 
   const [formData, setFormData] = useState<IntegratedDivinationInput>({
     fullName: '',
@@ -22,7 +41,32 @@ export default function IntegratedDivinationPage() {
   })
 
   const [useCurrentLocation, setUseCurrentLocation] = useState(false)
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt')
+  const [, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt')
+
+  // LocalStorageからユーザー入力データを読み込み
+  useEffect(() => {
+    const storedData = localStorage.getItem('uranai_user_data');
+    if (storedData) {
+      try {
+        const userData: UserInputData = JSON.parse(storedData);
+        setUserInputData(userData);
+        setFormData(prev => ({
+          ...prev,
+          fullName: userData.fullName,
+          birthDate: userData.birthDate,
+          birthTime: userData.birthTime,
+          question: userData.question,
+          currentLocation: userData.currentLocation || undefined
+        }));
+        if (userData.currentLocation) {
+          setUseCurrentLocation(true);
+          setLocationPermission('granted');
+        }
+      } catch (error) {
+        console.error('Failed to parse user data from localStorage:', error);
+      }
+    }
+  }, [])
 
   // 位置情報の取得
   const getCurrentLocation = () => {
@@ -96,8 +140,10 @@ export default function IntegratedDivinationPage() {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
+        <CosmicBackground />
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          <UserParameters />
           <div className="max-w-4xl mx-auto">
             {/* ヘッダー */}
             <div className="text-center mb-8">
@@ -361,16 +407,55 @@ export default function IntegratedDivinationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
+      <CosmicBackground />
+      
+      {/* ヘッダー */}
+      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+            ← ダッシュボードに戻る
+          </Link>
+          <h1 className="text-2xl font-light text-white">統合占術リーディング</h1>
+          <div className="w-32"></div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-2xl mx-auto">
-          {/* ヘッダー */}
+          
+          {/* ユーザー情報の確認表示 */}
+          {userInputData && (
+            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 mb-8 border border-white/10">
+              <h2 className="text-xl font-light text-white text-center mb-6">入力情報の確認</h2>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-white/50">お名前</p>
+                  <p className="text-white">{userInputData.fullName}</p>
+                </div>
+                <div>
+                  <p className="text-white/50">生年月日</p>
+                  <p className="text-white">{userInputData.birthDate}</p>
+                </div>
+                <div>
+                  <p className="text-white/50">相談カテゴリ</p>
+                  <p className="text-white">{userInputData.questionCategory}</p>
+                </div>
+                <div>
+                  <p className="text-white/50">位置情報</p>
+                  <p className="text-white">{userInputData.currentLocation ? '取得済み' : '未取得'}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-white/50">ご相談内容</p>
+                  <p className="text-white text-sm">{userInputData.question}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* タイトル */}
           <div className="text-center mb-8">
-            <Link href="/" className="text-blue-300 hover:text-blue-100 text-sm">
-              ← ダッシュボードに戻る
-            </Link>
-            <h1 className="text-3xl font-bold text-white mt-4 mb-2">✨ 統合占術リーディング</h1>
-            <p className="text-blue-200">9種類の占術と環境データを統合した最強の占いシステム</p>
+            <h1 className="text-3xl font-light text-white mb-2">✨ 統合占術リーディング</h1>
+            <p className="text-white/60">9種類の占術と環境データを統合した最強の占いシステム</p>
           </div>
 
           {/* エラー表示 */}

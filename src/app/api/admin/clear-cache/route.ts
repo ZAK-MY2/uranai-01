@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cacheManager } from '@/lib/cache/cache-manager';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // キャッシュ統計を取得してから削除
     const statsBefore = cacheManager.getStats();

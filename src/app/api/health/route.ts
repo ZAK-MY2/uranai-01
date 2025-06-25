@@ -19,7 +19,7 @@ export async function GET() {
       environment: process.env.NODE_ENV
     }, { status });
     
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({
       status: 'unhealthy',
       error: 'Health check failed',

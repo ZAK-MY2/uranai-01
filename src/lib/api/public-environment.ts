@@ -120,7 +120,6 @@ async function getJMAWeatherData(latitude: number, longitude: number) {
 function calculateAstronomicalData(date: Date, latitude: number, longitude: number) {
   // 太陽の位置（簡易計算）
   const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000);
-  const P = Math.asin(0.39795 * Math.cos((0.98563 * (dayOfYear - 173) * Math.PI) / 180));
   
   // 日の出・日の入り時刻の計算（簡易版）
   const sunrise = new Date(date);
@@ -130,7 +129,6 @@ function calculateAstronomicalData(date: Date, latitude: number, longitude: numb
   sunset.setHours(18, 0, 0, 0); // 簡易的に18時
   
   // 太陽フレア活動（ランダム値）
-  const solarFlareActivity = Math.random() < 0.1 ? 'Active' : 'Quiet';
   
   // 月の出・月の入り時刻（簡易計算）
   const moonrise = new Date(date);

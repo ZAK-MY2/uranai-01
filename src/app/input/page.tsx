@@ -78,9 +78,9 @@ export default function UserInputPage() {
     // ローカルストレージに保存
     localStorage.setItem('uranai_user_data', JSON.stringify(formData));
     
-    // ダッシュボードへリダイレクト
+    // 統合占術ページへリダイレクト
     setTimeout(() => {
-      router.push('/');
+      router.push('/divination/integrated');
     }, 1000);
   };
 
@@ -105,9 +105,20 @@ export default function UserInputPage() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-white hover:text-blue-300 transition-colors">
+              ← ダッシュボードに戻る
+            </Link>
+            <button
+              onClick={() => {
+                localStorage.removeItem('uranai_user_data');
+                window.location.reload();
+              }}
+              className="text-white/70 hover:text-white transition-colors text-sm"
+            >
+              🔄 入力をリセット
+            </button>
+          </div>
           <h1 className="text-2xl font-light text-white">COSMIC ORACLE 占術診断</h1>
           <div className="w-32"></div>
         </div>

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { divinationLazyLoader } from '@/lib/lazy/lazy-loader';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const startTime = performance.now();
     

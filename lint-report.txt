@@ -1,0 +1,663 @@
+
+> uranai-01@0.1.0 lint
+> next lint
+
+
+./src/__tests__/divination-engines.test.ts
+67:100  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/__tests__/security/security.test.ts
+1:26  Warning: 'ValidationError' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/admin/clear-cache/route.ts
+5:28  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/admin/gc/route.ts
+4:28  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/admin/performance-metrics/route.ts
+7:27  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/admin/preload-engines/route.ts
+5:28  Warning: 'request' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/health/route.ts
+22:12  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/dashboard-client.tsx
+23:13  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/divination/astrology/page.tsx
+54:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+56:10  Warning: 'selectedPlanet' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+56:26  Warning: 'setSelectedPlanet' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+73:6  Warning: React Hook useEffect has a missing dependency: 'calculateAstrology'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+125:19  Warning: 'minutes' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/celtic/page.tsx
+111:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+130:6  Warning: React Hook useEffect has a missing dependency: 'calculateCelticAstrology'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+194:56  Warning: 'fullName' is defined but never used.  @typescript-eslint/no-unused-vars
+214:55  Warning: 'birthDate' is defined but never used.  @typescript-eslint/no-unused-vars
+359:33  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/iching/page.tsx
+44:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+316:30  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/integrated/page-old.tsx
+29:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+46:10  Warning: 'locationPermission' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/integrated/page.tsx
+25:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+210:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+246:67  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+270:64  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+296:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+313:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+363:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/divination/kabbalah/page.tsx
+100:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+120:6  Warning: React Hook useEffect has a missing dependency: 'calculateKabbalah'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+373:31  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/nine-star-ki/page.tsx
+71:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+308:38  Warning: 'favorable' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/numerology/page.tsx
+27:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+62:64  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+68:62  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+199:23  Warning: 'colors' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/runes/page.tsx
+24:7  Warning: 'RuneSymbol' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+61:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/shichu-suimei/page.tsx
+98:24  Warning: 'setShichuResult' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+99:10  Warning: 'showAnimation' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/tarot/page.tsx
+31:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+76:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+113:11  Warning: 'currentDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/divination/vedic/page.tsx
+24:26  Warning: 'nakshatra' is defined but never used.  @typescript-eslint/no-unused-vars
+25:9  Warning: 'houses' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+100:10  Warning: 'userInput' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+119:6  Warning: React Hook useEffect has a missing dependency: 'calculateVedicAstrology'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+181:9  Warning: 'nakshatras' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+221:59  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/page.tsx
+26:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/admin/MonitoringDashboard.tsx
+56:27  Warning: 'setRefreshInterval' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+68:6  Warning: React Hook useEffect has a missing dependency: 'loadMetrics'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+75:6  Warning: React Hook useEffect has a missing dependency: 'loadMetrics'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/admin/PerformanceDashboard.tsx
+4:10  Warning: 'cacheManager' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'performanceOptimizer' is defined but never used.  @typescript-eslint/no-unused-vars
+6:10  Warning: 'divinationLazyLoader' is defined but never used.  @typescript-eslint/no-unused-vars
+9:10  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+10:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+11:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+227:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/admin/SecurityDashboard.tsx
+30:27  Warning: 'setRefreshInterval' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+43:6  Warning: React Hook useEffect has a missing dependency: 'loadStats'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+50:6  Warning: React Hook useEffect has a missing dependency: 'loadStats'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/dashboard/integration-panel.tsx
+4:8  Warning: 'Link' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/components/divination/tarot-interactive.tsx
+4:18  Warning: 'AnimatePresence' is defined but never used.  @typescript-eslint/no-unused-vars
+5:35  Warning: 'TarotCard' is defined but never used.  @typescript-eslint/no-unused-vars
+11:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+18:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+73:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/api/public-environment.ts
+4:27  Warning: 'LunarData' is defined but never used.  @typescript-eslint/no-unused-vars
+4:38  Warning: 'WeatherData' is defined but never used.  @typescript-eslint/no-unused-vars
+4:51  Warning: 'AstronomicalData' is defined but never used.  @typescript-eslint/no-unused-vars
+36:45  Warning: 'latitude' is defined but never used.  @typescript-eslint/no-unused-vars
+120:66  Warning: 'longitude' is defined but never used.  @typescript-eslint/no-unused-vars
+123:9  Warning: 'P' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+133:9  Warning: 'solarFlareActivity' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+154:10  Warning: 'getZodiacSign' is defined but never used.  @typescript-eslint/no-unused-vars
+186:10  Warning: 'calculateEnergyLevel' is defined but never used.  @typescript-eslint/no-unused-vars
+186:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+186:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+186:71  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+227:9  Warning: 'geophysical' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/cache/cache-manager.ts
+17:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+122:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+186:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/__tests__/integrator.integration.test.ts
+151:67  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/__tests__/tarot.unit.test.ts
+117:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+129:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/advanced-astrology.ts
+409:17  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+558:5  Warning: 'progressions' is defined but never used.  @typescript-eslint/no-unused-vars
+609:31  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+625:38  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+686:11  Warning: 'moon' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/astrology-api.ts
+187:5  Warning: 'timezone' is defined but never used.  @typescript-eslint/no-unused-vars
+297:11  Warning: 't' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+411:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/astrology.ts
+3:10  Warning: 'AstrologyApiClient' is defined but never used.  @typescript-eslint/no-unused-vars
+120:11  Warning: 'year' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+121:11  Warning: 'month' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+122:11  Warning: 'day' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+123:11  Warning: 'hour' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+313:66  Warning: 'chart' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/__tests__/data-validation.test.ts
+289:13  Warning: 'birthDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/__tests__/integration.test.ts
+58:32  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+117:13  Warning: 'astrology' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+118:13  Warning: 'runes' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+123:13  Warning: 'nineStar' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+124:13  Warning: 'vedic' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+274:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/engines/__tests__/numerology-engine.test.ts
+2:28  Warning: 'NumerologyResult' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/__tests__/tarot-engine.test.ts
+2:23  Warning: 'TarotReading' is defined but never used.  @typescript-eslint/no-unused-vars
+2:37  Warning: 'TarotCard' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/astrology-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+330:73  Warning: 'aspects' is defined but never used.  @typescript-eslint/no-unused-vars
+359:78  Warning: 'aspects' is defined but never used.  @typescript-eslint/no-unused-vars
+499:11  Warning: 'currentDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/celtic-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+239:11  Warning: 'timeModifier' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+380:43  Warning: 'animal' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/iching-engine.ts
+480:46  Warning: 'changing' is defined but never used.  @typescript-eslint/no-unused-vars
+492:48  Warning: 'changing' is defined but never used.  @typescript-eslint/no-unused-vars
+504:48  Warning: 'changing' is defined but never used.  @typescript-eslint/no-unused-vars
+516:48  Warning: 'changing' is defined but never used.  @typescript-eslint/no-unused-vars
+528:49  Warning: 'changing' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/integrated-engine.ts
+208:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+263:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+278:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+299:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+312:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+344:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+367:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+396:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+433:14  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+466:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+505:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+514:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+525:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+534:54  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+546:40  Warning: 'results' is defined but never used.  @typescript-eslint/no-unused-vars
+546:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+633:14  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+650:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+682:14  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+701:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+722:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+747:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+756:14  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/engines/kabbalah-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+386:5  Warning: 'treePosition' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/nine-star-ki-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+232:11  Warning: 'yearNumber' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+432:45  Warning: 'monthlyStar' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/runes-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+206:5  Warning: 'elements' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/shichu-suimei-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+11:7  Warning: 'BRANCH_YIN_YANG' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+510:11  Warning: 'timeModifier' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+591:11  Warning: 'elementName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/tarot-engine.ts
+386:11  Warning: 'numericalFlow' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+406:67  Warning: 'modifier' is defined but never used.  @typescript-eslint/no-unused-vars
+415:68  Warning: 'modifier' is defined but never used.  @typescript-eslint/no-unused-vars
+425:64  Warning: 'modifier' is defined but never used.  @typescript-eslint/no-unused-vars
+436:20  Warning: 'phaseName' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/engines/vedic-engine.ts
+1:32  Warning: 'DivinationInput' is defined but never used.  @typescript-eslint/no-unused-vars
+1:49  Warning: 'EnvironmentData' is defined but never used.  @typescript-eslint/no-unused-vars
+132:11  Warning: 'birthDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+167:44  Warning: 'index' is defined but never used.  @typescript-eslint/no-unused-vars
+294:80  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+303:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+303:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+312:5  Warning: 'yogas' is defined but never used.  @typescript-eslint/no-unused-vars
+360:11  Warning: 'firstHouse' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/iching.ts
+255:9  Warning: 'hexagramNumber' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+342:69  Warning: 'question' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/integrator.ts
+98:75  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+346:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+346:74  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+346:80  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+359:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+381:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+400:35  Warning: 'reading' is defined but never used.  @typescript-eslint/no-unused-vars
+400:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+413:32  Warning: 'reading' is defined but never used.  @typescript-eslint/no-unused-vars
+413:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+413:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+424:32  Warning: 'basicReading' is defined but never used.  @typescript-eslint/no-unused-vars
+424:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+424:51  Warning: 'advancedAstrology' is defined but never used.  @typescript-eslint/no-unused-vars
+424:71  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+751:5  Warning: 'vedic' is defined but never used.  @typescript-eslint/no-unused-vars
+752:5  Warning: 'kabbalah' is defined but never used.  @typescript-eslint/no-unused-vars
+753:5  Warning: 'celtic' is defined but never used.  @typescript-eslint/no-unused-vars
+754:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+767:5  Warning: 'numerology' is defined but never used.  @typescript-eslint/no-unused-vars
+768:5  Warning: 'tarot' is defined but never used.  @typescript-eslint/no-unused-vars
+769:5  Warning: 'astrology' is defined but never used.  @typescript-eslint/no-unused-vars
+770:5  Warning: 'iching' is defined but never used.  @typescript-eslint/no-unused-vars
+771:5  Warning: 'shichu' is defined but never used.  @typescript-eslint/no-unused-vars
+772:5  Warning: 'runes' is defined but never used.  @typescript-eslint/no-unused-vars
+773:5  Warning: 'kyusei' is defined but never used.  @typescript-eslint/no-unused-vars
+774:5  Warning: 'vedic' is defined but never used.  @typescript-eslint/no-unused-vars
+775:5  Warning: 'kabbalah' is defined but never used.  @typescript-eslint/no-unused-vars
+776:5  Warning: 'celtic' is defined but never used.  @typescript-eslint/no-unused-vars
+777:5  Warning: 'environment' is defined but never used.  @typescript-eslint/no-unused-vars
+792:38  Warning: 'shichu' is defined but never used.  @typescript-eslint/no-unused-vars
+792:61  Warning: 'astrology' is defined but never used.  @typescript-eslint/no-unused-vars
+796:43  Warning: 'iching' is defined but never used.  @typescript-eslint/no-unused-vars
+796:67  Warning: 'numerology' is defined but never used.  @typescript-eslint/no-unused-vars
+800:44  Warning: 'tarot' is defined but never used.  @typescript-eslint/no-unused-vars
+800:66  Warning: 'shichu' is defined but never used.  @typescript-eslint/no-unused-vars
+804:40  Warning: 'kyusei' is defined but never used.  @typescript-eslint/no-unused-vars
+804:63  Warning: 'runes' is defined but never used.  @typescript-eslint/no-unused-vars
+866:5  Warning: 'astrology' is defined but never used.  @typescript-eslint/no-unused-vars
+902:5  Warning: 'tarot' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/kyusei-kigaku.ts
+254:84  Warning: 'dayStar' is defined but never used.  @typescript-eslint/no-unused-vars
+464:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+466:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+487:55  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/kyusei-validation-system.ts
+21:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+205:95  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+231:95  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+245:96  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+250:84  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+255:63  Warning: 'day' is defined but never used.  @typescript-eslint/no-unused-vars
+255:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+273:45  Warning: 'year' is defined but never used.  @typescript-eslint/no-unused-vars
+279:61  Warning: 'day' is defined but never used.  @typescript-eslint/no-unused-vars
+279:75  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+291:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+302:66  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+311:68  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/kyusei-verified-database.ts
+186:72  Warning: 'day' is defined but never used.  @typescript-eslint/no-unused-vars
+243:11  Warning: 'stemBranchGroups' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/runes.ts
+3:45  Warning: 'RuneMeaning' is defined but never used.  @typescript-eslint/no-unused-vars
+67:13  Warning: 'runicGuidance' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+189:5  Warning: 'question' is defined but never used.  @typescript-eslint/no-unused-vars
+226:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+370:58  Warning: 'question' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/shichu-suimei.ts
+2:50  Warning: 'FortuneCycle' is defined but never used.  @typescript-eslint/no-unused-vars
+110:113  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+110:147  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+227:11  Warning: 'branchElement' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+441:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+456:68  Warning: 'tenGods' is defined but never used.  @typescript-eslint/no-unused-vars
+502:69  Warning: 'tenGods' is defined but never used.  @typescript-eslint/no-unused-vars
+506:63  Warning: 'fourPillars' is defined but never used.  @typescript-eslint/no-unused-vars
+543:56  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/divination/tarot.ts
+45:94  Warning: 'question' is defined but never used.  @typescript-eslint/no-unused-vars
+120:51  Warning: 'question' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/time-integration.ts
+82:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+82:78  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+139:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+139:74  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+162:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+162:74  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+198:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+198:73  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+223:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+223:73  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+246:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+246:74  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+386:30  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+477:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+481:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+485:37  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+485:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+489:30  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+489:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+493:31  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+493:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+497:32  Warning: 'transits' is defined but never used.  @typescript-eslint/no-unused-vars
+497:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+501:32  Warning: 'progressions' is defined but never used.  @typescript-eslint/no-unused-vars
+501:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+501:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+510:31  Warning: 'progressions' is defined but never used.  @typescript-eslint/no-unused-vars
+510:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+510:51  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+520:33  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+520:65  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+524:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+528:26  Warning: 'hexagram' is defined but never used.  @typescript-eslint/no-unused-vars
+528:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+532:33  Warning: 'hexagram' is defined but never used.  @typescript-eslint/no-unused-vars
+532:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+532:48  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+536:33  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+536:65  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+545:32  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+545:64  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+555:35  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+555:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+559:27  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+559:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+568:29  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+568:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+577:29  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+577:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+597:33  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+597:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+601:27  Warning: 'date' is defined but never used.  @typescript-eslint/no-unused-vars
+601:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+605:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+605:42  Warning: 'gochar' is defined but never used.  @typescript-eslint/no-unused-vars
+605:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+619:32  Warning: 'dasha' is defined but never used.  @typescript-eslint/no-unused-vars
+619:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+619:44  Warning: 'gochar' is defined but never used.  @typescript-eslint/no-unused-vars
+619:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+623:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+623:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+632:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+632:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+642:29  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+642:61  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+646:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+658:31  Warning: 'rune' is defined but never used.  @typescript-eslint/no-unused-vars
+658:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+658:42  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+662:31  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+662:63  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+671:30  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+671:62  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+686:33  Warning: 'result' is defined but never used.  @typescript-eslint/no-unused-vars
+686:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+686:46  Warning: 'timeModel' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/unified-api.ts
+9:10  Warning: 'tarotEngine' is defined but never used.  @typescript-eslint/no-unused-vars
+14:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:15  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+65:19  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+93:27  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+94:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+95:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+103:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+135:63  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+135:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:72  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:85  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:99  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+236:68  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+267:17  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+268:21  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+317:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+334:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+352:60  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+386:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+386:65  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+388:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+392:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+396:16  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+440:32  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+491:29  Warning: 'result' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/divination/vedic-astrology.ts
+90:13  Warning: 'compatibility' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+98:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+114:75  Warning: 'k' is defined but never used.  @typescript-eslint/no-unused-vars
+114:112  Warning: 'v' is defined but never used.  @typescript-eslint/no-unused-vars
+133:51  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+353:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+353:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+355:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+373:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+402:37  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+402:43  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+403:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+407:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+408:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+413:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+431:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+431:64  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+432:11  Warning: 'birthDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+433:11  Warning: 'currentDate' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+464:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+464:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+468:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+469:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+481:46  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+507:5  Warning: 'birthChart' is defined but never used.  @typescript-eslint/no-unused-vars
+507:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+508:5  Warning: 'dashas' is defined but never used.  @typescript-eslint/no-unused-vars
+508:13  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+509:5  Warning: 'yogas' is defined but never used.  @typescript-eslint/no-unused-vars
+509:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+510:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+526:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+527:13  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+528:6  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+529:21  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+584:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+584:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/environment/advanced-data.ts
+309:36  Warning: 'lat' is defined but never used.  @typescript-eslint/no-unused-vars
+309:49  Warning: 'lon' is defined but never used.  @typescript-eslint/no-unused-vars
+359:32  Warning: 'kpData' is defined but never used.  @typescript-eslint/no-unused-vars
+359:40  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+359:45  Warning: 'magneticData' is defined but never used.  @typescript-eslint/no-unused-vars
+359:59  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+386:34  Warning: 'flareData' is defined but never used.  @typescript-eslint/no-unused-vars
+386:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+386:50  Warning: 'windData' is defined but never used.  @typescript-eslint/no-unused-vars
+386:60  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+415:44  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+416:64  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+457:30  Warning: 'lat' is defined but never used.  @typescript-eslint/no-unused-vars
+457:43  Warning: 'lon' is defined but never used.  @typescript-eslint/no-unused-vars
+674:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+707:53  Warning: 'level' is defined but never used.  @typescript-eslint/no-unused-vars
+717:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/environment/index.ts
+3:10  Warning: 'LocationData' is defined but never used.  @typescript-eslint/no-unused-vars
+44:13  Warning: 'month' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+45:13  Warning: 'day' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+184:53  Warning: 'lon' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/lazy/lazy-loader.ts
+18:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+158:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+159:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/monitoring/error-tracker.ts
+26:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+566:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/monitoring/logger.ts
+13:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+17:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+325:12  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/monitoring/performance-monitor.ts
+150:13  Warning: 'duration' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+237:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+237:77  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/monitoring/setup.ts
+67:52  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+67:70  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+85:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+91:47  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/performance/optimizer.ts
+21:69  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:101  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:122  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+195:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+195:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+226:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+226:54  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+330:42  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+330:59  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/security/auth-middleware.ts
+25:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+302:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/security/encryption.ts
+175:41  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+194:59  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+202:13  Warning: 'expectedSignature' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+227:30  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+236:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+294:53  Warning: 'maxAge' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+299:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/security/input-validator.ts
+12:19  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+13:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+23:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+79:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+85:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+178:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+230:39  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+280:34  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+280:54  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+321:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+328:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+460:11  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+556:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+556:45  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/security/rate-limiter.ts
+15:11  Warning: 'RateLimitConfig' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/security/security-logger.ts
+10:28  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+15:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+262:5  Warning: 'events' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/services/environment-service.ts
+84:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+102:13  Warning: 'year' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+103:13  Warning: 'month' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+104:13  Warning: 'day' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+138:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+184:21  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+190:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/lib/ui-mapper.ts
+22:31  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+230:68  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/lib/workers/worker-pool.ts
+27:33  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:38  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+135:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+150:54  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+151:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+159:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+174:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+192:29  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+299:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+299:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+306:35  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+306:49  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+313:36  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+313:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/types/common.types.ts
+156:48  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+217:50  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+217:58  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/types/database.types.ts
+10:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+15:17  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+20:18  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+33:25  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+39:26  Warning: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

@@ -1,7 +1,7 @@
 // API route for garbage collection
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // メモリ使用量（GC前）
     const memoryBefore = process.memoryUsage();

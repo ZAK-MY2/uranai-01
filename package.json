@@ -26,17 +26,29 @@
     "security:check": "npx snyk test",
     "quick-start": "bash scripts/quick-start.sh",
     "checklist": "cat QUICK_START_CHECKLIST.md",
-    "lessons": "cat docs/lessons-learned/CRITICAL_LESSONS_LEARNED.md"
+    "lessons": "cat docs/lessons-learned/CRITICAL_LESSONS_LEARNED.md",
+    "check": "./scripts/pre-commit-check.sh",
+    "check:types": "./scripts/type-check-all.sh",
+    "debug": "./scripts/debug-helper.sh",
+    "quick": "npm run lint && npm run type-check",
+    "clean": "rm -rf .next node_modules/.cache",
+    "fresh": "npm run clean && npm run dev",
+    "ui:track": "./scripts/ui-element-tracker.sh",
+    "ui:map": "open http://localhost:3001/ui-reference.html"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.19.1",
     "lucide-react": "^0.522.0",
     "next": "15.3.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.3.4",
     "@playwright/test": "^1.40.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.2.0",

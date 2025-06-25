@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMIC ORACLE UI Reference Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .nav-tab:hover {
+            color: #e2e8f0;
+        }
+        
+        .nav-tab.active {
+            color: #a855f7;
+            border-bottom-color: #a855f7;
+        }
+        
+        .screen-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .screen-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .screen-mockup {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            min-height: 600px;
+        }
+        
+        .element {
+            position: absolute;
+            background: rgba(168, 85, 247, 0.1);
+            border: 2px solid #a855f7;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+        
+        .element:hover {
+            background: rgba(168, 85, 247, 0.2);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .element-id {
+            font-weight: 600;
+            color: #a855f7;
+            margin-bottom: 5px;
+        }
+        
+        .element-type {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+        
+        .element-details {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .element-details.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .detail-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            width: 150px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: #e2e8f0;
+        }
+        
+        .flow-diagram {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #a855f7;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
+        code {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .highlight {
+            background: rgba(251, 207, 232, 0.2);
+            border-color: #f9a8d4;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>COSMIC ORACLE UI Reference Map</h1>
+            <p class="subtitle">インタラクティブUI要素マップ - クリックして詳細を確認</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="要素IDを検索 (例: dashboard-card-numerology)" id="searchInput">
+            <span class="search-icon">🔍</span>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-screen="entry">エントリー</button>
+            <button class="nav-tab" data-screen="input">入力</button>
+            <button class="nav-tab" data-screen="dashboard">ダッシュボード</button>
+            <button class="nav-tab" data-screen="divination">占術詳細</button>
+            <button class="nav-tab" data-screen="flow">画面フロー</button>
+        </div>
+        
+        <!-- エントリー画面 -->
+        <div class="screen-content active" id="entry-screen">
+            <h2>エントリー画面 (/entry)</h2>
+            <div class="screen-mockup">
+                <div class="element" style="top: 10%; left: 50%; transform: translateX(-50%);" data-id="entry-header-title">
+                    <div class="element-id">entry-header-title</div>
+                    <div class="element-type">h1</div>
+                </div>
+                
+                <div class="element" style="top: 20%; left: 50%; transform: translateX(-50%);" data-id="entry-text-subtitle">
+                    <div class="element-id">entry-text-subtitle</div>
+                    <div class="element-type">p</div>
+                </div>
+                
+                <div class="element" style="top: 40%; left: 50%; transform: translateX(-50%); width: 300px; height: 200px;" data-id="entry-form-container">
+                    <div class="element-id">entry-form-container</div>
+                    <div class="element-type">form</div>
+                    
+                    <div class="element" style="top: 20px; left: 20px; right: 20px;" data-id="entry-input-password">
+                        <div class="element-id">entry-input-password</div>
+                        <div class="element-type">input[password]</div>
+                    </div>
+                    
+                    <div class="element" style="bottom: 20px; left: 20px; right: 20px;" data-id="entry-button-enter">
+                        <div class="element-id">entry-button-enter</div>
+                        <div class="element-type">button</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="element-details" id="entry-details">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+        
+        <!-- 入力画面 -->
+        <div class="screen-content" id="input-screen">
+            <h2>入力画面 (/input)</h2>
+            <div class="screen-mockup">
+                <div class="element" style="top: 10px; left: 20px; right: 20px; height: 60px;" data-id="input-nav-progress">
+                    <div class="element-id">input-nav-progress</div>
+                    <div class="element-type">nav [プログレスバー]</div>
+                </div>
+                
+                <div class="element" style="top: 100px; left: 20px; right: 20px; height: 400px;" data-id="input-section-basic">
+                    <div class="element-id">input-section-basic</div>
+                    <div class="element-type">section [ステップ1]</div>
+                </div>
+            </div>
+            
+            <div class="element-details" id="input-details">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+        
+        <!-- ダッシュボード画面 -->
+        <div class="screen-content" id="dashboard-screen">
+            <h2>ダッシュボード (/)</h2>
+            <div class="screen-mockup">
+                <div class="element" style="top: 10px; left: 20px; right: 20px; height: 60px;" data-id="dashboard-header-main">
+                    <div class="element-id">dashboard-header-main</div>
+                    <div class="element-type">header</div>
+                </div>
+                
+                <div class="element" style="top: 90px; left: 20px; width: 60%; height: 300px;" data-id="dashboard-card-cosmic">
+                    <div class="element-id">dashboard-card-cosmic</div>
+                    <div class="element-type">section [宇宙図]</div>
+                </div>
+                
+                <div class="element" style="top: 90px; right: 20px; width: 35%; height: 140px;" data-id="dashboard-card-environment">
+                    <div class="element-id">dashboard-card-environment</div>
+                    <div class="element-type">section [環境データ]</div>
+                </div>
+                
+                <div class="element" style="top: 250px; right: 20px; width: 35%; height: 140px;" data-id="dashboard-card-guidance">
+                    <div class="element-id">dashboard-card-guidance</div>
+                    <div class="element-type">section [今日の指針]</div>
+                </div>
+                
+                <div class="element" style="bottom: 80px; left: 20px; right: 20px; height: 150px;" data-id="dashboard-section-divinations">
+                    <div class="element-id">dashboard-section-divinations</div>
+                    <div class="element-type">section [占術一覧]</div>
+                </div>
+            </div>
+            
+            <div class="element-details" id="dashboard-details">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+        
+        <!-- 占術詳細画面 -->
+        <div class="screen-content" id="divination-screen">
+            <h2>占術詳細画面 (共通テンプレート)</h2>
+            <div class="screen-mockup">
+                <div class="element" style="top: 20px; left: 50%; transform: translateX(-50%);" data-id="[prefix]-header-title">
+                    <div class="element-id">[prefix]-header-title</div>
+                    <div class="element-type">h1</div>
+                </div>
+                
+                <div class="element" style="top: 80px; left: 20px; right: 20px; height: 250px;" data-id="[prefix]-section-infographic">
+                    <div class="element-id">[prefix]-section-infographic</div>
+                    <div class="element-type">section [インフォグラフィック]</div>
+                </div>
+                
+                <div class="element" style="top: 350px; left: 20px; width: 60%; height: 150px;" data-id="[prefix]-section-interpretation">
+                    <div class="element-id">[prefix]-section-interpretation</div>
+                    <div class="element-type">section [解釈]</div>
+                </div>
+                
+                <div class="element" style="top: 350px; right: 20px; width: 35%; height: 150px;" data-id="[prefix]-section-environment">
+                    <div class="element-id">[prefix]-section-environment</div>
+                    <div class="element-type">section [環境影響]</div>
+                </div>
+                
+                <div class="element" style="bottom: 20px; left: 20px;" data-id="[prefix]-button-refresh">
+                    <div class="element-id">[prefix]-button-refresh</div>
+                    <div class="element-type">button</div>
+                </div>
+                
+                <div class="element" style="bottom: 20px; right: 20px;" data-id="[prefix]-button-share">
+                    <div class="element-id">[prefix]-button-share</div>
+                    <div class="element-type">button</div>
+                </div>
+            </div>
+            
+            <div class="element-details" id="divination-details">
+                <!-- 動的にコンテンツが挿入されます -->
+            </div>
+        </div>
+        
+        <!-- 画面フロー -->
+        <div class="screen-content" id="flow-screen">
+            <h2>画面フロー図</h2>
+            <div class="flow-diagram">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDwhLS0g44K344Oz44OX44Or44Gq44OV44Ot44O85Zuz44KS44GT44GT44Gr5o+P55S7IC0tPgo8L3N2Zz4=" alt="画面フロー図" style="width: 100%; height: auto;">
+                <p>詳細な画面フロー図は <code>/docs/ui/screen-flow.md</code> を参照してください。</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 要素の詳細情報
+        const elementDetails = {
+            'entry-header-title': {
+                id: 'entry-header-title',
+                type: 'h1',
+                text: 'COSMIC ORACLE',
+                style: 'text-5xl font-light text-white tracking-wider',
+                position: 'center, top-20%',
+                interaction: 'なし',
+                accessibility: 'role="heading" aria-level="1"'
+            },
+            'entry-input-password': {
+                id: 'entry-input-password',
+                type: 'input[password]',
+                placeholder: '宇宙への鍵を入力...',
+                validation: '必須、英数字のみ',
+                interaction: 'Enterキーで送信',
+                accessibility: 'aria-label="アクセス用呪文入力"'
+            },
+            'entry-button-enter': {
+                id: 'entry-button-enter',
+                type: 'button',
+                text: '扉を開く',
+                action: 'validatePassword() → /input',
+                style: 'bg-gradient-to-r from-purple-600 to-blue-600',
+                interaction: 'クリックでパスワード検証'
+            },
+            'dashboard-card-cosmic': {
+                id: 'dashboard-card-cosmic',
+                type: 'section',
+                title: '今日の宇宙図',
+                component: 'CosmicOverview',
+                animations: '惑星回転、星の瞬き、宇宙雲',
+                gridArea: 'lg:col-span-2 lg:row-span-2'
+            },
+            'dashboard-card-numerology': {
+                id: 'dashboard-card-numerology',
+                type: 'card',
+                title: '数秘術',
+                icon: '🔢',
+                destination: '/divination/numerology',
+                hover: 'scale-105, 浮遊アニメーション',
+                preview: 'lifePathNumber: 7'
+            },
+            'input-nav-progress': {
+                id: 'input-nav-progress',
+                type: 'nav',
+                role: 'progressbar',
+                steps: '3',
+                accessibility: 'aria-valuemin="1" aria-valuemax="3"',
+                responsive: 'モバイルでコンパクト表示'
+            }
+        };
+        
+        // タブ切り替え
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const screenId = tab.dataset.screen;
+                
+                // タブのアクティブ状態を更新
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // スクリーンの表示を切り替え
+                document.querySelectorAll('.screen-content').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(`${screenId}-screen`).classList.add('active');
+            });
+        });
+        
+        // 要素クリックイベント
+        document.querySelectorAll('.element').forEach(element => {
+            element.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const elementId = element.dataset.id;
+                const details = elementDetails[elementId];
+                
+                if (details) {
+                    const screenId = element.closest('.screen-content').id.replace('-screen', '');
+                    const detailsContainer = document.getElementById(`${screenId}-details`);
+                    
+                    // 詳細情報を表示
+                    detailsContainer.innerHTML = `
+                        <h3 style="font-size: 1.25rem; margin-bottom: 15px; color: #a855f7;">要素詳細: ${details.id}</h3>
+                        ${Object.entries(details).map(([key, value]) => `
+                            <div class="detail-row">
+                                <div class="detail-label">${key}:</div>
+                                <div class="detail-value">${value}</div>
+                            </div>
+                        `).join('')}
+                    `;
+                    
+                    detailsContainer.classList.add('show');
+                    
+                    // 他の要素のハイライトを解除
+                    document.querySelectorAll('.element').forEach(el => {
+                        el.classList.remove('highlight');
+                    });
+                    element.classList.add('highlight');
+                }
+            });
+        });
+        
+        // 検索機能
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            document.querySelectorAll('.element').forEach(element => {
+                const elementId = element.dataset.id;
+                if (elementId && elementId.toLowerCase().includes(searchTerm)) {
+                    element.classList.add('highlight');
+                } else {
+                    element.classList.remove('highlight');
+                }
+            });
+        });
+        
+        // 背景クリックで詳細を非表示
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.element-details').forEach(details => {
+                details.classList.remove('show');
+            });
+            document.querySelectorAll('.element').forEach(el => {
+                el.classList.remove('highlight');
+            });
+        });
+    </script>
+</body>
+</html>

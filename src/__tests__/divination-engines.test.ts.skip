@@ -1,0 +1,189 @@
+import '@testing-library/jest-dom';
+import { NumerologyEngine } from '@/lib/divination/engines/numerology-engine';
+import { TarotEngine } from '@/lib/divination/engines/tarot-engine';
+import { AstrologyEngine } from '@/lib/divination/engines/astrology-engine';
+import { IntegratedEngine } from '@/lib/divination/engines/integrated-engine';
+import { DivinationInput } from '@/lib/divination/base-engine';
+import { mockEnvironmentData } from '@/lib/mock/environment-data';
+
+describe('占術エンジンテスト', () => {
+  let mockInput: DivinationInput;
+
+  beforeEach(() => {
+    mockInput = {
+      fullName: '山田太郎',
+      birthDate: new Date('1990-01-01'),
+      birthTime: '12:00',
+      birthPlace: '東京都',
+      currentLocation: {
+        latitude: 35.6762,
+        longitude: 139.6503
+      },
+      question: 'テスト用の質問',
+      questionCategory: '総合運'
+    };
+  });
+
+  describe('NumerologyEngine', () => {
+    it('数秘術の計算が正常に動作する', () => {
+      const engine = new NumerologyEngine(mockInput, mockEnvironmentData);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.lifePathNumber).toBeGreaterThan(0);
+      expect(result.lifePathNumber).toBeLessThanOrEqual(33);
+      expect(result.interpretation).toBeDefined();
+      expect(result.interpretation.lifePathMeaning).toBeTruthy();
+    });
+
+    it('同じ入力で一貫した結果を返す', () => {
+      const engine1 = new NumerologyEngine(mockInput, mockEnvironmentData);
+      const engine2 = new NumerologyEngine(mockInput, mockEnvironmentData);
+      
+      const result1 = engine1.calculate();
+      const result2 = engine2.calculate();
+
+      expect(result1.lifePathNumber).toBe(result2.lifePathNumber);
+      expect(result1.destinyNumber).toBe(result2.destinyNumber);
+    });
+  });
+
+  describe('TarotEngine', () => {
+    it('タロット占いが正常に動作する', () => {
+      const engine = new TarotEngine(mockInput, mockEnvironmentData);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.spread).toBeDefined();
+      expect(result.positions).toBeDefined();
+      expect(result.positions.length).toBeGreaterThan(0);
+      expect(result.overallMessage).toBeTruthy();
+    });
+
+    it('全てのスプレッドタイプが正常に動作する', () => {
+      const spreadTypes = ['one-card', 'three-card', 'celtic-cross', 'relationship', 'decision'];
+      
+      spreadTypes.forEach(spreadType => {
+        const engine = new TarotEngine(mockInput, mockEnvironmentData, { spreadType: spreadType as any });
+        const result = engine.calculate();
+        
+        expect(result).toBeDefined();
+        expect(result.spread).toBeDefined();
+        expect(result.positions).toBeDefined();
+      });
+    });
+  });
+
+  describe('AstrologyEngine', () => {
+    it('西洋占星術の計算が正常に動作する', () => {
+      const engine = new AstrologyEngine(mockInput, mockEnvironmentData);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.birthChart).toBeDefined();
+      expect(result.birthChart.sun).toBeDefined();
+      expect(result.birthChart.moon).toBeDefined();
+      expect(result.interpretation).toBeDefined();
+    });
+  });
+
+  describe('IntegratedEngine', () => {
+    it('統合占術が正常に動作する', () => {
+      const engine = new IntegratedEngine(mockInput, mockEnvironmentData);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.summaries).toBeDefined();
+      expect(result.synthesis).toBeDefined();
+      expect(result.synthesis.commonThemes).toBeDefined();
+      expect(Array.isArray(result.synthesis.commonThemes)).toBe(true);
+      expect(result.integratedMessage).toBeDefined();
+      expect(result.integratedMessage.coreMessage).toBeTruthy();
+      expect(result.overallFortune).toBeDefined();
+      expect(result.overallFortune.score).toBeGreaterThanOrEqual(0);
+      expect(result.overallFortune.score).toBeLessThanOrEqual(100);
+    });
+
+    it('全ての個別占術エンジンが実行される', () => {
+      const engine = new IntegratedEngine(mockInput, mockEnvironmentData);
+      const result = engine.calculate();
+
+      expect(result.summaries).toBeDefined();
+      expect(typeof result.summaries).toBe('object');
+      expect(result.summaries.numerology).toBeTruthy();
+      expect(result.summaries.tarot).toBeTruthy();
+      expect(result.summaries.astrology).toBeTruthy();
+      expect(result.priorityDivinations).toBeDefined();
+      expect(Array.isArray(result.priorityDivinations)).toBe(true);
+      expect(result.priorityDivinations.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('環境データの影響', () => {
+    it('環境データありとなしで結果が異なる', () => {
+      const engineWithEnv = new NumerologyEngine(mockInput, mockEnvironmentData);
+      const engineWithoutEnv = new NumerologyEngine(mockInput);
+      
+      const resultWithEnv = engineWithEnv.calculate();
+      const resultWithoutEnv = engineWithoutEnv.calculate();
+
+      // 基本的な数値は同じだが、解釈や追加情報が異なる可能性
+      expect(resultWithEnv.lifePathNumber).toBe(resultWithoutEnv.lifePathNumber);
+      expect(resultWithEnv.interpretation).toBeDefined();
+      expect(resultWithoutEnv.interpretation).toBeDefined();
+    });
+  });
+
+  describe('エラーハンドリング', () => {
+    it('無効な入力データでエラーを投げない', () => {
+      const invalidInput: DivinationInput = {
+        fullName: '',
+        birthDate: new Date('invalid'),
+        birthTime: '',
+        birthPlace: '',
+        question: ''
+      };
+
+      expect(() => {
+        const engine = new NumerologyEngine(invalidInput);
+        engine.calculate();
+      }).not.toThrow();
+    });
+
+    it('不正な日付でも処理を継続する', () => {
+      const invalidDateInput: DivinationInput = {
+        ...mockInput,
+        birthDate: new Date('1800-01-01') // 極端に古い日付
+      };
+
+      const engine = new NumerologyEngine(invalidDateInput);
+      const result = engine.calculate();
+
+      expect(result).toBeDefined();
+      expect(result.lifePathNumber).toBeGreaterThan(0);
+    });
+  });
+
+  describe('パフォーマンステスト', () => {
+    it('全ての占術エンジンが合理的な時間で完了する', () => {
+      const startTime = Date.now();
+      
+      // 全ての主要エンジンを実行
+      const numerology = new NumerologyEngine(mockInput, mockEnvironmentData);
+      const tarot = new TarotEngine(mockInput, mockEnvironmentData);
+      const astrology = new AstrologyEngine(mockInput, mockEnvironmentData);
+      const integrated = new IntegratedEngine(mockInput, mockEnvironmentData);
+
+      numerology.calculate();
+      tarot.calculate();
+      astrology.calculate();
+      integrated.calculate();
+
+      const endTime = Date.now();
+      const executionTime = endTime - startTime;
+
+      // 全ての計算が5秒以内に完了することを確認
+      expect(executionTime).toBeLessThan(5000);
+    });
+  });
+});

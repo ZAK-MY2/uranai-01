@@ -40,3 +40,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# logs and temporary files
+*.log
+*.pid
+
+# prototype files
+*-prototype.html
+mockup-prototype.html
+
+# backup files
+*.backup
+*-old.*

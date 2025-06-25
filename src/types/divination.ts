@@ -1,5 +1,7 @@
 // 占術システム関連の型定義
 
+import { SystemCorrelations } from './divination-common';
+
 // =============================================================================
 // 数秘術 (Numerology)
 // =============================================================================
@@ -464,7 +466,7 @@ export interface IntegratedDivinationResult {
     environmentalInfluence: string;
     overallGuidance: string;
     specificAdvice: string[];
-    systemCorrelations?: Record<string, unknown>;
+    systemCorrelations?: SystemCorrelations;
     integratedInsights?: string;
   };
 }

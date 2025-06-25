@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Message Test</title>
+  <style>
+    body {
+      background: #1a1a2e;
+      color: #eee;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .message {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-left: 3px solid #a855f7;
+    }
+    button {
+      background: linear-gradient(to right, #a855f7, #ec4899);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+    }
+    h1, h2 {
+      font-weight: 300;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #a855f7;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #888;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔮 COSMIC ORACLE - Dynamic Message Generator Test</h1>
+  
+  <div class="container">
+    <h2>Test Controls</h2>
+    <button onclick="generateMessages()">Generate New Messages</button>
+    <button onclick="clearHistory()">Clear History</button>
+    <button onclick="runBatchTest()">Run Batch Test (10x)</button>
+  </div>
+
+  <div class="container">
+    <h2>Statistics</h2>
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalCount">0</div>
+        <div class="stat-label">Total Generated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="uniqueCount">0</div>
+        <div class="stat-label">Unique Messages</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="variationRate">0%</div>
+        <div class="stat-label">Variation Rate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Generated Messages</h2>
+    <div id="messages"></div>
+  </div>
+
+  <div class="container">
+    <h2>Console Output</h2>
+    <p style="color: #888;">Open browser console (F12) to see detailed debug logs</p>
+  </div>
+
+  <script>
+    let messageHistory = [];
+    let messageSet = new Set();
+
+    async function generateMessages() {
+      console.log('🎲 Generating new messages...');
+      
+      // Navigate to numerology page with test data
+      const testData = {
+        fullName: 'テスト太郎',
+        birthDate: '1990-05-15',
+        birthTime: '14:30',
+        birthPlace: '東京都',
+        question: '今年の運勢はどうですか？',
+        questionCategory: '総合運'
+      };
+      
+      // Store test data in localStorage
+      localStorage.setItem('uranai_user_data', JSON.stringify(testData));
+      
+      // Fetch the page to trigger calculation
+      try {
+        const response = await fetch('/divination/numerology');
+        console.log('Page loaded, check console for dynamic message generation logs');
+        
+        // Add a dummy message to show something happened
+        const timestamp = new Date().toLocaleTimeString('ja-JP');
+        const dummyMessage = `Test run at ${timestamp} - Check console for actual messages`;
+        
+        addMessageToDisplay({
+          message: dummyMessage,
+          timestamp: timestamp,
+          type: 'info'
+        });
+        
+      } catch (error) {
+        console.error('Error generating messages:', error);
+      }
+    }
+
+    function addMessageToDisplay(data) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message';
+      messageDiv.innerHTML = `
+        <div>${data.message}</div>
+        <div class="timestamp">${data.timestamp}</div>
+      `;
+      
+      const container = document.getElementById('messages');
+      container.insertBefore(messageDiv, container.firstChild);
+      
+      // Update statistics
+      messageHistory.push(data.message);
+      messageSet.add(data.message);
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById('totalCount').textContent = messageHistory.length;
+      document.getElementById('uniqueCount').textContent = messageSet.size;
+      
+      const variationRate = messageHistory.length > 0 
+        ? Math.round((messageSet.size / messageHistory.length) * 100)
+        : 0;
+      document.getElementById('variationRate').textContent = variationRate + '%';
+    }
+
+    function clearHistory() {
+      messageHistory = [];
+      messageSet = new Set();
+      document.getElementById('messages').innerHTML = '';
+      updateStats();
+      console.log('History cleared');
+    }
+
+    async function runBatchTest() {
+      console.log('🚀 Running batch test...');
+      for (let i = 0; i < 10; i++) {
+        await generateMessages();
+        // Wait a bit between generations
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      console.log('✅ Batch test complete');
+    }
+
+    // Instructions for manual testing
+    console.log('%c🔮 COSMIC ORACLE Dynamic Message Test', 'font-size: 20px; color: #a855f7');
+    console.log('%cInstructions:', 'font-size: 16px; color: #ec4899');
+    console.log('1. Click "Generate New Messages" button');
+    console.log('2. Open http://localhost:3001/divination/numerology in another tab');
+    console.log('3. Watch the console for debug logs');
+    console.log('4. Click the "メッセージを再生成 🎲" button on the numerology page');
+    console.log('5. Observe how messages change with each regeneration');
+  </script>
+</body>
+</html>
