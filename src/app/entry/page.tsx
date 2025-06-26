@@ -26,7 +26,15 @@ export default function EntryPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const success = authenticate(password);
+    // Safari対策: トリムして確実に文字列として扱う
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedPassword) {
+      setError('呪文を入力してください');
+      return;
+    }
+    
+    const success = authenticate(trimmedPassword);
     
     if (success) {
       router.push('/input');
@@ -42,7 +50,7 @@ export default function EntryPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+    <div className="min-h-screen min-h-[-webkit-fill-available] relative bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
       <CosmicBackground />
       
       <div className="relative z-10 w-full max-w-md px-6">
@@ -69,13 +77,16 @@ export default function EntryPage() {
               <input
                 type="password"
                 id="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all text-base"
                 placeholder="宇宙への鍵を入力..."
-                autoComplete="off"
+                autoComplete="new-password"
                 autoCapitalize="off"
                 autoCorrect="off"
+                spellCheck="false"
+                inputMode="text"
               />
             </div>
             
@@ -87,7 +98,8 @@ export default function EntryPage() {
             
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 font-light tracking-wide"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 font-light tracking-wide touch-manipulation"
+              disabled={!password}
             >
               扉を開く
             </button>
