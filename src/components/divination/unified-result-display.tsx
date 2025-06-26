@@ -119,7 +119,10 @@ export default function UnifiedResultDisplay({
   };
 
   const selectedResult = results.find(r => r.type === selectedDivination);
-  const averageAccuracy = results.reduce((sum, r) => sum + r.accuracy, 0) / results.length;
+  const validResults = results.filter(r => typeof r.accuracy === 'number' && !isNaN(r.accuracy));
+  const averageAccuracy = validResults.length > 0 
+    ? validResults.reduce((sum, r) => sum + r.accuracy, 0) / validResults.length
+    : 0;
 
   // 統合分析
   const integratedInsights = generateIntegratedInsights(results);
@@ -143,7 +146,7 @@ export default function UnifiedResultDisplay({
         <div className="flex items-center justify-center gap-2 text-sm">
           <Shield className="w-4 h-4 text-green-400" />
           <span className="text-gray-300">
-            総合精度: {(averageAccuracy * 100).toFixed(1)}%
+            総合精度: {averageAccuracy > 1 ? averageAccuracy.toFixed(1) : (averageAccuracy * 100).toFixed(1)}%
           </span>
         </div>
       </motion.div>
@@ -208,7 +211,7 @@ export default function UnifiedResultDisplay({
                       <div>
                         <h3 className="font-bold text-white">{result.name}</h3>
                         <p className="text-xs text-gray-400">
-                          精度: {(result.accuracy * 100).toFixed(1)}%
+                          精度: {result.accuracy > 1 ? result.accuracy.toFixed(1) : (result.accuracy * 100).toFixed(1)}%
                         </p>
                       </div>
                     </div>
@@ -325,7 +328,7 @@ export default function UnifiedResultDisplay({
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-green-400">{(selectedResult.accuracy * 100).toFixed(1)}%</div>
+                    <div className="text-2xl font-bold text-green-400">{selectedResult.accuracy > 1 ? selectedResult.accuracy.toFixed(1) : (selectedResult.accuracy * 100).toFixed(1)}%</div>
                     <p className="text-xs text-gray-400">精度</p>
                   </div>
                 </div>
@@ -588,7 +591,7 @@ export default function UnifiedResultDisplay({
                               result.accuracy >= 70 ? 'text-amber-400' :
                               'text-red-400'
                             }`}>
-                              {(result.accuracy * 100).toFixed(1)}%
+                              {result.accuracy > 1 ? result.accuracy.toFixed(1) : (result.accuracy * 100).toFixed(1)}%
                             </span>
                           </td>
                           <td className="p-3">
