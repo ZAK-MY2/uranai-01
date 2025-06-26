@@ -767,7 +767,8 @@ function analyzeTendency(result: DivinationResult): 'positive' | 'neutral' | 'ca
   const positiveKeywords = ['成功', '幸運', 'チャンス', '成長', '達成'];
   const cautionKeywords = ['注意', '警告', '困難', '課題', '障害'];
   
-  const message = result.summary + result.keyInsights.map(i => i.message).join(' ');
+  const insights = result.keyInsights || [];
+  const message = result.summary + ' ' + insights.map(i => i?.message || '').join(' ');
   
   const positiveCount = positiveKeywords.filter(k => message.includes(k)).length;
   const cautionCount = cautionKeywords.filter(k => message.includes(k)).length;
