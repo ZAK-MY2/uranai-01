@@ -329,7 +329,7 @@ export default function TarotPage() {
       <CosmicBackground />
       
       {/* ヘッダー */}
-      <CosmicHeader title="タロット詳細分析" />
+      <CosmicHeader title="タロット詳細分析（テスト中）" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">

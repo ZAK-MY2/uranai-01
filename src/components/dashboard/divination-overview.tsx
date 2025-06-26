@@ -56,7 +56,7 @@ const westernDivinations = [
   },
   { 
     symbol: '◯', 
-    name: 'タロット', 
+    name: 'タロット（テスト中）', 
     result: mockDivinationData.tarot.cards.present.name, 
     status: mockDivinationData.tarot.cards.present.keywords[0],
     href: '/divination/tarot',
