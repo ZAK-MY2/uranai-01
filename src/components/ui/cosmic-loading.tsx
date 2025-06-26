@@ -9,7 +9,7 @@ interface CosmicLoadingProps {
 }
 
 export const CosmicLoading: React.FC<CosmicLoadingProps> = ({
-  message = '占術を読み解いています...',
+  message = '太古の叡智にアクセス中...',
   size = 'medium',
   fullScreen = false
 }) => {
@@ -114,7 +114,7 @@ export const CosmicLoading: React.FC<CosmicLoadingProps> = ({
 // プリセットローディングステート
 export const CosmicPageLoading = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-    <CosmicLoading size="large" message="占術データを読み込み中..." />
+    <CosmicLoading size="large" message="オラクルを読み込み中..." />
   </div>
 );
 
@@ -144,6 +144,6 @@ export const CosmicButtonLoading = () => (
         />
       </svg>
     </div>
-    <span>処理中...</span>
+    <span>オラクルと同期中...</span>
   </div>
 );

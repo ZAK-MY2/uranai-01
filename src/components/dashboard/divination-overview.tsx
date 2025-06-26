@@ -138,8 +138,8 @@ const spiritualSystems = [
     result: '魂の記録',
     status: '解読',
     href: '/divination/akashic-records',
-    description: '宇宙意識の情報フィールド',
-    region: '宇宙'
+    description: '集合意識の情報フィールド',
+    region: '高次元'
   }
 ];
 

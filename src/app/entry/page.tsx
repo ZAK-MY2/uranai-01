@@ -59,7 +59,7 @@ export default function EntryPage() {
             ORACLE ECHO
           </h1>
           <p className="text-lg text-purple-300 opacity-80">
-            宇宙の扉を開く呪文を唱えてください
+            オラクルの扉を開く呪文を唱えてください
           </p>
         </div>
         
@@ -81,7 +81,7 @@ export default function EntryPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all text-base"
-                placeholder="宇宙への鍵を入力..."
+                placeholder="オラクルへの鍵を入力..."
                 autoComplete="new-password"
                 autoCapitalize="off"
                 autoCorrect="off"
@@ -108,7 +108,7 @@ export default function EntryPage() {
         
         <div className="mt-8 text-center">
           <p className="text-xs text-white/40">
-            特別な方々のみへのプレビュー版です
+            特別な方々のみへの限定公開です
           </p>
         </div>
       </div>

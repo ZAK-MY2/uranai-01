@@ -43,7 +43,7 @@ export default function MayanCalendarPage() {
                 マヤ暦診断結果
               </h2>
               <p className="text-xl text-purple-300 mb-8">
-                ツォルキン暦による宇宙リズムの解読
+                ツォルキン暦による天体リズムの解読
               </p>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function MayanCalendarPage() {
 
           {/* ツォルキン暦の解説 */}
           <div className="cosmic-card cosmic-section">
-            <h3 className="cosmic-heading text-3xl text-center mb-8">あなたの宇宙的役割</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">あなたの天命的役割</h3>
             
             <div className="space-y-6">
               <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-400/30">

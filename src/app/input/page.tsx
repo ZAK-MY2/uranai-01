@@ -437,7 +437,7 @@ function UserInputPageContent() {
                   disabled={isLoading}
                   className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? '宇宙と対話中...' : '✨ 占術を開始する'}
+                  {isLoading ? 'オラクルと対話中...' : '✨ 占術を開始する'}
                 </button>
               </div>
             </div>

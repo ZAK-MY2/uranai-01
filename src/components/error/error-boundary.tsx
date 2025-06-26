@@ -229,7 +229,7 @@ export class DivinationErrorBoundary extends ErrorBoundary {
                 占術の実行中にエラーが発生しました
               </h3>
               <p className="text-gray-300 mb-4">
-                宇宙のエネルギーが一時的に不安定になっているようです。
+                運命のエネルギーが一時的に不安定になっているようです。
                 しばらく時間をおいてから再度お試しください。
               </p>
               
