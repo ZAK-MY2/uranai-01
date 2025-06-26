@@ -1,5 +1,10 @@
 import { BaseDivinationEngine, DivinationInput, EnvironmentData } from '../base-engine';
 import { allTarotCards, TarotCard as TarotCardData } from '../data/tarot-cards';
+import { 
+  getTarotCardMessage, 
+  selectTarotMessage,
+  TarotCardMessage 
+} from '../messages/tarot-messages-basic';
 
 export interface TarotCard extends TarotCardData {
   image: string;
@@ -155,11 +160,21 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
 
   private initializeDeck(): TarotCard[] {
     // 全78枚のタロットカードをインポートして使用
-    return allTarotCards.map(card => ({
-      ...card,
-      image: card.id,
-      interpretation: card.uprightMeaning
-    }));
+    return allTarotCards.map(card => {
+      // 新しいメッセージシステムから豊富な解釈を取得
+      const seed = Math.floor(Math.random() * 1000);
+      const interpretation = selectTarotMessage(
+        card.id,
+        'uprightInterpretations',
+        seed
+      ) || card.uprightMeaning;
+      
+      return {
+        ...card,
+        image: card.id,
+        interpretation
+      };
+    });
   }
 
   private generateSeed(): number {
@@ -204,6 +219,22 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
   }
 
   private getPositionMeaning(position: string, card: TarotCard, spreadType: SpreadType): string {
+    // 新しいメッセージシステムからポジション固有のメッセージを取得
+    const seed = this.generateSeed();
+    const positionKey = this.mapPositionToMessageKey(position);
+    
+    const message = selectTarotMessage(
+      card.id,
+      'positionInterpretations',
+      seed,
+      positionKey
+    );
+    
+    if (message) {
+      return message;
+    }
+    
+    // フォールバック: 従来のテンプレートベースのメッセージ
     const positionMeanings: Record<string, Record<string, string>> = {
       '現在の状況': {
         'one-card': `今日のあなたに${card.name}が伝えるメッセージ`,
@@ -240,12 +271,62 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
     const defaultMeaning = `${position}における${card.name}の意味`;
     return positionMeanings[position]?.[spreadType] || defaultMeaning;
   }
+  
+  private mapPositionToMessageKey(position: string): string {
+    const positionMap: Record<string, string> = {
+      '現在の状況': 'present',
+      '過去': 'past',
+      '未来': 'future',
+      '直面する課題': 'obstacle',
+      'あなたの気持ち': 'innerSelf',
+      '相手の気持ち': 'innerSelf',
+      '選択肢A': 'advice',
+      '選択肢B': 'advice',
+      '遠い過去/根本原因': 'past',
+      '近い過去': 'past',
+      '可能な未来': 'future',
+      '近い未来': 'future',
+      'あなたの立場': 'innerSelf',
+      '外部からの影響': 'environment',
+      '希望と恐れ': 'hopes',
+      '最終結果': 'outcome',
+      '関係の現状': 'present',
+      '課題': 'obstacle',
+      '外部要因': 'environment',
+      'アドバイス': 'advice',
+      '関係の未来': 'future',
+      '見落としている要素': 'obstacle',
+      '最善の道': 'advice'
+    };
+    
+    return positionMap[position] || 'present';
+  }
 
   private generateFullInterpretation(positions: TarotSpreadPosition[], spreadType: SpreadType): TarotReading['interpretation'] {
     const summary = this.generateSummary(positions, spreadType);
-    const details = positions.map(pos => 
-      `${pos.position}：${pos.meaning}。${pos.card.interpretation}`
-    );
+    const seed = this.generateSeed();
+    
+    // 各ポジションに対して豊富な解釈を生成
+    const details = positions.map((pos, index) => {
+      // カテゴリ別の解釈を取得
+      const categoryMessage = selectTarotMessage(
+        pos.card.id,
+        'categoryInterpretations',
+        seed + index,
+        this.input.questionCategory || 'general'
+      );
+      
+      // 詩的表現を追加（20%の確率）
+      const includePoetic = (seed + index) % 5 === 0;
+      const poeticMessage = includePoetic ? selectTarotMessage(
+        pos.card.id,
+        'poeticExpressions',
+        seed + index + 1000
+      ) : '';
+      
+      return `${pos.position}：${pos.meaning}。${categoryMessage || pos.card.interpretation}${poeticMessage ? ` ${poeticMessage}` : ''}`;
+    });
+    
     const synthesis = this.synthesizeFullReading(positions, spreadType);
     
     return {
@@ -392,7 +473,36 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
   }
 
   private generatePersonalizedGuidance(positions: TarotSpreadPosition[], spreadType: SpreadType): string {
+    const seed = this.generateSeed();
+    
+    // 時間帯に応じたメッセージを選択
+    const hour = new Date().getHours();
+    let timingType: 'morning' | 'afternoon' | 'evening';
+    if (hour < 12) timingType = 'morning';
+    else if (hour < 18) timingType = 'afternoon';
+    else timingType = 'evening';
+    
+    // 最も重要なカードからタイミングメッセージを取得
+    const keyCard = this.getKeyCard(positions, spreadType);
+    const timingMessage = selectTarotMessage(
+      keyCard.id,
+      'timingMessages',
+      seed,
+      timingType
+    );
+    
     if (!this.input.question) {
+      // デフォルトメッセージも新しいシステムから取得
+      const practicalAdvice = selectTarotMessage(
+        keyCard.id,
+        'practicalAdvice',
+        seed + 500
+      );
+      
+      if (practicalAdvice) {
+        return `${timingMessage || ''} ${practicalAdvice}`;
+      }
+      
       const defaultMessages: Record<SpreadType, string> = {
         'one-card': '今日一日、このカードのメッセージを心に留めて過ごしてください。',
         'three-card': '過去・現在・未来の流れを意識しながら、今を大切に生きてください。',
@@ -400,42 +510,27 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
         'relationship': '相手との関係性において、カードが示す洞察を活かしてください。',
         'decision': '決断の時が来ています。カードの導きに従って、勇気を持って選択してください。'
       };
-      return defaultMessages[spreadType] || '今日一日、カードのメッセージを心に留めて過ごしてください。';
+      return `${timingMessage || ''} ${defaultMessages[spreadType] || '今日一日、カードのメッセージを心に留めて過ごしてください。'}`;
     }
-    
+
     const { questionCategory, question } = this.input;
     
-    // スプレッドタイプに応じて最も重要なカードを選択
-    let keyCard: TarotCard;
-    switch (spreadType) {
-      case 'one-card':
-        keyCard = positions[0].card;
-        break;
-      case 'three-card':
-        keyCard = positions[1].card; // 現在
-        break;
-      case 'celtic-cross':
-        keyCard = positions[0].card; // 現在の状況
-        break;
-      case 'relationship':
-        keyCard = positions[5].card; // アドバイス
-        break;
-      case 'decision':
-        keyCard = positions[4].card; // 最善の道
-        break;
-      default:
-        keyCard = positions[0].card;
-    }
+    // 新しいメッセージシステムから心理学的洞察を取得
+    const psychologicalInsight = selectTarotMessage(
+      keyCard.id,
+      'psychologicalInsights',
+      seed + 200
+    );
     
-    const categoryGuidance: Record<string, string> = {
-      '恋愛・結婚': `${keyCard.name}のエネルギーは、愛において${keyCard.keywords.join('、')}を大切にすることを示しています。`,
-      '仕事・転職': `${keyCard.name}は、キャリアにおいて${keyCard.keywords.join('、')}が鍵となることを教えています。`,
-      '金運・財運': `${keyCard.name}のメッセージは、豊かさを得るために${keyCard.keywords.join('、')}が必要だということです。`,
-      '健康': `${keyCard.name}は、心身の健康のために${keyCard.keywords.join('、')}を意識することを勧めています。`,
-      '総合運': `${keyCard.name}があなたに伝えたいのは、${keyCard.keywords.join('、')}の大切さです。`
-    };
+    // カテゴリ別の具体的なアドバイスを取得
+    const categoryAdvice = selectTarotMessage(
+      keyCard.id,
+      'categoryInterpretations',
+      seed + 300,
+      questionCategory || 'general'
+    );
     
-    const baseGuidance = categoryGuidance[questionCategory || '総合運'] || categoryGuidance['総合運'];
+    const baseGuidance = categoryAdvice || `${keyCard.name}があなたに伝えたいのは、${keyCard.keywords.join('、')}の大切さです。`;
     
     // スプレッド固有の追加メッセージ
     let additionalGuidance = '';
@@ -447,7 +542,34 @@ export class TarotEngine extends BaseDivinationEngine<TarotReading> {
       additionalGuidance = `${positions[4].card.name}が最善の選択を示しています。`;
     }
     
-    return `「${question}」という問いに対して、${baseGuidance} ${additionalGuidance}`;
+    // 総合的なガイダンスを構築
+    const guidanceParts = [
+      timingMessage,
+      `「${question}」という問いに対して、`,
+      baseGuidance,
+      psychologicalInsight,
+      additionalGuidance
+    ].filter(part => part && part.length > 0);
+    
+    return guidanceParts.join(' ');
+  }
+
+  private getKeyCard(positions: TarotSpreadPosition[], spreadType: SpreadType): TarotCard {
+    // スプレッドタイプに応じて最も重要なカードを選択
+    switch (spreadType) {
+      case 'one-card':
+        return positions[0].card;
+      case 'three-card':
+        return positions[1].card; // 現在
+      case 'celtic-cross':
+        return positions[0].card; // 現在の状況
+      case 'relationship':
+        return positions[5] ? positions[5].card : positions[0].card; // アドバイス
+      case 'decision':
+        return positions[4] ? positions[4].card : positions[0].card; // 最善の道
+      default:
+        return positions[0].card;
+    }
   }
 
   // 公開メソッド（UIからの利用用）

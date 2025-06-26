@@ -31,6 +31,25 @@ const nextConfig: NextConfig = {
         tls: false,
       };
     }
+    
+    // swissephのバイナリファイルを外部化
+    config.module.rules.push({
+      test: /\.node$/,
+      use: 'node-loader',
+    });
+    
+    // swissephを外部依存として扱う
+    if (isServer) {
+      config.externals = [
+        ...config.externals,
+        ({ request }: { request: string }, callback: (err?: Error | null, result?: string) => void) => {
+          if (request === 'swisseph') {
+            return callback(null, 'commonjs swisseph');
+          }
+          callback();
+        },
+      ];
+    }
 
     return config;
   },

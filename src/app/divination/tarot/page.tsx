@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 import { mockEnvironmentData } from '@/lib/mock/environment-data';
 import { DivinationInput } from '@/lib/divination/base-engine';
@@ -328,15 +329,7 @@ export default function TarotPage() {
       <CosmicBackground />
       
       {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">タロット詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="タロット詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
@@ -344,7 +337,7 @@ export default function TarotPage() {
           
           {/* スプレッド選択 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-6">スプレッドを選択</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-6">スプレッドを選択</h3>
             <div className="flex justify-center gap-6">
               <button
                 onClick={() => {
@@ -391,7 +384,7 @@ export default function TarotPage() {
           
           {/* インタラクティブタロット */}
           {showInteractive && divinationInput ? (
-            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+            <div className="cosmic-card cosmic-section">
               <TarotInteractive 
                 input={divinationInput} 
                 environment={mockEnvironmentData}
@@ -401,7 +394,7 @@ export default function TarotPage() {
           
           {/* カードスプレッド表示 */}
           {!showInteractive && (
-            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+            <div className="cosmic-card cosmic-section">
               {spreadType === 'one' ? (
                 // ワンオラクル表示
                 <div>
@@ -425,7 +418,7 @@ export default function TarotPage() {
                   
                   {revealedCards.includes('oracle') && (
                     <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
-                      <h3 className="text-2xl font-light text-white text-center mb-6">
+                      <h3 className="cosmic-heading text-3xl text-center mb-6">
                         {tarot.cards.present.name}
                       </h3>
                       <p className="text-lg text-white/80 text-center leading-relaxed mb-6">
@@ -479,7 +472,7 @@ export default function TarotPage() {
                   {/* 選択されたカードの詳細 */}
                   {revealedCards.length > 0 && (
                     <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
-                      <h3 className="text-2xl font-light text-white text-center mb-6">
+                      <h3 className="cosmic-heading text-3xl text-center mb-6">
                         {tarot.cards[selectedCard].name} - {selectedCard === 'past' ? '過去' : selectedCard === 'present' ? '現在' : '未来'}
                       </h3>
                       <p className="text-lg text-white/80 text-center leading-relaxed">
@@ -494,8 +487,8 @@ export default function TarotPage() {
           
           {/* カードの配置図（インフォグラフィック）（通常モード時のみ表示） */}
           {!showInteractive && (
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">エネルギーの流れ</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">エネルギーの流れ</h3>
             
             <div className="relative max-w-4xl mx-auto">
               <svg viewBox="0 0 800 300" className="w-full h-auto">
@@ -538,8 +531,8 @@ export default function TarotPage() {
           
           {/* 生データ：カード引き結果（通常モード時のみ表示） */}
           {!showInteractive && (
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">引いたカードの詳細データ</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">引いたカードの詳細データ</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {Object.entries(tarot.cards).map(([time, card]) => (
@@ -589,7 +582,7 @@ export default function TarotPage() {
           {/* 総合メッセージ（通常モード時のみ表示） */}
           {!showInteractive && (
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">総合的なメッセージ</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">総合的なメッセージ</h3>
             
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-8">
@@ -625,6 +618,13 @@ export default function TarotPage() {
           </div>
           )}
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細なタロット占い診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

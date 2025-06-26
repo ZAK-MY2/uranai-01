@@ -1,7 +1,19 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
   "rules": {
+    // 型安全性の強化（今回の問題対策）
     "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    
+    // template literal制限（構文エラー防止）
+    "prefer-template": "off",
+    
+    // 品質向上（本番では厳格化）
+    "no-console": "warn",
+    "no-debugger": "error",
+    
+    // React関連
+    "react/no-unescaped-entities": "off",
+    "react/display-name": "off"
   }
 }

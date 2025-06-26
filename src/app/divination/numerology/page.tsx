@@ -4,11 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
-import { mockDivinationData } from '@/lib/mock/divination-data';
+import { AccessibilityMenu } from '@/components/ui/accessibility-menu';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
+import { useDivination } from '@/hooks/useDivination';
 import { NumerologyEngine, NumerologyResult } from '@/lib/divination/engines/numerology-engine';
 import { DivinationInput } from '@/lib/divination/base-engine';
 import { EnvironmentService } from '@/lib/services/environment-service';
-import RouteGuard from '@/components/auth/route-guard';
+import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
   () => import('@/components/divination/parameter-badge').then(mod => mod.ParameterBadge),
@@ -90,15 +92,7 @@ function NumerologyPageContent() {
       <CosmicBackground />
       
       {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">数秘術詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="数秘術詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
@@ -107,8 +101,8 @@ function NumerologyPageContent() {
           <ParameterBadge />
           
           {/* メインナンバー表示 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h2 className="text-3xl font-light text-white text-center mb-10">あなたの数秘術チャート</h2>
+          <div className="cosmic-card cosmic-section">
+            <h2 className="cosmic-title text-4xl text-center mb-12">あなたの数秘術チャート</h2>
             
             {/* 六角形のナンバーチャート */}
             <div className="relative w-96 h-96 mx-auto mb-10">
@@ -172,15 +166,15 @@ function NumerologyPageContent() {
             </div>
 
             {/* 数字の意味 */}
-            <div className="text-center text-white/70 max-w-2xl mx-auto">
-              <p className="text-lg mb-2">ライフパスナンバー {numerology.lifePathNumber}：</p>
-              <p className="text-2xl font-light mb-6">{numerology.interpretation.lifePathMeaning}</p>
+            <div className="text-center max-w-2xl mx-auto">
+              <p className="cosmic-label text-lg mb-3">ライフパスナンバー {numerology.lifePathNumber}</p>
+              <p className="cosmic-heading text-2xl mb-6">{numerology.interpretation.lifePathMeaning}</p>
             </div>
           </div>
 
           {/* 各分野のスコア */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">分野別運勢スコア</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-10">分野別運勢スコア</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               {Object.entries({
@@ -247,8 +241,8 @@ function NumerologyPageContent() {
           </div>
 
           {/* 読み解き前の生データ */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">計算結果（生データ）</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-10">計算結果（生データ）</h3>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/5 rounded-xl p-6 text-center">
@@ -276,15 +270,15 @@ function NumerologyPageContent() {
               </div>
             </div>
             
-            <div className="text-center text-white/50">
+            <div className="text-center cosmic-text text-sm opacity-70">
               <p>※ ピタゴラス式数秘術による計算方法を使用</p>
-              <p>※ マスターナンバー（11, 22, 33）は特別な意味を持ちます</p>
+              <p>※ マスターナンバー（11, 22, 33）は特別な意坣を持ちます</p>
             </div>
           </div>
 
           {/* 詳細な読み解き */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">詳細な読み解き</h3>
+          <div className="cosmic-card cosmic-section-large">
+            <h3 className="cosmic-title text-3xl text-center mb-10">詳細な読み解き</h3>
             
             <div className="space-y-6 text-white/80">
               {numerology.luckyMessage && (
@@ -322,6 +316,13 @@ function NumerologyPageContent() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細な数秘術診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 
@@ -339,9 +340,5 @@ function NumerologyPageContent() {
 }
 
 export default function NumerologyPage() {
-  return (
-    <RouteGuard requireAuth={true} requireInput={true}>
-      <NumerologyPageContent />
-    </RouteGuard>
-  );
+  return <NumerologyPageContent />;
 }

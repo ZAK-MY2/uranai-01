@@ -30,6 +30,19 @@ export interface NineStarReading {
     characteristics: string[];
     strengths: string[];
     weaknesses: string[];
+    calculationDetails?: {
+      accurateMethod: {
+        adjustedYear: number;
+        starNumber: number;
+        springBeginning: Date;
+      };
+      traditionalMethod: {
+        adjustedYear: number;
+        starNumber: number;
+        note: string;
+      };
+      difference: string;
+    };
   };
   monthlyStar: {
     number: number;
@@ -90,15 +103,23 @@ export class NineStarKiEngine extends BaseDivinationEngine<NineStarReading> {
   private calculateMainStar(): NineStarReading['mainStar'] {
     const birthYear = this.input.birthDate.getFullYear();
     
-    // 立春（2月4日頃）を考慮した年の判定
+    // 正確な立春を考慮した年の判定
+    const adjustedYear = this.getAccurateAdjustedYear(this.input.birthDate);
+    
+    // 従来の簡易計算も併記
     const birthMonth = this.input.birthDate.getMonth();
     const birthDay = this.input.birthDate.getDate();
-    const adjustedYear = (birthMonth < 1 || (birthMonth === 1 && birthDay < 4)) ? birthYear - 1 : birthYear;
+    const simpleAdjustedYear = (birthMonth < 1 || (birthMonth === 1 && birthDay < 4)) ? birthYear - 1 : birthYear;
     
-    // 本命星の計算（男女共通の簡易版）
+    // 本命星の計算（正確な立春基準）
     let starNumber = 11 - (adjustedYear % 9);
     if (starNumber > 9) starNumber -= 9;
     if (starNumber === 0) starNumber = 9;
+    
+    // 従来計算での結果も記録
+    let simpleStarNumber = 11 - (simpleAdjustedYear % 9);
+    if (simpleStarNumber > 9) simpleStarNumber -= 9;
+    if (simpleStarNumber === 0) simpleStarNumber = 9;
     
     const star = NINE_STARS[starNumber as keyof typeof NINE_STARS];
     
@@ -108,7 +129,20 @@ export class NineStarKiEngine extends BaseDivinationEngine<NineStarReading> {
       element: star.element,
       characteristics: this.getCharacteristics(starNumber),
       strengths: this.getStrengths(starNumber),
-      weaknesses: this.getWeaknesses(starNumber)
+      weaknesses: this.getWeaknesses(starNumber),
+      calculationDetails: {
+        accurateMethod: {
+          adjustedYear,
+          starNumber,
+          springBeginning: this.getSpringBeginning(birthYear)
+        },
+        traditionalMethod: {
+          adjustedYear: simpleAdjustedYear,
+          starNumber: simpleStarNumber,
+          note: '2月4日固定基準'
+        },
+        difference: starNumber !== simpleStarNumber ? '正確な立春計算により結果が異なります' : '両計算方法で一致'
+      }
     };
   }
 
@@ -515,5 +549,43 @@ export class NineStarKiEngine extends BaseDivinationEngine<NineStarReading> {
     }
     
     return harmony;
+  }
+
+  /**
+   * 正確な立春を考慮した年の判定
+   */
+  private getAccurateAdjustedYear(birthDate: Date): number {
+    const birthYear = birthDate.getFullYear();
+    const springBeginning = this.getSpringBeginning(birthYear);
+    
+    // 生年月日が立春より前の場合は前年扱い
+    return birthDate.getTime() < springBeginning.getTime() ? birthYear - 1 : birthYear;
+  }
+
+  /**
+   * 各年の正確な立春日時を取得
+   */
+  private getSpringBeginning(year: number): Date {
+    // 2020-2030年の正確な立春データ（日本標準時）
+    const accurateSpringDates: Record<number, string> = {
+      2020: '2020-02-04T17:03:00+09:00',
+      2021: '2021-02-03T22:59:00+09:00',
+      2022: '2022-02-04T04:51:00+09:00',
+      2023: '2023-02-04T10:43:00+09:00',
+      2024: '2024-02-04T16:27:00+09:00',
+      2025: '2025-02-03T22:10:00+09:00',
+      2026: '2026-02-04T04:01:00+09:00',
+      2027: '2027-02-04T09:46:00+09:00',
+      2028: '2028-02-04T15:31:00+09:00',
+      2029: '2029-02-03T21:20:00+09:00',
+      2030: '2030-02-04T03:09:00+09:00'
+    };
+
+    if (accurateSpringDates[year]) {
+      return new Date(accurateSpringDates[year]);
+    }
+
+    // データがない年は近似計算（2月4日午前10時として概算）
+    return new Date(year, 1, 4, 10, 0, 0);
   }
 }

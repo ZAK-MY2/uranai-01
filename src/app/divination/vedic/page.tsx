@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -191,23 +192,14 @@ export default function VedicAstrologyPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">ヴェーダ占星術詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="ヴェーダ占星術詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* ジャンマ・クンダリー（出生図） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+          <div className="cosmic-card cosmic-section">
             <h2 className="text-3xl font-light text-white text-center mb-10">ジャンマ・クンダリー</h2>
             
             {/* タブ切り替え */}
@@ -258,48 +250,107 @@ export default function VedicAstrologyPage() {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* ダシャー期間（インフォグラフィック） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">惑星期（ダシャー）</h3>
             
-            <div className="relative">
-              <div className="flex items-center justify-between max-w-4xl mx-auto mb-8">
-                <div className="flex-1 h-2 bg-white/10 rounded-full relative overflow-hidden">
-                  <div 
-                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                    style={{ width: '65%' }}
-                  ></div>
-                  <div className="absolute top-1/2 left-[65%] transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-4 h-4 bg-white rounded-full border-2 border-purple-500"></div>
+            {selectedTab === 'transit' && (
+              <div className="max-w-4xl mx-auto">
+                <h3 className="text-xl font-light text-white text-center mb-6">現在のグラハ位置</h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    { planet: '太陽', sign: '蟹座', degree: '15°22\'', aspect: '吉' },
+                    { planet: '月', sign: '牡牛座', degree: '8°45\'', aspect: '中立' },
+                    { planet: '火星', sign: '獅子座', degree: '23°11\'', aspect: '凶' },
+                    { planet: '水星', sign: '双子座', degree: '28°33\'', aspect: '吉' },
+                    { planet: '木星', sign: '射手座', degree: '12°07\'', aspect: '大吉' },
+                    { planet: '金星', sign: '天秤座', degree: '19°55\'', aspect: '吉' },
+                    { planet: '土星', sign: '山羊座', degree: '5°42\'', aspect: '凶' },
+                    { planet: 'ラーフ', sign: '牡羊座', degree: '17°29\'', aspect: '中立' },
+                    { planet: 'ケートゥ', sign: '天秤座', degree: '17°29\'', aspect: '中立' }
+                  ].map((item) => (
+                    <div key={item.planet} className="bg-white/5 rounded-lg p-4 border border-white/20">
+                      <div className="text-white font-medium mb-2">{item.planet}</div>
+                      <div className="text-sm text-white/70">{item.sign} {item.degree}</div>
+                      <div className={`text-xs mt-2 px-2 py-1 rounded-full inline-block ${
+                        item.aspect === '大吉' ? 'bg-green-500/20 text-green-300' :
+                        item.aspect === '吉' ? 'bg-blue-500/20 text-blue-300' :
+                        item.aspect === '凶' ? 'bg-red-500/20 text-red-300' :
+                        'bg-gray-500/20 text-gray-300'
+                      }`}>
+                        {item.aspect}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-8 p-6 bg-purple-500/10 rounded-xl border border-purple-400/30">
+                  <h4 className="text-lg text-white mb-3">トランジット影響</h4>
+                  <p className="text-white/80 leading-relaxed">
+                    現在、木星が射手座を通過中で、精神的な成長と幸運の時期です。
+                    土星は山羊座にあり、着実な努力が報われる配置となっています。
+                    火星の獅子座通過により、情熱的な行動力が高まっています。
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {selectedTab === 'dasha' && (
+              <div className="max-w-4xl mx-auto">
+                <h3 className="text-xl font-light text-white text-center mb-6">ダシャー詳細期間</h3>
+                
+                {/* 現在のダシャー */}
+                <div className="bg-purple-500/20 rounded-xl p-6 mb-6 border border-purple-400/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg text-white">現在進行中</h4>
+                    <span className="text-sm text-purple-300">2020年〜2040年</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-white/50 text-sm">マハーダシャー</p>
+                      <p className="text-2xl text-white">{vedicAstrology.planetaryPeriod.mahaDasha}</p>
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-sm">アンタルダシャー</p>
+                      <p className="text-2xl text-white">{vedicAstrology.planetaryPeriod.antarDasha}</p>
+                    </div>
                   </div>
                 </div>
+                
+                {/* ダシャー履歴 */}
+                <div className="space-y-3">
+                  <h4 className="text-lg text-white mb-3">ダシャー履歴と予定</h4>
+                  {[
+                    { period: '1990-2010', planet: '土星', status: '完了' },
+                    { period: '2010-2020', planet: '水星', status: '完了' },
+                    { period: '2020-2040', planet: vedicAstrology.planetaryPeriod.mahaDasha, status: '進行中' },
+                    { period: '2040-2057', planet: 'ケートゥ', status: '予定' },
+                    { period: '2057-2077', planet: '金星', status: '予定' }
+                  ].map((item) => (
+                    <div key={item.period} className={`flex items-center justify-between p-4 rounded-lg border ${
+                      item.status === '進行中' ? 'bg-purple-500/10 border-purple-400/30' :
+                      item.status === '完了' ? 'bg-white/5 border-white/10 opacity-60' :
+                      'bg-white/5 border-white/10'
+                    }`}>
+                      <div className="flex items-center gap-4">
+                        <span className="text-white">{item.planet}期</span>
+                        <span className="text-sm text-white/50">{item.period}</span>
+                      </div>
+                      <span className={`text-sm px-3 py-1 rounded-full ${
+                        item.status === '進行中' ? 'bg-purple-500/30 text-purple-300' :
+                        item.status === '完了' ? 'bg-gray-500/30 text-gray-300' :
+                        'bg-blue-500/30 text-blue-300'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              
-              <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
-                <div className="bg-white/5 rounded-xl p-6 text-center">
-                  <p className="text-white/50 text-sm mb-2">マハーダシャー</p>
-                  <p className="text-2xl text-white mb-2">{vedicAstrology.planetaryPeriod.mahaDasha}</p>
-                  <p className="text-purple-300">20年周期</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-6 text-center border-2 border-purple-400">
-                  <p className="text-white/50 text-sm mb-2">アンタルダシャー</p>
-                  <p className="text-2xl text-white mb-2">{vedicAstrology.planetaryPeriod.antarDasha}</p>
-                  <p className="text-pink-300">現在進行中</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-6 text-center">
-                  <p className="text-white/50 text-sm mb-2">残り期間</p>
-                  <p className="text-2xl text-white mb-2">{vedicAstrology.planetaryPeriod.yearsRemaining}</p>
-                  <p className="text-blue-300">年</p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* ヨーガ（特別な配置） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">吉祥ヨーガ</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">吉祥ヨーガ</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {vedicAstrology.yogas.map((yoga) => (
@@ -316,8 +367,8 @@ export default function VedicAstrologyPage() {
           </div>
 
           {/* レメディ（改善法） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">ヴェーダの処方箋</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">ヴェーダの処方箋</h3>
             
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white/5 rounded-xl p-6">
@@ -351,7 +402,7 @@ export default function VedicAstrologyPage() {
 
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">ジョーティシュからの神聖なメッセージ</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">ジョーティシュからの神聖なメッセージ</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="text-center mb-8">
@@ -386,6 +437,13 @@ export default function VedicAstrologyPage() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細なヴェーダ占星術診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

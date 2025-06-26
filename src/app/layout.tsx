@@ -6,6 +6,7 @@ import { EnvironmentBadge } from "@/components/EnvironmentBadge";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { SkipToContent } from "@/components/ui/skip-to-content";
 import { AccessibilityMenu } from "@/components/ui/accessibility-menu";
+import { ErrorProvider } from "@/components/providers/error-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,9 +40,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <SkipToContent />
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorProvider>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </ErrorProvider>
         <EnvironmentBadge />
       </body>
     </html>

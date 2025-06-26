@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -249,15 +250,7 @@ export default function ShichuSuimeiPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white tracking-wider">四柱推命</h1>
-        </div>
-      </header>
+      <CosmicHeader title="四柱推命詳細分析" />
 
       <main className="relative z-10 max-w-7xl mx-auto px-5 py-10">
         {/* ユーザーパラメータ表示 */}
@@ -275,7 +268,7 @@ export default function ShichuSuimeiPage() {
 
         {/* 四柱（命式）表示 */}
         <div className="mb-12">
-          <h3 className="text-2xl font-light text-white text-center mb-8">あなたの命式</h3>
+          <h3 className="cosmic-heading text-3xl text-center mb-8">あなたの命式</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <PillarDisplay
               title="年柱"
@@ -487,6 +480,13 @@ export default function ShichuSuimeiPage() {
               </p>
             </div>
           )}
+        </div>
+
+        {/* 詳細診断ボタン（準備中） */}
+        <div className="detail-diagnosis-button">
+          <button className="cosmic-button-disabled" disabled>
+            詳細な四柱推命診断を受ける（準備中）
+          </button>
         </div>
 
         {/* 他の占術への導線 */}

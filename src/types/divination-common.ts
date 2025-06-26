@@ -23,29 +23,25 @@ import {
 // =============================================================================
 export interface DivinationResultMap {
   numerology: NumerologyResult;
-  tarot: TarotReading;
   astrology?: AstrologyResult;
   shichuSuimei?: ShichuResult;
-  iChing?: IChingReading;
   nineStarKi?: KyuseiResult;
-  runes?: RuneReading;
   vedic?: VedicResult;
   celtic?: CelticAstrologyResult;
   kabbalah?: KabbalahResult;
+  mayanCalendar?: any; // MayanCalendarResult
 }
 
 // Actual engine result map - what the engines really return
 export interface EngineResultMap {
   numerology: any; // NumerologyReading
-  tarot: any; // TarotEngineReading
   astrology: any; // AstrologyReading
   shichuSuimei: any; // ShichuSuimeiReading
-  iChing: any; // IChingEngineReading
   nineStarKi: any; // NineStarKiReading
-  runes: any; // RunicReading
   vedic: any; // VedicReading
   celtic: any; // CelticReading
   kabbalah: any; // KabbalahReading
+  mayanCalendar: any; // MayanCalendarReading
 }
 
 // Mock result structure for lightweight sync version
@@ -55,14 +51,6 @@ export interface MockDivinationResults {
     interpretation: {
       lifePathMeaning: string;
     };
-  };
-  tarot: {
-    positions: Array<{
-      card: {
-        name: string;
-        keywords: string[];
-      };
-    }>;
   };
   astrology: {
     birthChart: {
@@ -78,23 +66,15 @@ export interface MockDivinationResults {
       };
     };
   };
-  iChing: {
-    hexagram: {
-      number: number;
-      name: string;
-    };
-  };
   nineStarKi: {
     mainStar: {
       name: string;
     };
   };
-  runes: {
-    spread: {
-      positions: Array<{
-        name: string;
-      }>;
-    };
+  mayanCalendar: {
+    kinNumber: number;
+    trecena: string;
+    tone: number;
   };
   vedic: {
     birthChart: {
@@ -450,12 +430,7 @@ export function getNumerologyLifePath(results: AnyDivinationResults): number {
 }
 
 export function getTarotCardName(results: AnyDivinationResults, index: number): string | undefined {
-  if (isMockResults(results) && 'positions' in results.tarot) {
-    return results.tarot.positions[index]?.card?.name;
-  }
-  if (isFullResults(results) && results.tarot.cards[index]) {
-    return results.tarot.cards[index].card.name;
-  }
+  // Tarot is no longer in Complex integration (requires card draw)
   return undefined;
 }
 

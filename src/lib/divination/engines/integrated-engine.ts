@@ -21,18 +21,16 @@ import {
 } from '@/types/divination-common';
 
 export interface IntegratedReading {
-  // 各占術の要約
+  // 各占術の要約（生年月日から計算可能な8占術）
   summaries: {
     numerology: string;
-    tarot: string;
     astrology: string;
     shichuSuimei: string;
-    iChing: string;
     nineStarKi: string;
-    runes: string;
     vedic: string;
     celtic: string;
     kabbalah: string;
+    mayanCalendar: string;
   };
   
   // 統合分析
@@ -110,57 +108,50 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
 
   // 非同期版で動的インポートを使用
   async calculateAsync(): Promise<IntegratedReading> {
-    // 動的インポートで各エンジンを読み込み
+    // 動的インポートで各エンジンを読み込み（8占術）
     const [
       { NumerologyEngine },
-      { TarotEngine },
       { AstrologyEngine },
       { ShichuSuimeiEngine },
-      { IChingEngine },
       { NineStarKiEngine },
-      { RunesEngine },
       { VedicEngine },
       { CelticEngine },
-      { KabbalahEngine }
+      { KabbalahEngine },
+      { MayanCalendarEngine }
     ] = await Promise.all([
       import('./numerology-engine'),
-      import('./tarot-engine'),
       import('./astrology-engine'),
       import('./shichu-suimei-engine'),
-      import('./iching-engine'),
       import('./nine-star-ki-engine'),
-      import('./runes-engine'),
       import('./vedic-engine'),
       import('./celtic-engine'),
-      import('./kabbalah-engine')
+      import('./kabbalah-engine'),
+      // import('./mayan-calendar-engine')  // TODO: マヤ暦エンジン実装後に有効化
+      Promise.resolve({ MayanCalendarEngine: class { constructor(input: any, env: any) {} calculate() { return {}; } } })
     ]);
 
-    // エンジンを初期化
+    // エンジンを初期化（8占術）
     const engines = {
       numerology: new NumerologyEngine(this.input, this.environment),
-      tarot: new TarotEngine(this.input, this.environment),
       astrology: new AstrologyEngine(this.input, this.environment),
       shichuSuimei: new ShichuSuimeiEngine(this.input, this.environment),
-      iChing: new IChingEngine(this.input, this.environment),
       nineStarKi: new NineStarKiEngine(this.input, this.environment),
-      runes: new RunesEngine(this.input, this.environment),
       vedic: new VedicEngine(this.input, this.environment),
       celtic: new CelticEngine(this.input, this.environment),
-      kabbalah: new KabbalahEngine(this.input, this.environment)
+      kabbalah: new KabbalahEngine(this.input, this.environment),
+      mayanCalendar: new MayanCalendarEngine(this.input, this.environment)
     };
 
-    // 各占術の結果を計算
+    // 各占術の結果を計算（8占術）
     const results = {
       numerology: engines.numerology.calculate(),
-      tarot: engines.tarot.calculate(),
       astrology: engines.astrology.calculate(),
       shichuSuimei: engines.shichuSuimei.calculate(),
-      iChing: engines.iChing.calculate(),
       nineStarKi: engines.nineStarKi.calculate(),
-      runes: engines.runes.calculate(),
       vedic: engines.vedic.calculate(),
       celtic: engines.celtic.calculate(),
-      kabbalah: engines.kabbalah.calculate()
+      kabbalah: engines.kabbalah.calculate(),
+      mayanCalendar: engines.mayanCalendar.calculate()
     };
 
     // 各占術の要約を生成
@@ -224,7 +215,7 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
     };
   }
 
-  // 軽量なモック結果生成
+  // 軽量なモック結果生成（生年月日から計算可能な8占術）
   private generateMockResults(): MockDivinationResults {
     const seed = this.generateSeed();
     
@@ -234,11 +225,6 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
         interpretation: {
           lifePathMeaning: '人生の道筋を示す重要な数字です。'
         }
-      },
-      tarot: {
-        positions: [{
-          card: { name: '太陽', keywords: ['成功', '喜び', '活力'] }
-        }]
       },
       astrology: {
         birthChart: {
@@ -251,16 +237,8 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
           dayPillar: { stem: '甲', branch: '子' }
         }
       },
-      iChing: {
-        hexagram: { number: 1, name: '乾為天' }
-      },
       nineStarKi: {
         mainStar: { name: '一白水星' }
-      },
-      runes: {
-        spread: {
-          positions: [{ name: 'フェフ' }]
-        }
       },
       vedic: {
         birthChart: {
@@ -276,6 +254,11 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
         lifePathSephira: {
           sephira: { name: 'ティファレト' }
         }
+      },
+      mayanCalendar: {
+        kinNumber: (seed % 260) + 1,
+        trecena: '赤い龍',
+        tone: (seed % 13) + 1
       }
     };
   }
@@ -283,15 +266,13 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
   private generateSummaries(results: AnyDivinationResults): IntegratedReading['summaries'] {
     return {
       numerology: `生命数${results.numerology.lifePathNumber}が示す${results.numerology.interpretation?.lifePathMeaning?.split('。')[0] || '生命の道筋'}`,
-      tarot: results.tarot.positions?.[0]?.card ? `${results.tarot.positions[0].card.name}から${results.tarot.positions[results.tarot.positions.length - 1]?.card?.name || '最終カード'}への流れ` : 'タロットの導き',
       astrology: `${results.astrology.birthChart?.sun?.sign || '太陽座'}の太陽と${results.astrology.birthChart?.moon?.sign || '月座'}の月の調和`,
       shichuSuimei: `${results.shichuSuimei?.fourPillars?.dayPillar?.stem || '甲'}${results.shichuSuimei?.fourPillars?.dayPillar?.branch || '子'}の命式`,
-      iChing: `${results.iChing?.hexagram?.number || 1}番${results.iChing?.hexagram?.name || '乾為天'}の導き`,
       nineStarKi: `${results.nineStarKi?.mainStar?.name || '一白水星'}の本命星の影響`,
-      runes: `${results.runes?.spread?.positions?.[0]?.name || 'フェフ'}のルーンが示す方向性`,
       vedic: `${results.vedic?.birthChart?.moonNakshatra?.name || 'アシュヴィニー'}のナクシャトラの恵み`,
       celtic: `${results.celtic?.birthTree?.tree?.name || 'オーク'}の樹木が持つ力`,
-      kabbalah: `${results.kabbalah?.lifePathSephira?.sephira?.name || 'ティファレト'}のセフィラの教え`
+      kabbalah: `${results.kabbalah?.lifePathSephira?.sephira?.name || 'ティファレト'}のセフィラの教え`,
+      mayanCalendar: `KIN${results.mayanCalendar?.kinNumber || 1} ${results.mayanCalendar?.trecena || '赤い龍'}の${results.mayanCalendar?.tone || 1}の音`
     };
   }
 
@@ -328,16 +309,13 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
       this.addTheme(themes, '精神性', '数秘術');
     }
     
-    // タロット
-    const tarotPositions = 'positions' in results.tarot ? results.tarot.positions : [];
-    tarotPositions.forEach((pos: any) => {
-      if (pos?.card?.name?.includes('皇帝') || pos?.card?.name?.includes('戦車')) {
-        this.addTheme(themes, 'リーダーシップ', 'タロット');
-      }
-      if (pos?.card?.name?.includes('隠者') || pos?.card?.name?.includes('月')) {
-        this.addTheme(themes, '内省', 'タロット');
-      }
-    });
+    // マヤ暦
+    if (results.mayanCalendar?.tone === 1 || results.mayanCalendar?.tone === 13) {
+      this.addTheme(themes, 'リーダーシップ', 'マヤ暦');
+    }
+    if (results.mayanCalendar?.trecena?.includes('青い手') || results.mayanCalendar?.trecena?.includes('白い風')) {
+      this.addTheme(themes, '奉仕', 'マヤ暦');
+    }
     
     // 西洋占星術
     const sunSign = results.astrology?.birthChart?.sun?.sign || '';
@@ -365,20 +343,41 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
   private findContradictions(results: AnyDivinationResults): IntegratedReading['synthesis']['contradictions'] {
     const contradictions: IntegratedReading['synthesis']['contradictions'] = [];
     
-    // 例: タロットと易経の見解が異なる場合
-    if (results.tarot?.interpretation?.synthesis?.includes('前進') && 
-        results.iChing?.interpretation?.advice?.includes('待機')) {
+    // 西洋占星術の太陽サインと四柱推命の干支から矛盾を検出
+    const sunSign = results.astrology?.birthChart?.sun?.sign || '';
+    const dayPillar = results.shichuSuimei?.fourPillars?.dayPillar || {};
+    
+    // 火のサイン（牡羊、獅子、射手）と水の干支の矛盾
+    if ((sunSign.includes('牡羊') || sunSign.includes('獅子') || sunSign.includes('射手')) && 
+        (dayPillar.branch === '子' || dayPillar.branch === '亥')) {
       contradictions.push({
-        aspect: '行動のタイミング',
+        aspect: '活動レベル',
         viewpoint1: {
-          source: 'タロット',
-          interpretation: '今は積極的に前進する時期'
+          source: '西洋占星術',
+          interpretation: '火のサインが示す活動的な時期'
         },
         viewpoint2: {
-          source: '易経',
-          interpretation: '慎重に待機し、時機を見計らうべき'
+          source: '四柱推命',
+          interpretation: '水の気が強く、休息が必要な時期'
         },
-        resolution: '内なる準備を整えながら、小さな一歩から始める'
+        resolution: '活動と休息のバランスを意識的に取る'
+      });
+    }
+    
+    // 数秘術とヴェーダの矛盾
+    if (results.numerology?.lifePathNumber <= 3 && 
+        results.vedic?.birthChart?.moonNakshatra?.name?.includes('アシュヴィニー')) {
+      contradictions.push({
+        aspect: '行動パターン',
+        viewpoint1: {
+          source: '数秘術',
+          interpretation: '慎重で計画的な行動が吉'
+        },
+        viewpoint2: {
+          source: 'ヴェーダ占星術',
+          interpretation: '直感的で即座の行動が重要'
+        },
+        resolution: '直感を信じつつ、重要な決定は慎重に'
       });
     }
     
@@ -390,25 +389,25 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
       past: {
         main: '過去の経験が現在の土台となっている',
         supporting: [
-          results.tarot.positions?.[0]?.card?.name || '過去のカード',
-          results.celtic?.celticCross?.past || '過去の影響',
-          `四柱推命の大運: ${results.shichuSuimei?.majorCycles?.past?.stem || '過去'}`
+          `数秘術: ${results.numerology?.lifePathNumber ? `ライフパス${results.numerology.lifePathNumber}の基盤` : '過去のサイクル'}`,
+          `西洋占星術: ${results.astrology?.birthChart?.moon?.sign || '月の配置'}が示す幼少期`,
+          `四柱推命: ${results.shichuSuimei?.fourPillars?.dayPillar?.stem || '甲'}${results.shichuSuimei?.fourPillars?.dayPillar?.branch || '子'}の宿命`
         ]
       },
       present: {
         main: '転換期にあり、新たな方向性を模索中',
         supporting: [
-          results.numerology?.personalYear ? `パーソナルイヤー${results.numerology.personalYear.number}` : '現在',
-          results.nineStarKi?.currentCycle?.energy || '現在のエネルギー',
-          results.vedic?.currentDasha?.planetName || '現在の星の影響'
+          `九星気学: ${results.nineStarKi?.mainStar?.name || '一白水星'}の現在の運気`,
+          `マヤ暦: KIN${results.mayanCalendar?.kinNumber || 1}の${results.mayanCalendar?.tone || 1}の音`,
+          `ヴェーダ: ${results.vedic?.birthChart?.moonNakshatra?.name || 'アシュヴィニー'}期`
         ]
       },
       future: {
         main: '大きな成長と発展の可能性',
         supporting: [
-          results.tarot.positions?.[results.tarot.positions?.length - 1]?.card?.name || '未来のカード',
-          results.astrology?.forecast?.nextMonth || '来月の展望',
-          results.iChing?.changingHexagram?.name || '変化の方向'
+          `ケルト: ${results.celtic?.birthTree?.tree?.name || 'オーク'}の成長期へ`,
+          `カバラ: ${results.kabbalah?.lifePathSephira?.sephira?.name || 'ティファレト'}への道`,
+          `統合的な展望から見る未来の可能性`
         ]
       }
     };
@@ -532,13 +531,19 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
     });
     
     // 各占術からの警告
-    const tarotPositions = 'positions' in results.tarot ? results.tarot.positions : [];
-    if (tarotPositions.some((p: any) => p?.card?.name === '塔')) {
-      warnings.push('急激な変化に備える必要があります');
+    // 九星気学の凶方位
+    if (results.nineStarKi?.mainStar?.name?.includes('五黄') || results.nineStarKi?.mainStar?.name?.includes('暗剣')) {
+      warnings.push('今月は慎重な行動が必要な時期です');
     }
     
-    if (results.shichuSuimei?.warnings?.length > 0) {
-      warnings.push(...results.shichuSuimei.warnings.slice(0, 1));
+    // 数秘術のカルマ数
+    if (results.numerology?.lifePathNumber === 13 || results.numerology?.lifePathNumber === 14 || results.numerology?.lifePathNumber === 16) {
+      warnings.push('過去のカルマを解消する必要があります');
+    }
+    
+    // マヤ暦の注意日
+    if (results.mayanCalendar?.tone === 10) {
+      warnings.push('顕在化の音：隠れていた問題が表面化する可能性');
     }
     
     return warnings.slice(0, 2); // 最大2つの警告
@@ -570,42 +575,42 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
   private determinePriorityDivinations(results: AnyDivinationResults): IntegratedReading['priorityDivinations'] {
     const { questionCategory } = this.input;
     
-    // カテゴリーごとの占術の重み付け
+    // カテゴリーごとの占術の重み付け（生年月日から計算可能な8占術）
     const weights: CategoryWeights = {
       '恋愛・結婚': {
-        tarot: 0.9,
-        astrology: 0.8,
-        numerology: 0.7,
+        astrology: 0.9,
+        numerology: 0.8,
+        vedic: 0.7,
         celtic: 0.6,
-        vedic: 0.5
+        mayanCalendar: 0.5
       },
       '仕事・転職': {
         numerology: 0.9,
         shichuSuimei: 0.8,
-        iChing: 0.7,
-        nineStarKi: 0.6,
-        kabbalah: 0.5
+        nineStarKi: 0.7,
+        kabbalah: 0.6,
+        mayanCalendar: 0.5
       },
       '金運・財運': {
         shichuSuimei: 0.9,
         nineStarKi: 0.8,
         numerology: 0.7,
-        iChing: 0.6,
-        vedic: 0.5
+        vedic: 0.6,
+        kabbalah: 0.5
       },
       '健康': {
         nineStarKi: 0.9,
         celtic: 0.8,
         vedic: 0.7,
         shichuSuimei: 0.6,
-        kabbalah: 0.5
+        mayanCalendar: 0.5
       },
       '総合運': {
         numerology: 0.8,
-        tarot: 0.8,
         astrology: 0.8,
-        shichuSuimei: 0.7,
-        iChing: 0.7
+        shichuSuimei: 0.8,
+        nineStarKi: 0.7,
+        vedic: 0.7
       }
     };
     
@@ -624,15 +629,13 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
   private getDivinationDisplayName(key: string): string {
     const names: Record<string, string> = {
       numerology: '数秘術',
-      tarot: 'タロット',
       astrology: '西洋占星術',
       shichuSuimei: '四柱推命',
-      iChing: '易経',
       nineStarKi: '九星気学',
-      runes: 'ルーン',
       vedic: 'ヴェーダ占星術',
       celtic: 'ケルト占術',
-      kabbalah: 'カバラ'
+      kabbalah: 'カバラ',
+      mayanCalendar: 'マヤ暦'
     };
     return names[key] || key;
   }
@@ -640,12 +643,14 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
   private getDivinationReason(divination: string, category: string): string {
     const reasons: Record<string, Record<string, string>> = {
       '恋愛・結婚': {
-        tarot: '恋愛の深層心理と未来の可能性を映し出す',
-        astrology: '相性と恋愛運のタイミングを正確に示す'
+        astrology: '相性と恋愛運のタイミングを正確に示す',
+        numerology: '相性数と結婚適齢期を計算',
+        vedic: '結婚の時期と相手の特徴を詳細に分析'
       },
       '仕事・転職': {
         numerology: '才能と適職を数値的に明確化',
-        shichuSuimei: '命式から見る天職と成功時期'
+        shichuSuimei: '命式から見る天職と成功時期',
+        nineStarKi: '方位による転職時期の最適化'
       }
       // 他のカテゴリー...
     };
@@ -671,10 +676,9 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
       keyFactors.push('幸運なパーソナルイヤー');
     }
     
-    const tarotPositions2 = 'positions' in results.tarot ? results.tarot.positions : [];
-    if (tarotPositions2.some((p: any) => p?.card?.name === '太陽' || p?.card?.name === '世界')) {
+    if (results.mayanCalendar?.tone === 13) {
       score += 10;
-      keyFactors.push('幸運のタロットカード');
+      keyFactors.push('マヤ暦の完成の音');
     }
     
     // ネガティブな要因
@@ -769,10 +773,15 @@ export class IntegratedEngine extends BaseDivinationEngine<IntegratedReading> {
     });
     
     // 特定のシンボルの繰り返し
-    const tarotPositions3 = 'positions' in results.tarot ? results.tarot.positions : [];
-    if (tarotPositions3.some((p: any) => p?.card?.name?.includes('星')) &&
-        results.nineStarKi?.mainStar?.name?.includes('星')) {
-      synchronicities.push('「星」のシンボルが複数現れ、導きの光を示す');
+    if (results.nineStarKi?.mainStar?.name?.includes('星') &&
+        results.astrology?.birthChart?.sun?.sign?.includes('射手')) {
+      synchronicities.push('「星」と「矢」のシンボルが示す、目標への導き');
+    }
+    
+    // マヤ暦とカバラの数字の一致
+    if (results.mayanCalendar?.tone === 10 && 
+        results.kabbalah?.lifePathSephira?.sephira?.name === 'マルクト') {
+      synchronicities.push('物質世界での完成と顕現のタイミング');
     }
     
     return synchronicities;

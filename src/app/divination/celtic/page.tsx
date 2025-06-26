@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -245,23 +246,14 @@ export default function CelticAstrologyPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">ケルト占星術詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="ケルト十字詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* ケルトの樹木円環 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+          <div className="cosmic-card cosmic-section">
             <h2 className="text-3xl font-light text-white text-center mb-10">
               あなたの守護樹：{celticAstrology.treeSign}
             </h2>
@@ -294,8 +286,8 @@ export default function CelticAstrologyPage() {
           </div>
 
           {/* オガム文字（インフォグラフィック） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">古代のオガム文字</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">古代のオガム文字</h3>
             
             <div className="grid grid-cols-4 md:grid-cols-8 gap-4 max-w-4xl mx-auto mb-8">
               {oghamLetters.map((ogham) => (
@@ -332,8 +324,8 @@ export default function CelticAstrologyPage() {
           </div>
 
           {/* ケルトの性質分析 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">樹木が示す性質</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">樹木が示す性質</h3>
             
             <div className="max-w-3xl mx-auto">
               {/* 性質のレーダーチャート */}
@@ -399,8 +391,8 @@ export default function CelticAstrologyPage() {
           </div>
 
           {/* ケルトの年輪（時の流れ） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">生命の年輪</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">生命の年輪</h3>
             
             <div className="relative w-80 h-80 mx-auto">
               <svg viewBox="0 0 400 400" className="w-full h-full">
@@ -436,7 +428,7 @@ export default function CelticAstrologyPage() {
 
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">古代ケルトからのメッセージ</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">古代ケルトからのメッセージ</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="text-center mb-8">
@@ -479,6 +471,13 @@ export default function CelticAstrologyPage() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細なケルト十字診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

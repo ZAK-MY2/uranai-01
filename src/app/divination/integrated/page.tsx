@@ -44,7 +44,7 @@ export default function IntegratedDivinationPage() {
         };
         setUserInput(processedInput);
       } catch (error) {
-        console.error('ユーザーデータの解析エラー:', error);
+        // console.error('ユーザーデータの解析エラー:', error);
       }
     }
   }, []);
@@ -61,7 +61,7 @@ export default function IntegratedDivinationPage() {
         setReading(result);
         setIsCalculating(false);
       }).catch(error => {
-        console.error('Complexエンジンの読み込みエラー:', error);
+        // console.error('Complexエンジンの読み込みエラー:', error);
         // エラー時は同期版にフォールバック
         import('@/lib/divination/engines/integrated-engine').then(({ IntegratedEngine }) => {
           const engine = new IntegratedEngine(userInput, environmentData);
@@ -146,7 +146,7 @@ export default function IntegratedDivinationPage() {
       {/* 統合スコア */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <div
-          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+          className="cosmic-card"
         >
           <div className="flex items-center justify-between mb-4">
             <Brain className="w-8 h-8 text-indigo-400" />
@@ -164,7 +164,7 @@ export default function IntegratedDivinationPage() {
         </div>
 
         <div
-          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+          className="cosmic-card"
         >
           <div className="flex items-center justify-between mb-4">
             <Heart className="w-8 h-8 text-pink-400" />
@@ -182,7 +182,7 @@ export default function IntegratedDivinationPage() {
         </div>
 
         <div
-          className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10"
+          className="cosmic-card"
         >
           <div className="flex items-center justify-between mb-4">
             <Zap className="w-8 h-8 text-yellow-400" />
@@ -201,8 +201,8 @@ export default function IntegratedDivinationPage() {
       </div>
 
       {/* 共通テーマ */}
-      <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-12 border border-white/10">
-        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+      <div className="cosmic-card cosmic-section">
+        <h3 className="cosmic-heading text-3xl mb-6 flex items-center">
           <Layers className="w-6 h-6 mr-3" />
           発見された共通テーマ
         </h3>
@@ -238,7 +238,7 @@ export default function IntegratedDivinationPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {/* 主要な占術結果 */}
         <div className="space-y-6">
-          <h3 className="text-xl font-light text-white flex items-center">
+          <h3 className="cosmic-heading text-2xl flex items-center">
             <Star className="w-5 h-5 mr-2" />
             主要な占術からのメッセージ
           </h3>
@@ -246,9 +246,9 @@ export default function IntegratedDivinationPage() {
           {reading.divinationSummaries?.slice(0, 5).map((summary: any, index: number) => (
             <div
               key={index}
-              className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+              className="cosmic-card"
             >
-              <h4 className="text-lg font-medium text-white mb-2 flex items-center">
+              <h4 className="cosmic-text text-lg font-medium mb-2 flex items-center">
                 <span className="text-2xl mr-3">{summary.icon}</span>
                 {summary.name}
               </h4>
@@ -262,7 +262,7 @@ export default function IntegratedDivinationPage() {
 
         {/* 補助的な占術結果 */}
         <div className="space-y-6">
-          <h3 className="text-xl font-light text-white flex items-center">
+          <h3 className="cosmic-heading text-2xl flex items-center">
             <Moon className="w-5 h-5 mr-2" />
             補助的な占術からの洞察
           </h3>
@@ -270,9 +270,9 @@ export default function IntegratedDivinationPage() {
           {reading.divinationSummaries?.slice(5).map((summary: any, index: number) => (
             <div
               key={index}
-              className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10"
+              className="cosmic-card"
             >
-              <h4 className="text-lg font-medium text-white mb-2 flex items-center">
+              <h4 className="cosmic-text text-lg font-medium mb-2 flex items-center">
                 <span className="text-2xl mr-3">{summary.icon}</span>
                 {summary.name}
               </h4>
@@ -287,8 +287,8 @@ export default function IntegratedDivinationPage() {
 
       {/* 矛盾と調和 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
-          <h3 className="text-xl font-light text-white mb-6 flex items-center">
+        <div className="cosmic-card">
+          <h3 className="cosmic-heading text-2xl mb-6 flex items-center">
             <Eye className="w-5 h-5 mr-2" />
             注意すべき矛盾点
           </h3>
@@ -305,8 +305,8 @@ export default function IntegratedDivinationPage() {
           </div>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
-          <h3 className="text-xl font-light text-white mb-6 flex items-center">
+        <div className="cosmic-card">
+          <h3 className="cosmic-heading text-2xl mb-6 flex items-center">
             <Flower className="w-5 h-5 mr-2" />
             エネルギープロファイル
           </h3>
@@ -329,8 +329,8 @@ export default function IntegratedDivinationPage() {
       </div>
 
       {/* 時間軸での運勢 */}
-      <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 mb-12 border border-white/10">
-        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+      <div className="cosmic-card cosmic-section">
+        <h3 className="cosmic-heading text-3xl mb-6 flex items-center">
           <Compass className="w-6 h-6 mr-3" />
           時間軸での運勢変化
         </h3>
@@ -369,8 +369,8 @@ export default function IntegratedDivinationPage() {
       </div>
 
       {/* 統合メッセージ */}
-      <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-md rounded-3xl p-8 border border-white/30">
-        <h3 className="text-2xl font-light text-white mb-6 flex items-center">
+      <div className="cosmic-card cosmic-section bg-gradient-to-r from-purple-600/20 to-blue-600/20">
+        <h3 className="cosmic-heading text-3xl mb-6 flex items-center">
           <Sun className="w-6 h-6 mr-3" />
           Complexメッセージ
         </h3>
@@ -431,6 +431,13 @@ export default function IntegratedDivinationPage() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* 詳細診断ボタン（準備中） */}
+      <div className="detail-diagnosis-button">
+        <button className="cosmic-button-disabled" disabled>
+          詳細なComplex診断を受ける（準備中）
+        </button>
       </div>
     </DivinationPageTemplate>
   );

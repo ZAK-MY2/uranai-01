@@ -4,6 +4,7 @@ import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { ChevronLeft } from 'lucide-react';
 
 const ParameterBadge = dynamic(
@@ -34,26 +35,7 @@ export function DivinationPageTemplate({
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link 
-            href="/" 
-            className="group flex items-center gap-3 px-4 py-2 -ml-4
-                       text-white/70 hover:text-white transition-all duration-300
-                       hover:bg-white/5 rounded-lg"
-          >
-            <div className="p-1.5 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors">
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            </div>
-            <span className="text-sm font-light tracking-wider">Dashboard</span>
-          </Link>
-          {headerTitle && (
-            <h1 className="text-2xl font-light text-white tracking-wider">{headerTitle}</h1>
-          )}
-          <div className="w-32"></div>{/* バランス用の空要素 */}
-        </div>
-      </header>
+      <CosmicHeader title={headerTitle || title} />
 
       <main className="relative z-10 max-w-7xl mx-auto px-5 py-10">
         {/* パラメータバッジ（フローティング） */}

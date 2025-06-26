@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -203,24 +204,15 @@ export default function AstrologyPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">西洋占星術詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="西洋占星術詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* ホロスコープチャート */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h2 className="text-3xl font-light text-white text-center mb-10">あなたのホロスコープ</h2>
+          <div className="cosmic-card cosmic-section">
+            <h2 className="cosmic-title text-4xl text-center mb-12">あなたのホロスコープ</h2>
             
             {/* 円形チャート */}
             <div className="relative w-96 h-96 mx-auto mb-10">
@@ -300,32 +292,32 @@ export default function AstrologyPage() {
 
             {/* 3つの主要サイン */}
             <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <div className="bg-white/5 rounded-xl p-6 text-center">
-                <p className="text-white/50 text-sm mb-2">太陽星座</p>
-                <p className="text-4xl mb-2">{zodiacSymbols[astrology.sunSign]}</p>
-                <p className="text-xl font-light text-white">{astrology.sunSign}</p>
-                <p className="text-white/60 text-sm mt-2">基本的な性格</p>
+              <div className="cosmic-card p-6 text-center cosmic-glow hover:transform hover:scale-105 transition-all duration-500">
+                <p className="cosmic-label mb-3">太陽星座</p>
+                <p className="text-5xl mb-3 animate-pulse-gentle">{zodiacSymbols[astrology.sunSign]}</p>
+                <p className="cosmic-heading text-xl mb-2">{astrology.sunSign}</p>
+                <p className="cosmic-text text-sm">基本的な性格</p>
               </div>
               
-              <div className="bg-white/5 rounded-xl p-6 text-center">
-                <p className="text-white/50 text-sm mb-2">月星座</p>
-                <p className="text-4xl mb-2">{zodiacSymbols[astrology.moonSign]}</p>
-                <p className="text-xl font-light text-white">{astrology.moonSign}</p>
-                <p className="text-white/60 text-sm mt-2">感情と内面</p>
+              <div className="cosmic-card p-6 text-center cosmic-glow hover:transform hover:scale-105 transition-all duration-500">
+                <p className="cosmic-label mb-3">月星座</p>
+                <p className="text-5xl mb-3 animate-pulse-gentle">{zodiacSymbols[astrology.moonSign]}</p>
+                <p className="cosmic-heading text-xl mb-2">{astrology.moonSign}</p>
+                <p className="cosmic-text text-sm">感情と内面</p>
               </div>
               
-              <div className="bg-white/5 rounded-xl p-6 text-center">
-                <p className="text-white/50 text-sm mb-2">アセンダント</p>
-                <p className="text-4xl mb-2">{zodiacSymbols[astrology.risingSign]}</p>
-                <p className="text-xl font-light text-white">{astrology.risingSign}</p>
-                <p className="text-white/60 text-sm mt-2">外的な印象</p>
+              <div className="cosmic-card p-6 text-center cosmic-glow hover:transform hover:scale-105 transition-all duration-500">
+                <p className="cosmic-label mb-3">アセンダント</p>
+                <p className="text-5xl mb-3 animate-pulse-gentle">{zodiacSymbols[astrology.risingSign]}</p>
+                <p className="cosmic-heading text-xl mb-2">{astrology.risingSign}</p>
+                <p className="cosmic-text text-sm">外的な印象</p>
               </div>
             </div>
           </div>
 
           {/* 惑星配置の詳細データ */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">惑星配置データ</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">惑星配置データ</h3>
             
             <div className="overflow-x-auto">
               <table className="w-full text-white/80">
@@ -373,8 +365,8 @@ export default function AstrologyPage() {
           </div>
 
           {/* アスペクト分析 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">アスペクト分析</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">アスペクト分析</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-green-500/10 rounded-xl p-6 border border-green-500/20">
@@ -404,8 +396,8 @@ export default function AstrologyPage() {
           </div>
 
           {/* 今日のトランジット */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">今日の天体の影響</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-10">今日の天体の影響</h3>
             
             <div className="max-w-3xl mx-auto">
               <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-8 border border-blue-500/20 mb-6">
@@ -432,8 +424,8 @@ export default function AstrologyPage() {
           </div>
 
           {/* 総合的な解釈 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">星々からのメッセージ</h3>
+          <div className="cosmic-card cosmic-section-large">
+            <h3 className="cosmic-title text-3xl text-center mb-10">星々からのメッセージ</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <p className="text-lg text-white/80 leading-relaxed">
@@ -451,6 +443,13 @@ export default function AstrologyPage() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細な西洏占星術診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

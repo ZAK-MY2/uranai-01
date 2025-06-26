@@ -85,6 +85,21 @@ export function DashboardHeader({ user, onAccessibilityToggle }: DashboardHeader
           <div className="absolute top-full right-4 sm:right-6 mt-2 w-48 sm:w-64 bg-slate-900/95 backdrop-blur-md border border-white/20 rounded-xl shadow-xl z-50">
             <div className="p-3 sm:p-4 space-y-3">
               <div className="text-cosmic-accent font-medium sm:hidden text-sm">{username}</div>
+              {/* モバイル環境情報 */}
+              <div className="lg:hidden space-y-1 text-xs text-cosmic-secondary border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-400">◐</span>
+                  <span>月相 13.2</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-400">☁️</span>
+                  <span>25°C 晴れ</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-violet-400">✦</span>
+                  <span>{currentDate}</span>
+                </div>
+              </div>
               <div className="border-t border-white/10 pt-3 space-y-2">
                 <button
                   onClick={() => {
@@ -100,15 +115,19 @@ export function DashboardHeader({ user, onAccessibilityToggle }: DashboardHeader
                   onClick={handleNewParameters}
                   className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
                 >
-                  <span className="text-blue-400">🔄</span>
-                  新しいパラメータで占う
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  新しい占いを始める
                 </button>
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base text-white/90 hover:bg-white/10 rounded-lg transition-colors flex items-center gap-2 sm:gap-3"
                 >
-                  <span className="text-yellow-400">👋</span>
-                  サインアウト
+                  <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  終了
                 </button>
               </div>
             </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -171,23 +172,14 @@ export default function IChingPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">易経詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="易経詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* 六十四卦の表示 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+          <div className="cosmic-card cosmic-section">
             <h2 className="text-3xl font-light text-white text-center mb-10">
               第{iChing.hexagram.number}卦 {iChing.hexagram.name}
             </h2>
@@ -229,8 +221,8 @@ export default function IChingPage() {
           </div>
 
           {/* 陰陽の動き（インフォグラフィック） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">陰陽の変化</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">陰陽の変化</h3>
             
             <div className="relative max-w-4xl mx-auto">
               <svg viewBox="0 0 800 400" className="w-full h-auto">
@@ -277,8 +269,8 @@ export default function IChingPage() {
           </div>
 
           {/* 卦辞と爻辞 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">古代の智慧</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">古代の智慧</h3>
             
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white/5 rounded-xl p-6">
@@ -371,8 +363,8 @@ export default function IChingPage() {
           </div>
 
           {/* 五行との関係 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">五行の相生相剋</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">五行の相生相剋</h3>
             
             <div className="relative w-96 h-96 mx-auto">
               <svg viewBox="0 0 400 400" className="w-full h-full">
@@ -415,8 +407,8 @@ export default function IChingPage() {
           </div>
 
           {/* 投擲プロセスの詳細 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">三枚硬貨投擲の記録</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">三枚硬貨投擲の記録</h3>
             
             <div className="max-w-3xl mx-auto">
               <div className="grid grid-cols-6 gap-4">
@@ -452,8 +444,8 @@ export default function IChingPage() {
           </div>
 
           {/* カテゴリ別の具体的アドバイス */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">分野別の詳細ガイダンス</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">分野別の詳細ガイダンス</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <div className="bg-gradient-to-br from-pink-500/10 to-red-500/10 rounded-xl p-6 border border-pink-500/20">
@@ -504,7 +496,7 @@ export default function IChingPage() {
 
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">周易からのメッセージ</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">周易からのメッセージ</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl p-8 border border-yellow-500/20">
@@ -538,6 +530,13 @@ export default function IChingPage() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細な易経診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

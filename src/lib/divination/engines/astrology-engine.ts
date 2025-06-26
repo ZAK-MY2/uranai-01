@@ -44,12 +44,36 @@ export interface AstrologyReading {
   }>;
   aspects: Aspect[];
   interpretation: {
-    personality: string;
-    emotions: string;
-    communication: string;
-    relationships: string;
-    career: string;
-    spirituality: string;
+    personality: {
+      classical: string;
+      modern: string;
+      psychological: string;
+    };
+    emotions: {
+      classical: string;
+      modern: string;
+      psychological: string;
+    };
+    communication: {
+      classical: string;
+      modern: string;
+      practical: string;
+    };
+    relationships: {
+      classical: string;
+      modern: string;
+      compatibility: string;
+    };
+    career: {
+      classical: string;
+      modern: string;
+      practical: string;
+    };
+    spirituality: {
+      classical: string;
+      modern: string;
+      newAge: string;
+    };
     currentInfluences: string;
   };
   transitInfluence?: string;
@@ -79,7 +103,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     const birthChart = this.calculateBirthChart();
     const houses = this.calculateHouses(birthChart);
     const aspects = this.calculateAspects(birthChart);
-    const interpretation = this.generateInterpretation(birthChart, houses, aspects);
+    const interpretation = this.generateComprehensiveInterpretation(birthChart, houses, aspects);
     
     const transitInfluence = this.calculateTransitInfluence();
     const environmentalSynchronicity = this.getEnvironmentalSynchronicity();
@@ -265,7 +289,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return null;
   }
 
-  private generateInterpretation(
+  private generateComprehensiveInterpretation(
     birthChart: AstrologyReading['birthChart'],
     houses: AstrologyReading['houses'],
     aspects: Aspect[]
@@ -274,17 +298,41 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     const environmentModifier = this.getEnvironmentalModifier();
     
     return {
-      personality: this.interpretPersonality(birthChart, aspects),
-      emotions: this.interpretEmotions(birthChart, aspects),
-      communication: this.interpretCommunication(birthChart, aspects),
-      relationships: this.interpretRelationships(birthChart, aspects),
-      career: this.interpretCareer(birthChart, houses),
-      spirituality: this.interpretSpirituality(birthChart, houses),
+      personality: {
+        classical: this.interpretPersonalityClassical(birthChart, aspects),
+        modern: this.interpretPersonalityModern(birthChart, aspects),
+        psychological: this.interpretPersonalityPsychological(birthChart, aspects)
+      },
+      emotions: {
+        classical: this.interpretEmotionsClassical(birthChart, aspects),
+        modern: this.interpretEmotionsModern(birthChart, aspects),
+        psychological: this.interpretEmotionsPsychological(birthChart, aspects)
+      },
+      communication: {
+        classical: this.interpretCommunicationClassical(birthChart, aspects),
+        modern: this.interpretCommunicationModern(birthChart, aspects),
+        practical: this.interpretCommunicationPractical(birthChart, aspects)
+      },
+      relationships: {
+        classical: this.interpretRelationshipsClassical(birthChart, aspects),
+        modern: this.interpretRelationshipsModern(birthChart, aspects),
+        compatibility: this.interpretRelationshipsCompatibility(birthChart, aspects)
+      },
+      career: {
+        classical: this.interpretCareerClassical(birthChart, houses),
+        modern: this.interpretCareerModern(birthChart, houses),
+        practical: this.interpretCareerPractical(birthChart, houses)
+      },
+      spirituality: {
+        classical: this.interpretSpiritualityClassical(birthChart, houses),
+        modern: this.interpretSpiritualityModern(birthChart, houses),
+        newAge: this.interpretSpiritualityNewAge(birthChart, houses)
+      },
       currentInfluences: this.interpretCurrentInfluences(birthChart, timeModifier, environmentModifier)
     };
   }
 
-  private interpretPersonality(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+  private interpretPersonalityClassical(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
     const sun = birthChart.sun;
     const ascendant = birthChart.ascendant;
     
@@ -327,7 +375,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return interpretation;
   }
 
-  private interpretEmotions(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+  private interpretEmotionsClassical(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
     const moon = birthChart.moon;
     
     const moonSignEmotions: Record<string, string> = {
@@ -356,7 +404,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return interpretation;
   }
 
-  private interpretCommunication(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+  private interpretCommunicationClassical(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
     const mercury = birthChart.mercury;
     
     let interpretation = `水星が${mercury.sign}にあることから、`;
@@ -386,7 +434,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return interpretation;
   }
 
-  private interpretRelationships(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+  private interpretRelationshipsClassical(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
     const venus = birthChart.venus;
     const mars = birthChart.mars;
     
@@ -427,7 +475,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return interpretation;
   }
 
-  private interpretCareer(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+  private interpretCareerClassical(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
     const midheaven = birthChart.midheaven;
     const tenthHouse = houses.find(h => h.number === 10);
     
@@ -459,7 +507,7 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
     return interpretation;
   }
 
-  private interpretSpirituality(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+  private interpretSpiritualityClassical(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
     const neptune = birthChart.neptune;
     const twelfthHouse = houses.find(h => h.number === 12);
     
@@ -573,5 +621,263 @@ export class AstrologyEngine extends BaseDivinationEngine<AstrologyReading> {
       this.input.birthPlace.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
     
     return Math.floor(birthTime + nameValue + locationValue) % 1000000;
+  }
+
+  // 現代心理占星術の解釈メソッド群
+  private interpretPersonalityModern(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const sun = birthChart.sun;
+    const ascendant = birthChart.ascendant;
+    
+    const modernSunTraits: Record<string, string> = {
+      '牡羊座': 'エンターテイナー型の人格で、リーダーシップと革新性を併せ持つ',
+      '牡牛座': '安定志向で物質的価値を重視し、美的センスに優れた実務家',
+      '双子座': '情報処理能力が高く、マルチタスクが得意な現代的コミュニケーター',
+      '蟹座': '共感力と直感力に優れ、チームの心理的安全性を重視する',
+      '獅子座': '自己表現力と創造性を活かし、ブランディング能力に長ける',
+      '乙女座': 'データ分析と効率化を得意とし、品質管理に対する鋭い感覚を持つ',
+      '天秤座': '調和とバランスを重視し、現代の多様性を受け入れる柔軟性がある',
+      '蠍座': '心理学的洞察力に優れ、深い変容と再生の力を持つ',
+      '射手座': 'グローバル視点と哲学的思考を持ち、多文化への適応力がある',
+      '山羊座': '戦略的思考と長期計画の立案能力に長け、組織運営に優れる',
+      '水瓶座': 'テクノロジーと人道主義を融合し、社会革新を推進する',
+      '魚座': '高い共感力とクリエイティビティで、ヒーリングや芸術分野で活躍'
+    };
+
+    return `現代心理占星術では、太陽が${sun.sign}にあることから、あなたは${modernSunTraits[sun.sign] || '独自の現代的個性を持つ'}タイプです。21世紀の価値観に合った自己実現の道を歩んでいます。`;
+  }
+
+  private interpretPersonalityPsychological(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const sun = birthChart.sun;
+    
+    const psychologicalTraits: Record<string, string> = {
+      '牡羊座': 'ユング心理学の「英雄」原型を体現し、自己実現への強い動機を持つ',
+      '牡牛座': '安全欲求と美的欲求のバランスを取りながら、段階的成長を重視',
+      '双子座': '認知的柔軟性が高く、情報統合能力と適応能力に優れる',
+      '蟹座': '愛着理論における安全な基地を提供する能力と、情緒的知性が高い',
+      '獅子座': '自己効力感と創造的自己表現を通じて、自尊心を育む',
+      '乙女座': '完璧主義と分析的思考により、継続的改善を行う',
+      '天秤座': '対人関係における協調性と、審美的価値観を重視',
+      '蠍座': '深層心理への洞察力と、トラウマから の回復力を持つ',
+      '射手座': '意味探求と成長動機が強く、実存的価値観を重視',
+      '山羊座': '目標達成動機と責任感により、長期的成功を追求',
+      '水瓶座': '独立性と社会貢献への動機を併せ持つ',
+      '魚座': '高い共感力と直感力により、他者との深いつながりを築く'
+    };
+
+    return `心理学的観点では、${psychologicalTraits[sun.sign] || '独特の心理的特性を持つ'}傾向があります。これらの特性を理解することで、より効果的な自己成長が可能になります。`;
+  }
+
+  private interpretEmotionsModern(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const moon = birthChart.moon;
+    
+    const modernEmotionalPatterns: Record<string, string> = {
+      '牡羊座': '感情を迅速に処理し、ストレス発散が得意。マインドフルネスが効果的',
+      '牡牛座': '感情の安定性を重視し、ルーティンとセルフケアで心のバランスを保つ',
+      '双子座': '感情を言語化し、SNSやコミュニティで共有することで処理する',
+      '蟹座': '感情の深さと豊かさを大切にし、家族や親しい人との絆で安定を得る',
+      '獅子座': '感情を創造的に表現し、承認欲求を健全に満たすことで成長する',
+      '乙女座': '感情を分析し、実用的なソリューションで問題解決する',
+      '天秤座': '感情のバランスを重視し、美的環境で心の調和を保つ',
+      '蠍座': '感情の変容を受け入れ、深い自己探求を通じて成長する',
+      '射手座': '感情を哲学的に捉え、新しい体験で心の拡張を図る',
+      '山羊座': '感情をコントロールし、目標達成のためのエネルギーに変換する',
+      '水瓶座': '感情から客観的距離を保ち、論理的アプローチで対処する',
+      '魚座': '感情の流れを受け入れ、芸術や瞑想で心の浄化を行う'
+    };
+
+    return `現代のメンタルヘルス観点では、月が${moon.sign}にあることから、${modernEmotionalPatterns[moon.sign] || '独自の感情パターンを持つ'}傾向があります。`;
+  }
+
+  private interpretEmotionsPsychological(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const moon = birthChart.moon;
+    
+    const psychologicalEmotions: Record<string, string> = {
+      '牡羊座': '感情調節において行動化を用いる傾向があり、運動療法が効果的',
+      '牡牛座': '感覚統合を通じた感情調節を行い、身体的接触や自然環境が安定をもたらす',
+      '双子座': '認知的再評価による感情調節を得意とし、言語化が治療的効果を持つ',
+      '蟹座': '愛着パターンが感情調節に大きく影響し、安全な関係性が回復の鍵',
+      '獅子座': '自己肯定感と感情が密接に関連し、創造的表現が感情の統合に役立つ',
+      '乙女座': '完璧主義と不安の関連性があり、現実的な目標設定が感情安定に重要',
+      '天秤座': '対人関係の質が感情状態に直結し、境界設定のスキルが必要',
+      '蠍座': '感情の強度が高く、トラウマインフォームドケアのアプローチが有効',
+      '射手座': '意味づけと感情が連動し、価値観の明確化が感情の安定につながる',
+      '山羊座': 'コントロール欲求と感情が関連し、適応的コーピングの学習が重要',
+      '水瓶座': '感情の知性化傾向があり、感情と思考の統合が成長の課題',
+      '魚座': '境界の曖昧さが感情に影響し、グラウンディング技法が効果的'
+    };
+
+    return `臨床心理学的には、${psychologicalEmotions[moon.sign] || '独特の感情プロファイルを示す'}特徴があります。`;
+  }
+
+  private interpretCommunicationModern(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const mercury = birthChart.mercury;
+    
+    const modernCommTraits: Record<string, string> = {
+      '牡羊座': 'デジタルネイティブ的な直接的コミュニケーション、SNSでの発信力が高い',
+      '牡牛座': '実用的で信頼性の高い情報を重視、動画コンテンツとの相性が良い',
+      '双子座': 'マルチプラットフォームでの情報発信、トレンドの早期キャッチが得意',
+      '蟹座': '共感型コミュニケーション、オンラインコミュニティでの居場所作りが上手',
+      '獅子座': 'インフルエンサー的な表現力、ビジュアルコンテンツでの自己表現が得意',
+      '乙女座': 'ファクトチェックと詳細な分析、データドリブンなコミュニケーション',
+      '天秤座': 'バランスの取れた意見表明、調停的なオンライン対話が得意',
+      '蠍座': '深い洞察と本質的な議論、一対一の密度の高いコミュニケーション',
+      '射手座': 'グローバルな視点でのコミュニケーション、多文化間の橋渡し役',
+      '山羊座': '戦略的で目的志向のコミュニケーション、ビジネス分野での影響力',
+      '水瓶座': 'イノベーティブなコミュニケーション手法、新技術の積極的活用',
+      '魚座': '直感的で感情に訴えるコミュニケーション、芸術的表現との融合'
+    };
+
+    return `デジタル時代においては、水星が${mercury.sign}にあることから、${modernCommTraits[mercury.sign] || '独自のコミュニケーション能力を持つ'}スタイルです。`;
+  }
+
+  private interpretCommunicationPractical(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const mercury = birthChart.mercury;
+    
+    const practicalAdvice: Record<string, string> = {
+      '牡羊座': 'プレゼンテーションは簡潔に。重要なポイントを最初に伝える',
+      '牡牛座': '具体例とデータを用意。時間をかけて信頼関係を築く',
+      '双子座': '複数の情報源を活用。ネットワーキングで情報収集する',
+      '蟹座': '相手の感情に配慮した表現。プライベートな関係性を大切にする',
+      '獅子座': 'ストーリーテリングを活用。聴衆を巻き込む表現を心がける',
+      '乙女座': '事前準備を徹底する。詳細な資料と論理的構成を重視する',
+      '天秤座': '相手の立場を考慮した表現。対立を避け、合意形成を目指す',
+      '蠍座': '本音での対話を重視。表面的でない深いコミュニケーションを',
+      '射手座': '大局的な視点を提示。多様な価値観を受け入れる姿勢を示す',
+      '山羊座': '目標と成果を明確に。段階的で実現可能な計画を提示する',
+      '水瓶座': '創新的なアイデアを提案。従来の枠にとらわれない発想を',
+      '魚座': '共感を重視した表現。相手の気持ちに寄り添う姿勢を示す'
+    };
+
+    return `実践的には、${practicalAdvice[mercury.sign] || '独自のアプローチを取る'}ことが効果的です。`;
+  }
+
+  // 古典・現代・実践的解釈のパターンを他の分野にも適用
+  private interpretRelationshipsModern(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const venus = birthChart.venus;
+    
+    return `現代の恋愛観では、金星が${venus.sign}にあることから、マッチングアプリでは${this.getModernDatingStyle(venus.sign)}タイプとして魅力を発揮します。`;
+  }
+
+  private interpretRelationshipsCompatibility(birthChart: AstrologyReading['birthChart'], aspects: Aspect[]): string {
+    const venus = birthChart.venus;
+    const mars = birthChart.mars;
+    
+    return `相性分析では、金星${venus.sign}と火星${mars.sign}の組み合わせにより、${this.getCompatibilityProfile(venus.sign, mars.sign)}特徴を持ちます。`;
+  }
+
+  private interpretCareerModern(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+    const midheaven = birthChart.midheaven;
+    
+    const modernCareers: Record<string, string> = {
+      '牡羊座': 'スタートアップ創業、フリーランス、プロジェクトマネージャー',
+      '牡牛座': '金融、不動産、サステナビリティ関連、アート投資',
+      '双子座': 'デジタルマーケティング、コンテンツクリエーター、データアナリスト',
+      '蟹座': 'カスタマーサクセス、ヘルスケア、チャイルドケア',
+      '獅子座': 'ブランドマネージャー、エンターテイメント、パーソナルブランディング',
+      '乙女座': 'プロダクトマネージャー、品質管理、ヘルスアドバイザー',
+      '天秤座': 'UX/UIデザイナー、調停専門家、PR・広報',
+      '蠍座': 'データサイエンティスト、心理カウンセラー、セキュリティ専門家',
+      '射手座': 'グローバルビジネス、教育テック、トラベルライター',
+      '山羊座': 'コンサルタント、プロジェクトマネージャー、投資アドバイザー',
+      '水瓶座': 'ソーシャルイノベーター、テック系、NPO運営',
+      '魚座': 'セラピスト、アートセラピー、ソーシャルワーカー'
+    };
+
+    return `現代のキャリアでは、MC${midheaven}により${modernCareers[midheaven] || '独自の専門分野'}が適職です。`;
+  }
+
+  private interpretCareerPractical(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+    const midheaven = birthChart.midheaven;
+    
+    return `実践的なキャリア戦略として、${this.getPracticalCareerAdvice(midheaven)}ことをお勧めします。`;
+  }
+
+  private interpretSpiritualityModern(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+    const neptune = birthChart.neptune;
+    
+    return `現代スピリチュアリティでは、海王星${neptune.sign}により、マインドフルネス、ヨガ、エネルギーワークなど${this.getModernSpiritualPractices(neptune.sign)}が適しています。`;
+  }
+
+  private interpretSpiritualityNewAge(birthChart: AstrologyReading['birthChart'], houses: AstrologyReading['houses']): string {
+    const neptune = birthChart.neptune;
+    
+    return `ニューエイジ的観点では、${this.getNewAgePractices(neptune.sign)}を通じて高次の意識とつながることができます。`;
+  }
+
+  // ヘルパーメソッド群
+  private getModernDatingStyle(venusSign: string): string {
+    const styles: Record<string, string> = {
+      '牡羊座': 'アクティブで直接的',
+      '牡牛座': '安定志向で感覚的',
+      '双子座': '知的で多様性重視',
+      '蟹座': '感情重視で家庭的',
+      '獅子座': 'ロマンチックで表現豊か',
+      '乙女座': '慎重で実用的',
+      '天秤座': 'バランス重視で美的',
+      '蠍座': '深く激しい',
+      '射手座': '自由で冒険的',
+      '山羊座': '真剣で長期的',
+      '水瓶座': '独立的で友好的',
+      '魚座': '直感的で献身的'
+    };
+    return styles[venusSign] || '独特';
+  }
+
+  private getCompatibilityProfile(venusSign: string, marsSign: string): string {
+    return `${venusSign}的な愛情表現と${marsSign}的な行動パターンを併せ持つ`;
+  }
+
+  private getPracticalCareerAdvice(mcSign: string): string {
+    const advice: Record<string, string> = {
+      '牡羊座': 'リーダーシップを発揮できるポジションを積極的に求め',
+      '牡牛座': '安定した収入源を確保しながら専門性を深め',
+      '双子座': '複数のスキルを組み合わせて差別化を図り',
+      '蟹座': '人をサポートする役割で信頼関係を築き',
+      '獅子座': '創造性と表現力を活かせるフィールドで活躍し',
+      '乙女座': '細部への注意力と分析力を武器にし',
+      '天秤座': '調整力と美的センスを活かした仕事を選び',
+      '蠍座': '深い専門知識と洞察力で他者との差別化を図り',
+      '射手座': 'グローバルな視点と哲学的思考を活用し',
+      '山羊座': '長期的な目標設定と段階的な昇進を心がけ',
+      '水瓶座': '革新的なアイデアと社会貢献を組み合わせ',
+      '魚座': '直感力と共感力を活かしたサービス業で力を発揮し'
+    };
+    return advice[mcSign] || '独自の強みを活かし';
+  }
+
+  private getModernSpiritualPractices(neptuneSign: string): string {
+    const practices: Record<string, string> = {
+      '牡羊座': '動的瞑想とアクティブスピリチュアリティ',
+      '牡牛座': 'アーシングと自然療法',
+      '双子座': 'ガイド瞑想と知識の統合',
+      '蟹座': 'ファミリーコンステレーションと感情解放',
+      '獅子座': 'クリエイティブ表現と自己愛ワーク',
+      '乙女座': 'ヒーリングハーブとデトックス',
+      '天秤座': 'パートナーシップワークとバランス調整',
+      '蠍座': 'シャーマニズムと変容ワーク',
+      '射手座': '多文化スピリチュアリティと哲学探求',
+      '山羊座': '実践的スピリチュアリティとビジネス倫理',
+      '水瓶座': 'テクノロジーと意識の融合',
+      '魚座': 'チャネリングと芸術療法'
+    };
+    return practices[neptuneSign] || '独自のスピリチュアルパス';
+  }
+
+  private getNewAgePractices(neptuneSign: string): string {
+    const newAge: Record<string, string> = {
+      '牡羊座': 'クンダリーニ覚醒とエネルギーの活性化',
+      '牡牛座': 'クリスタルヒーリングとアース・コネクション',
+      '双子座': 'チャネリングと多次元コミュニケーション',
+      '蟹座': 'アカシックレコードと過去世ヒーリング',
+      '獅子座': 'ライトワークとスターシード覚醒',
+      '乙女座': 'エネルギー調整とオーラクレンジング',
+      '天秤座': 'ツインフレームとソウルメート探求',
+      '蠍座': 'カルマ解除とソウル・リトリーバル',
+      '射手座': 'アセンション・プロセスと高次元意識',
+      '山羊座': 'マニフェステーションとグラウンディング',
+      '水瓶座': 'スターゲートとコズミック・コンシャスネス',
+      '魚座': 'チャネリングとユニバーサル・ラブ'
+    };
+    return newAge[neptuneSign] || '独自のライトワーク';
   }
 }

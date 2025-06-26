@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -184,23 +185,14 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">ルーン占い詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="ルーン占い詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* ルーンストーンの配置 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+          <div className="cosmic-card cosmic-section">
             <h2 className="text-3xl font-light text-white text-center mb-10">古代北欧の叡智</h2>
             
             {/* 3つのルーンストーン */}
@@ -231,7 +223,7 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
 
             {/* 選択されたルーンの詳細 */}
             <div className="bg-white/5 rounded-xl p-8 max-w-3xl mx-auto">
-              <h3 className="text-2xl font-light text-white text-center mb-6">
+              <h3 className="cosmic-heading text-3xl text-center mb-6">
                 {runes.drawn[selectedRune].name} - {runes.drawn[selectedRune].meaning}
               </h3>
               <div className="grid grid-cols-2 gap-6 mb-6">
@@ -253,8 +245,8 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
           </div>
 
           {/* ルーンの配置パターン（インフォグラフィック） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">ノルンの織り成す運命</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">ノルンの織り成す運命</h3>
             
             <div className="relative max-w-4xl mx-auto">
               <svg viewBox="0 0 800 400" className="w-full h-auto">
@@ -308,8 +300,8 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
           </div>
 
           {/* エレメントバランス分析 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">元素の調和</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">元素の調和</h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
               {['火', '水', '風', '地'].map((element) => {
@@ -359,8 +351,8 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
           </div>
 
           {/* 古代の知恵（生データ） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">ルーンキャスト結果</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">ルーンキャスト結果</h3>
             
             <div className="space-y-4 max-w-3xl mx-auto">
               {runes.drawn.map((rune, index) => (
@@ -395,7 +387,7 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
 
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">オーディンの導き</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">オーディンの導き</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl p-8 border border-purple-500/20">
@@ -421,6 +413,13 @@ ${futureRune.meaning}のエネルギーが、${positionMeaning(futureRune, futur
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細なルーン占い診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

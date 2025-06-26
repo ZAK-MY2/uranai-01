@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { CosmicBackground } from '@/components/ui/cosmic-background';
+import { CosmicHeader } from '@/components/divination/cosmic-header';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
 const ParameterBadge = dynamic(
@@ -251,23 +252,14 @@ export default function KabbalahPage() {
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 to-slate-800">
       <CosmicBackground />
       
-      {/* ヘッダー */}
-      <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors">
-            ← ダッシュボードに戻る
-          </Link>
-          <h1 className="text-2xl font-light text-white">カバラ数秘術詳細分析</h1>
-          <div className="w-32"></div>
-        </div>
-      </header>
+      <CosmicHeader title="カバラ数秘術詳細分析" />
 
       <main className="relative z-10 pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-5">
           <ParameterBadge />
           
           {/* 生命の樹 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
+          <div className="cosmic-card cosmic-section">
             <h2 className="text-3xl font-light text-white text-center mb-10">セフィロトの樹</h2>
             
             <TreeOfLife currentSephirah={kabbalah.treeOfLife.currentSephirah} />
@@ -295,8 +287,8 @@ export default function KabbalahPage() {
           </div>
 
           {/* ヘブライ文字とパス（インフォグラフィック） */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">神聖なる22の径</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">神聖なる22の径</h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               {hebrewPaths.map((path) => (
@@ -328,8 +320,8 @@ export default function KabbalahPage() {
           </div>
 
           {/* ゲマトリア計算 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">ゲマトリア数値解析</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">ゲマトリア数値解析</h3>
             
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white/5 rounded-xl p-6">
@@ -360,8 +352,8 @@ export default function KabbalahPage() {
           </div>
 
           {/* 四つの世界 */}
-          <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 mb-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">四つの世界</h3>
+          <div className="cosmic-card cosmic-section">
+            <h3 className="cosmic-heading text-3xl text-center mb-8">四つの世界</h3>
             
             <div className="relative">
               <svg viewBox="0 0 800 400" className="w-full h-auto max-w-4xl mx-auto">
@@ -399,7 +391,7 @@ export default function KabbalahPage() {
 
           {/* 総合的な解釈 */}
           <div className="bg-white/5 backdrop-blur-md rounded-3xl p-10 border border-white/10">
-            <h3 className="text-2xl font-light text-white text-center mb-8">カバラからの神秘的メッセージ</h3>
+            <h3 className="cosmic-heading text-3xl text-center mb-8">カバラからの神秘的メッセージ</h3>
             
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="text-center mb-8">
@@ -431,6 +423,13 @@ export default function KabbalahPage() {
             </div>
           </div>
           
+          {/* 詳細診断ボタン（準備中） */}
+          <div className="detail-diagnosis-button">
+            <button className="cosmic-button-disabled" disabled>
+              詳細なカバラ数秘術診断を受ける（準備中）
+            </button>
+          </div>
+
           {/* ナビゲーション */}
           <div className="mt-10 flex justify-center gap-6">
             <Link 

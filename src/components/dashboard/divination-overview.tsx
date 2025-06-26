@@ -4,70 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { mockDivinationData } from '@/lib/mock/divination-data';
 
-const miniDivinations = [
-  { 
-    symbol: '○', 
-    name: '数秘術', 
-    result: `${mockDivinationData.numerology.lifePathNumber}`, 
-    status: mockDivinationData.numerology.interpretation.lifePathMeaning.split('と')[0],
-    href: '/divination/numerology',
-    description: '生命数による運命分析'
-  },
-  { 
-    symbol: '◯', 
-    name: 'タロット', 
-    result: mockDivinationData.tarot.cards.present.name, 
-    status: mockDivinationData.tarot.cards.present.keywords[0],
-    href: '/divination/tarot',
-    description: '78枚のカードによる深層心理'
-  },
-  { 
-    symbol: '☽', 
-    name: '西洋占星術', 
-    result: mockDivinationData.astrology.sunSign, 
-    status: mockDivinationData.astrology.todaysTransit.split('-')[0].trim(),
-    href: '/divination/astrology',
-    description: '星座と惑星の配置による運命'
-  },
+// 地域・文化別に整理した占術
+const eastAsianDivinations = [
   { 
     symbol: '☰', 
     name: '易経', 
     result: mockDivinationData.iChing.hexagram.name.slice(2), 
     status: '豊かさ',
     href: '/divination/iching',
-    description: '陰陽思想による自然の法則'
-  },
-  { 
-    symbol: '◈', 
-    name: '九星気学', 
-    result: mockDivinationData.nineStarKi.mainStar.slice(0, 2), 
-    status: mockDivinationData.nineStarKi.todaysEnergy.split('の')[0],
-    href: '/divination/nine-star-ki',
-    description: '九つの星による方位と運勢'
-  },
-  {
-    symbol: '☊',
-    name: 'ルーン',
-    result: 'フェフ',
-    status: '繁栄',
-    href: '/divination/runes',
-    description: '北欧の古代文字による導き'
-  },
-  {
-    symbol: '🕉',
-    name: 'ヴェーダ',
-    result: '牡羊座',
-    status: '積極性',
-    href: '/divination/vedic',
-    description: 'インド古代の宇宙哲学'
-  },
-  {
-    symbol: '♦',
-    name: 'ケルト',
-    result: 'オーク',
-    status: '強さ',
-    href: '/divination/celtic',
-    description: 'ケルト民族の自然崇拝'
+    description: '陰陽思想による自然の法則',
+    region: '中国'
   },
   {
     symbol: '☯',
@@ -75,7 +21,56 @@ const miniDivinations = [
     result: '庚申',
     status: '金性',
     href: '/divination/shichu-suimei',
-    description: '生年月日時による宿命診断'
+    description: '生年月日時による宿命診断',
+    region: '中国'
+  },
+  {
+    symbol: '🌺',
+    name: '八卦・玄空飛星',
+    result: '青龍',
+    status: '吉方位',
+    href: '/divination/feng-shui',
+    description: '八卦と玄空飛星による環境学',
+    region: '中国'
+  },
+  { 
+    symbol: '◈', 
+    name: '九星気学', 
+    result: mockDivinationData.nineStarKi.mainStar.slice(0, 2), 
+    status: mockDivinationData.nineStarKi.todaysEnergy.split('の')[0],
+    href: '/divination/nine-star-ki',
+    description: '九つの星による方位と運勢',
+    region: '日本'
+  }
+];
+
+const westernDivinations = [
+  { 
+    symbol: '○', 
+    name: '数秘術', 
+    result: `${mockDivinationData.numerology.lifePathNumber}`, 
+    status: mockDivinationData.numerology.interpretation.lifePathMeaning.split('と')[0],
+    href: '/divination/numerology',
+    description: '生命数による運命分析',
+    region: '西洋'
+  },
+  { 
+    symbol: '◯', 
+    name: 'タロット', 
+    result: mockDivinationData.tarot.cards.present.name, 
+    status: mockDivinationData.tarot.cards.present.keywords[0],
+    href: '/divination/tarot',
+    description: '78枚のカードによる深層心理',
+    region: '西洋'
+  },
+  { 
+    symbol: '☽', 
+    name: '西洋占星術', 
+    result: mockDivinationData.astrology.sunSign, 
+    status: mockDivinationData.astrology.todaysTransit.split('-')[0].trim(),
+    href: '/divination/astrology',
+    description: '星座と惑星の配置による運命',
+    region: '西洋'
   },
   {
     symbol: '💎',
@@ -83,8 +78,77 @@ const miniDivinations = [
     result: 'ケテル',
     status: '王冠',
     href: '/divination/kabbalah',
-    description: 'ユダヤ神秘主義の生命の樹'
+    description: 'ユダヤ神秘主義の生命の樹',
+    region: '西洋'
   }
+];
+
+const ancientCivilizations = [
+  {
+    symbol: '🌀',
+    name: 'マヤ暦',
+    result: '赤い龍',
+    status: '誕生',
+    href: '/divination/mayan-calendar',
+    description: 'ツォルキン暦による宇宙リズム',
+    region: 'アメリカ大陸'
+  },
+  {
+    symbol: '☊',
+    name: 'ルーン',
+    result: 'フェフ',
+    status: '繁栄',
+    href: '/divination/runes',
+    description: '北欧の古代文字による導き',
+    region: '北欧'
+  },
+  {
+    symbol: '♦',
+    name: 'ケルト',
+    result: 'オーク',
+    status: '強さ',
+    href: '/divination/celtic',
+    description: 'ケルト民族の自然崇拝',
+    region: 'ヨーロッパ'
+  }
+];
+
+const spiritualSystems = [
+  {
+    symbol: '🕉',
+    name: 'ヴェーダ',
+    result: '牡羊座',
+    status: '積極性',
+    href: '/divination/vedic',
+    description: 'インド古代の宇宙哲学',
+    region: 'インド'
+  },
+  {
+    symbol: '⚡',
+    name: 'チャクラ',
+    result: 'ハート',
+    status: '開放',
+    href: '/divination/chakra',
+    description: '7つのエネルギーセンター診断',
+    region: 'インド'
+  },
+  {
+    symbol: '🌌',
+    name: 'アカシックレコード',
+    result: '魂の記録',
+    status: '解読',
+    href: '/divination/akashic-records',
+    description: '宇宙意識の情報フィールド',
+    region: '宇宙'
+  }
+];
+
+// 統合配列（表示用）
+const miniDivinations = [
+  ...eastAsianDivinations,
+  ...westernDivinations, 
+  ...ancientCivilizations,
+  ...spiritualSystems
 ];
 
 export function DivinationOverview() {
@@ -101,48 +165,22 @@ export function DivinationOverview() {
     <div className="space-y-10">
       {/* デモモード: パラメータ入力案内を削除 */}
 
-      {/* Enhanced main divination section */}
-      <div>
-        <h3 className="cosmic-title text-xl sm:text-2xl text-cosmic-primary mb-4 sm:mb-6 text-center">
-          主要占術
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-          {miniDivinations.slice(0, 5).map((div, index) => (
-            <Link
-              key={index}
-              href={div.href}
-              className="group block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light rounded-cosmic p-4 sm:p-5 lg:p-6 text-center transition-all duration-700 cursor-pointer hover:transform hover:translate-y-[-12px] hover:scale-105 hover:border-purple-400/40 hover:bg-cosmic-background-glass-strong hover:shadow-cosmic-hover animate-gentle-float"
-              style={{ animationDelay: `${index * 0.2}s` }}
-            >
-              <div className="text-2xl sm:text-3xl mb-2 sm:mb-3 text-purple-400 group-hover:text-purple-300 transition-all duration-300 animate-pulse-gentle">{div.symbol}</div>
-              <div className="cosmic-label text-xs sm:text-sm mb-2 sm:mb-3">{div.name}</div>
-              <div className="cosmic-text text-sm sm:text-base text-violet-400 mb-1 sm:mb-2 group-hover:text-violet-300 transition-colors">{div.result}</div>
-              <div className="text-xs text-cosmic-secondary mb-1 sm:mb-2">{div.status}</div>
-              <div className="text-xs text-cosmic-secondary opacity-60 group-hover:opacity-80 transition-opacity hidden sm:block">{div.description}</div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Enhanced auxiliary divination section */}
-      <div>
-        <h3 className="cosmic-title text-lg sm:text-xl text-cosmic-primary mb-4 sm:mb-6 text-center">補助占術</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-          {miniDivinations.slice(5).map((div, index) => (
-            <Link
-              key={index + 5}
-              href={div.href}
-              className="group block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light/70 rounded-cosmic p-3 sm:p-4 lg:p-5 text-center transition-all duration-600 cursor-pointer hover:transform hover:translate-y-[-10px] hover:scale-102 hover:border-blue-400/30 hover:bg-cosmic-background-glass shadow-glass animate-gentle-float-delayed"
-              style={{ animationDelay: `${(index + 5) * 0.15}s` }}
-            >
-              <div className="text-xl sm:text-2xl mb-2 sm:mb-3 text-blue-400 group-hover:text-blue-300 transition-all duration-300 animate-pulse-gentle">{div.symbol}</div>
-              <div className="cosmic-label text-xs sm:text-sm mb-1 sm:mb-2">{div.name}</div>
-              <div className="cosmic-text text-xs sm:text-sm text-blue-400 mb-1 sm:mb-2 group-hover:text-blue-300 transition-colors">{div.result}</div>
-              <div className="text-xs text-cosmic-secondary mb-0.5 sm:mb-1">{div.status}</div>
-              <div className="text-xs text-cosmic-secondary opacity-50 group-hover:opacity-70 transition-opacity hidden sm:block">{div.description}</div>
-            </Link>
-          ))}
-        </div>
+      {/* 全13占術を統一グリッドで表示 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+        {miniDivinations.map((div, index) => (
+          <Link
+            key={index}
+            href={div.href}
+            className="group block backdrop-blur-cosmic bg-cosmic-background-glass border border-cosmic-border-light rounded-cosmic p-5 sm:p-6 text-center transition-all duration-700 cursor-pointer hover:transform hover:translate-y-[-12px] hover:scale-105 hover:border-purple-400/40 hover:bg-cosmic-background-glass-strong hover:shadow-cosmic-hover animate-gentle-float"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <div className="text-3xl sm:text-4xl mb-3 text-purple-400 group-hover:text-purple-300 transition-all duration-300 animate-pulse-gentle">{div.symbol}</div>
+            <div className="cosmic-label text-sm sm:text-base mb-3">{div.name}</div>
+            <div className="cosmic-text text-base sm:text-lg text-violet-400 mb-2 group-hover:text-violet-300 transition-colors">{div.result}</div>
+            <div className="text-xs sm:text-sm text-cosmic-secondary mb-2">{div.status}</div>
+            <div className="text-xs text-cosmic-secondary opacity-60 group-hover:opacity-80 transition-opacity hidden sm:block">{div.description}</div>
+          </Link>
+        ))}
       </div>
 
       {/* Enhanced integration button section */}

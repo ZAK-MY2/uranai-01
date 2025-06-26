@@ -7,7 +7,7 @@ import { CosmicBackground } from '@/components/ui/cosmic-background';
 import { DashboardHeader } from '@/components/dashboard/header';
 import { CosmicOverview } from '@/components/dashboard/cosmic-overview';
 import { DailyGuidance } from '@/components/dashboard/daily-guidance';
-import { IntegrationPanel } from '@/components/dashboard/integration-panel';
+import { EnhancedIntegrationPanel } from '@/components/dashboard/enhanced-integration-panel';
 import { AccessibilityMenu } from '@/components/ui/accessibility-menu';
 import { EnvironmentData } from '@/types/database';
 
@@ -57,7 +57,7 @@ export default function DashboardClient({ user, environmentData: _environmentDat
           
           {/* 統合分析パネル - Enhanced bottom spacing */}
           <div className="mb-16">
-            <IntegrationPanel />
+            <EnhancedIntegrationPanel />
           </div>
         </div>
       </main>

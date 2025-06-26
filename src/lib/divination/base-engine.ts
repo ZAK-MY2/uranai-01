@@ -14,6 +14,13 @@ export interface DivinationInput {
   };
   question?: string;
   questionCategory?: string;
+  metadata?: {
+    gender?: string;
+    celticSpread?: string;
+    tarotSpread?: string;
+    runesCast?: string;
+    [key: string]: any;
+  };
 }
 
 export interface EnvironmentData {
@@ -65,8 +72,9 @@ export abstract class BaseDivinationEngine<TResult> {
   /**
    * 占術計算のメインメソッド
    * 各占術エンジンで実装する
+   * 同期・非同期どちらでも対応
    */
-  abstract calculate(): TResult;
+  abstract calculate(): TResult | Promise<TResult>;
 
   /**
    * 環境データによる補正
