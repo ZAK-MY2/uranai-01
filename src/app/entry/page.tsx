@@ -57,7 +57,7 @@ export default function EntryPage() {
         
         <form 
           onSubmit={handleSubmit}
-          className={`bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl transition-all duration-300 ${
+          className={`bg-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl transition-all duration-300 ${
             isShaking ? 'animate-shake' : ''
           }`}
         >
@@ -71,9 +71,11 @@ export default function EntryPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all text-base"
                 placeholder="宇宙への鍵を入力..."
-                autoFocus
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
               />
             </div>
             
