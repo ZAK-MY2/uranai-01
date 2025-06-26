@@ -105,33 +105,35 @@ function UserInputPageContent() {
       {/* ヘッダー */}
       <header className="relative z-20 bg-slate-900/50 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-3 items-center">
             {/* 左側: ナビゲーション */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center">
               <Link href="/dashboard" className="text-white hover:text-blue-300 transition-colors text-sm sm:text-base">
                 <span className="hidden sm:inline">← ダッシュボードに戻る</span>
                 <span className="sm:hidden">← 戻る</span>
               </Link>
             </div>
             
-            {/* 中央: タイトル */}
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-light text-white">ORACLE ECHO</h1>
+            {/* 中央: タイトル (中央寄せ) */}
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-light text-white text-center">ORACLE ECHO</h1>
             
-            {/* 右側: リセットボタン */}
-            <button
-              onClick={() => {
-                if (confirm('入力内容をリセットしますか？')) {
-                  localStorage.removeItem('uranai_user_data');
-                  window.location.reload();
-                }
-              }}
-              className="text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
-              title="入力をリセット"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            {/* 右側: リセットボタン (右寄せ) */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  if (confirm('入力内容をリセットしますか？')) {
+                    localStorage.removeItem('uranai_user_data');
+                    window.location.reload();
+                  }
+                }}
+                className="text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
+                title="入力をリセット"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </header>

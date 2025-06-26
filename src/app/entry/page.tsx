@@ -48,7 +48,7 @@ export default function EntryPage() {
       <div className="relative z-10 w-full max-w-md px-6">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-light text-white mb-4 tracking-wider">
-            COSMIC ORACLE
+            ORACLE ECHO
           </h1>
           <p className="text-lg text-purple-300 opacity-80">
             宇宙の扉を開く呪文を唱えてください
